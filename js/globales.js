@@ -1,0 +1,3 @@
+var G_sondage = {
+    
+}
