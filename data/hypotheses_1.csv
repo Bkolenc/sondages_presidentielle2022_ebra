@@ -1,0 +1,235 @@
+id,nom,id_sondage,sous_echantillon
+1,Pécresse / Zemmour,1,838.35
+2,Bertrand,1,838.35
+3,Barnier / Zemmour,1,859.05
+4,Bertrand / Zemmour,1,859.05
+5,Pécresse / Zemmour,2,685.224
+6,Bertrand / Zemmour,2,700.881
+7,Barnier,3,3426.783
+8,Pécresse,3,3431.286
+9,Bertrand,3,3431.286
+10,Bertrand / Zemmour,4,8808.08
+11,Pécresse,4,8472.99
+12,Barnier / Zemmour,4,8712.34
+13,Bertrand,4,8568.73
+14,Pécresse / Zemmour,4,8760.21
+15,Barnier,4,8472.99
+16,Pécresse,5,902.7
+17,Barnier,5,892.08
+18,Bertrand,5,902.7
+19,Pécresse,6,1498.98
+20,Bertrand,6,1517.04
+21,Rousseau / Bertrand,7,858.48
+22,Jadot / Pécresse,7,838.04
+23,Jadot / Bertrand,7,868.7
+24,Bertrand et Hidalgo,8,931.889
+25,Wauquiez,8,934.563
+26,Pécresse,8,929.215
+27,Bertrand et Jadot,8,929.215
+28,Bertrand,8,949.27
+29,Pécresse / Zemmour,9,873.16
+30,Barnier / Zemmour,9,873.16
+31,Bertrand,9,852.12
+32,Pécresse,9,852.12
+33,Bertrand / Zemmour,9,883.68
+34,Barnier,9,852.12
+35,Pécresse,10,774.2
+36,Barnier,10,774.2
+37,Bertrand,10,784
+38,Bertrand / Zemmour,10,793.8
+39,X. Bertrand,11,1006
+40,F. Baroin,11,1006
+41,Dati,12,1062.888
+42,Royal,12,1119.168
+43,Retailleau,12,1035.552
+44,UG-Mélenchon,12,1056.456
+45,UG-Hidalgo,12,1069.32
+46,Pécresse,12,1061.28
+47,Hollande,12,1114.344
+48,UG-Jadot,12,1043.592
+49,Baroin,12,1077.36
+50,Bertrand,12,1096.656
+51,Hidalgo,12,1104.696
+52,,13,626.195
+53,M. Barnier,14,841.68
+54,X. Bertrand,14,841.68
+55,Jadot-Hidalgo,15,637.5
+56,Jadot-Montebourg,15,637.5
+57,Jadot-Montebourg-Hidalgo,15,637.5
+58,Piolle-Hidalgo,15,615
+59,Hidalgo,15,607.5
+60,Jadot-Hollande,15,630
+61,Jadot,15,607.5
+62,Ciotti,16,839.77
+63,Juvin,16,818.51
+64,Bertrand / Zemmour,16,892.92
+65,Bertrand,16,871.66
+66,Pécresse,16,861.03
+67,Payre,16,807.88
+68,Barnier,16,850.4
+69,Pécresse,17,1685.04
+70,Bertrand,17,1725.16
+71,Barnier,17,1705.1
+72,Bertrand / Zemmour,18,806.49
+73,Barnier / Zemmour,18,778.68
+74,Pécresse / Zemmour,18,787.95
+75,Barnier,18,778.68
+76,Bertrand,18,797.22
+77,Pécresse,18,778.68
+78,Barnier sans Zemmour,19,851.31
+79,Barnier,19,893.35
+80,Pécresse sans Zemmour,19,851.31
+81,Pécresse,19,893.35
+82,Bertrand,19,903.86
+83,Bertrand sans Zemmour,19,861.82
+84,Bertrand / Zemmour,20,436.1
+85,Bertrand,20,411.6
+86,Barnier,20,416.5
+87,Pécresse,20,416.5
+88,Barnier / Zemmour,20,436.1
+89,Pécresse / Zemmour,20,436.1
+90,Baroin-Faure-Jadot,21,607.24
+91,Bertrand-Jadot,21,598.31
+92,Baroin-Jadot,21,607.24
+93,Bertrand-Faure-Jadot,21,589.38
+94,Montebourg / Bertrand,22,901.53
+95,Hidalgo / Bertrand / Pécresse,22,934.92
+96,Hidalgo / Bertrand,22,934.92
+97,Hidalgo / Pécresse,22,912.66
+98,Bertrand / Zemmour,23,955.144
+99,Juvin,23,887.11
+100,Bertrand,23,956.478
+101,Ciotti,23,920.46
+102,Pécresse / Zemmour,23,943.138
+103,Pécresse,23,931.132
+104,Barnier,23,915.124
+105,Bertrand / Montebourg,23,960.48
+106,Bertrand,24,1260
+107,Bertrand et Zemmour,24,1260
+108,Pécresse,24,1260
+109,Pécresse-Montebourg,25,732
+110,Bertrand-Montebourg,25,732
+111,Pécresse-Hidalgo,25,741.76
+112,Bertrand-Hidalgo,25,732
+113,Valérie Pécresse,26,992.264
+114,Michel Barnier,26,966.367
+115,Bruno Retailleau,26,943.196
+116,Xavier Bertrand,26,971.819
+117,Laurent Wauquiez,26,951.374
+118,Macron / Le Pen,27,1420.71
+119,Macron / Pécresse,27,1160.58
+120,Macron / Zemmour,27,1380.69
+121,Macron / Bertrand,27,1200.6
+122,Macron / Mélenchon,27,1240.62
+123,Macron / Barnier,27,1140.57
+124,Juvin,28,941.34
+125,Bertrand,28,962.98
+126,Pécresse,28,952.16
+127,Barnier,28,962.98
+128,Ciotti,28,941.34
+129,Bertrand,29,1730
+130,Jadot-Pécresse,29,1730
+131,Hidalgo-Bertrand,29,1730
+132,Wauquiez,29,1730
+133,Pécresse,29,1730
+134,Hidalgo-Pécresse,29,1730
+135,Retailleau,29,1730
+136,Jadot-Bertrand,29,1730
+137,Montebourg-Jadot,29,1730
+138,Hidalgo-Piolle,29,1730
+139,« offre complète »,30,1095.36
+140,Union de la gauche derrière Jadot,30,1069.28
+141,Union de la gauche derrière Mélenchon,30,1043.2
+142,Union de la gauche derrière Hidalgo,30,1030.16
+143,,31,15737
+144,Pécresse,32,6195.28
+145,Bertrand,32,6263.36
+146,Retailleau,32,6127.2
+147,X. Bertrand,33,676.45
+148,V. Pécresse,33,676.45
+149,L. Wauquiez,33,676.45
+150,Montebourg / Bertrand,34,888.06
+151,Hidalgo / Ciotti,34,855.57
+152,Hidalgo / Pécresse,34,877.23
+153,Hidalgo / Bertrand,34,888.06
+154,,35,2540
+155,Pécresse,36,805.8
+156,Bertrand / Zemmour,36,815.28
+157,Pécresse / Zemmour,36,815.28
+158,Bertrand,36,824.76
+159,Pécresse / Zemmour,37,975.422
+160,Barnier / Zemmour,37,1351
+161,Bertrand,37,959.21
+162,Bertrand / Zemmour,37,990.283
+163,Ciotti / Zemmour,37,947.051
+164,Barnier,37,933.541
+165,Pécresse,37,938.945
+166,Bertrand,38,1911
+167,Pécresse,38,1813
+168,Union de la gauche derrière Jadot,38,2009
+169,Wauquiez,39,1020
+170,Pécresse,39,1020
+171,Bertrand,39,1020
+172,V. Pécresse,40,1057
+173,X. Bertrand,40,1057
+174,Rousseau / Pécresse,41,607.5
+175,Jadot / Pécresse,41,623.7
+176,Rousseau / Bertrand,41,623.7
+177,Jadot / Bertrand,41,623.7
+178,Bertrand,42,667.5
+179,Bertrand / Zemmour,42,690
+180,Pécresse / Zemmour,42,675
+181,Pécresse,42,660
+182,Barnier / Zemmour,42,675
+183,Barnier,42,667.5
+184,Barnier,43,1771.6
+185,Pécresse,43,1751
+186,Bertrand,43,1812.8
+187,Bertrand,44,903.84
+188,Barnier,44,871.56
+189,Bertrand / Zemmour,44,903.84
+190,Pécresse,44,914.6
+191,Bertrand / Montebourg,44,903.84
+192,Xavier Bertrand,45,710.64
+193,Valérie Pécresse,45,693.72
+194,Barnier,46,824.76
+195,Pécresse,46,824.76
+196,Bertrand,46,834.24
+197,Bertrand,47,1762.64
+198,Pécresse,47,1722.58
+199,Barnier,47,1702.55
+200,Macron / Pécresse,48,768.628
+201,Macron / Barnier,48,752.332
+202,Macron / Le Pen,48,916.65
+203,Macron / Bertrand,48,782.208
+204,Macron / Zemmour,48,879.984
+205,,49,642.067
+206,X. Bertrand,50,861.9
+207,V. Pécresse,50,841.62
+208,V. Pécresse,51,800.8
+209,X. Bertrand,51,820.82
+210,Pécresse,52,1743.22
+211,Bertrand,52,1743.22
+212,Barnier,52,1743.22
+213,Bertrand,53,801.32
+214,Wauquiez,53,783.9
+215,Pécresse,53,783.9
+216,Bertrand,54,890.8
+217,Barnier,54,859.36
+218,Pécresse,54,880.32
+219,,55,15390
+220,Wauquiez,56,922.2
+221,Barnier,56,932.8
+222,Bertrand,56,954
+223,Pécresse,56,943.4
+224,,57,1741.828
+225,Barnier,58,2067
+226,Bertrand,58,2067
+227,Pécresse,58,2039.44
+228,François Baroin,59,614.048
+229,Xavier Bertrand,59,614.048
+230,Xavier Bertrand,59,615.04
+231,,60,1277.43
+232,,61,670.695
+233,,62,9646
+234,,63,515.042

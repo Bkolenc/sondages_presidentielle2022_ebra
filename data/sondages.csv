@@ -1,0 +1,64 @@
+id,id_institut,commanditaire,debut,fin,lien,echantillon,id_population
+1,1,"Les Echos, Radio Classique, CNews",2021-10-18,2021-10-20,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9227-p-ow-presi-track-v-2-les-echos.pdf,1035,1
+2,2,"Fiducial, Sud Radio",2021-10-05,2021-10-06,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9220-p-ifop-sud-radio.pdf,921,1
+3,2,"LCI, Le Figaro",2021-10-09,2021-10-13,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9224-p-ifop-le-figaro.pdf,4503,1
+4,3,"Le Monde, Cevipof, Fondation Jean Jaurès",2021-10-07,2021-10-13,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9226-p-ipsos-cevipof-lm-v2.pdf,9574,2
+5,4,Challenges,2021-10-01,2021-10-04,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/p-9217-hi-challenges-v16.pdf,1062,1
+6,5,"BFM TV",2021-04-12,2021-04-14,http://www.commission-des-sondages.fr/notices/files/notices/2021/avril/9114-p-elabe-bfmtv.pdf,1806,1
+7,4,Challenges,2021-09-17,2021-09-20,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9209-hi-challenges-v14.pdf,1022,1
+8,2,"LCI, Le Figaro",2021-06-29,2021-07-02,http://www.commission-des-sondages.fr/notices/files/notices/2021/juillet/9198-pres-ifop-le-figaro.pdf,1337,1
+9,6,"Orange, RTL",2021-10-07,2021-10-11,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9222-p-bva-rtl-orange-vague-1-pdf.pdf,1052,2
+10,1,"CNews, Les Echos, Radio Classique",2021-09-22,2021-09-23,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9214-p-ow-presitrack-n-1-les-2chos-c-news.pdf,980,1
+11,4,Challenges,2021-06-04,2021-06-07,http://harris-interactive.fr/wp-content/uploads/sites/6/2021/06/Rapport-Harris-Vague-5-Intentions-de-vote-Presidentielle-2022-7-juin-2021-Challenges.pdf,1006,1
+12,2,"Journal du Dimanche, Sud Radio",2020-09-25,2020-09-28,http://www.commission-des-sondages.fr/notices/files/notices/2020/octobre/9078-pres-ifop-jdd.pdf,1608,1
+13,2,"Le Point",2021-06-08,2021-06-09,http://www.commission-des-sondages.fr/notices/files/notices/2021/juin/9190-presidentielles-ifop-le-point.pdf,901,1
+14,4,Challenges,2021-05-14,2021-05-17,http://www.commission-des-sondages.fr/notices/files/notices/2021/mai/9136-p-hi-challenges-v2.pdf,1002,1
+15,3,"L'Obs, France Info",2021-01-27,2021-01-28,http://www.commission-des-sondages.fr/notices/files/notices/2021/fevrier/9095-pres-ipsos-l-obs.pdf,750,2
+16,4,Challenges,2021-09-10,2021-09-13,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9207-p-hi-challenges-v13.pdf,1063,1
+17,4,Challenges,2021-10-15,2021-10-18,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9225-p-hi-challenges-v18.pdf,2006,1
+18,5,"BFM TV",2021-10-05,2021-10-06,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9218-p-elabe-bfm.pdf,927,2
+19,4,Challenges,2021-10-08,2021-10-11,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9221-p-hi-challenges-17.pdf,1051,1
+20,3,"Franceinfo, Le Parisien",2021-09-02,2021-09-03,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9204-p-ipsos-le-parisien.pdf,490,2
+21,5,"BFM TV",2020-06-30,2020-07-01,http://www.commission-des-sondages.fr/notices/files/notices/2020/juillet/9070-pdt-elabe-bfm.pdf,893,1
+22,4,Challenges,2021-08-20,2021-08-23,http://www.commission-des-sondages.fr/notices/files/notices/2021/aout/9200-p-hi-challenges.pdf,1113,1
+23,2,"LCI, Le Figaro",2021-08-31,2021-09-02,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9203-p-ifop-v3-le-figaro.pdf,1334,1
+24,4,Challenges,2021-07-02,2021-07-05,http://harris-interactive.fr/wp-content/uploads/sites/6/2021/07/Rapport_Harris_-_Vague_9_Intentions_de_vote_Presidentielle_2022_-_5_juillet_2021_Challenges.pdf,1260,1
+25,4,L'Opinion,2021-01-19,2021-01-20,http://www.commission-des-sondages.fr/notices/files/notices/2021/janvier/9092-p-hi-l-opinion.pdf,976,1
+26,2,"LCI, Le Figaro",2021-05-18,2021-05-20,http://www.commission-des-sondages.fr/notices/files/notices/2021/mai/9139-p-ifop-le-figaro.pdf,1363,1
+27,4,Challenges,2021-11-05,2021-11-08,http://www.commission-des-sondages.fr/notices/files/notices/2021/novembre/9235-p-hi-challenges-v21.pdf,2001,1
+28,5,"BFM TV, L'Express, SFR",2021-11-10,2021-11-11,http://www.commission-des-sondages.fr/notices/files/notices/2021/novembre/9238-elabe-bfmtv.pdf,1082,2
+29,2,"Journal du Dimanche, Sud Radio",2021-04-02,2021-04-08,http://www.commission-des-sondages.fr/notices/files/notices/2021/avril/9113-p-ifop-jddpdf.pdf,1730,1
+30,4,Challenges,2021-06-11,2021-06-14,http://www.commission-des-sondages.fr/notices/files/notices/2021/juin/9186-presidentielles-challenges-v6-hi.pdf,1304,1
+31,7,,2021-08-02,2021-08-22,https://cluster17.com/docs/notice_aout.pdf,15737,1
+32,3,"Le Monde, Cevipof, Fondation Jean Jaurès",2021-04-09,2021-04-15,http://www.commission-des-sondages.fr/notices/files/notices/2021/avril/9122-p-ipsos-cevipof-le-monde.pdf,6808,2
+33,5,"BFM TV",2021-06-28,2021-06-29,http://www.commission-des-sondages.fr/notices/files/notices/2021/juillet/9197-p-elabe-bfm.pdf,815,2
+34,4,Challenges,2021-08-27,2021-08-30,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9202-p-hi-v11-challenges.pdf,1083,1
+35,7,,2021-11-09,2021-11-12,https://cluster17.com/wp-content/uploads/2021/11/2021115_Cluster17_Site_Notice-Technique_Rolling-Hebdomadaire.pdf,2540,1
+36,5,"BFM TV",2021-09-11,2021-09-13,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9206-p-elabe-bfmtv.pdf,948,2
+37,2,"Le Figaro, LCI",2021-09-29,2021-10-01,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9216-p-ifop-le-figaro-v4.pdf,1351,1
+38,8,L'Obs,2021-10-05,2021-10-11,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9223-p-odoxa-l-obs.pdf,2450,1
+39,4,Challenges,2021-06-20,2021-06-21,http://harris-interactive.fr/wp-content/uploads/sites/6/2021/06/Rapport-Harris-Vague-7-Intentions-de-vote-Presidentielle-2022-Challenges-1.pdf,1020,1
+40,4,Challenges,2021-05-28,2021-05-31,http://harris-interactive.fr/wp-content/uploads/sites/6/2021/06/Rapport_Harris_-_Vague_4_Intentions_de_vote_Presidentielle_2022_-_31_mai_2021_Challenges.pdf,1057,1
+41,8,L'Obs,2021-09-22,2021-09-23,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9211-p-odoxa-l-obs.pdf,810,2
+42,3,"franceinfo, Le Parisien",2021-09-29,2021-09-30,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9215-p-ipsos-le-parisien.pdf,750,2
+43,4,Challenges,2021-10-22,2021-10-25,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9228-p-hi-challenges-v19.pdf,2060,1
+44,4,Challenges,2021-09-03,2021-09-06,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9205-p-hi-v2-challenges.pdf,1076,1
+45,4,"Commstrat, L'Opinion",2021-03-02,2021-03-04,http://www.commission-des-sondages.fr/notices/files/notices/2021/mars/9102-p-hi-l-opinion.pdf,846,1
+46,5,"BFM TV, L'Express, SFR",2021-10-25,2021-10-27,http://www.commission-des-sondages.fr/notices/files/notices/2021/octobre/9230-p-elabe-bfm-l-express.pdf,948,2
+47,4,Challenges,2021-10-28,2021-10-30,http://www.commission-des-sondages.fr/notices/files/notices/2021/novembre/9231-p-hi-challenges-v20.pdf,2003,1
+48,2,"LCI, Le Figaro",2021-11-03,2021-11-05,http://www.commission-des-sondages.fr/notices/files/notices/2021/novembre/9234-ifop-le-figaro-v6.pdf,1358,1
+49,2,"La Manche Libre",2021-09-14,2021-09-15,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9210-p-ifop-courrier-cauchois.pdf,893,1
+50,4,Challenges,2021-05-21,2021-05-24,http://www.commission-des-sondages.fr/notices/files/notices/2021/mai/9138-p-hi-challenges.pdf,1014,1
+51,4,Challenges,2021-04-16,2021-04-19,http://harris-interactive.fr/wp-content/uploads/sites/6/2021/04/Rapport_Harris-Intentions_de_vote_Presidentielle_2022-avril-2021_Challenges.pdf,1001,1
+52,4,Challenges,2021-11-12,2021-11-15,http://www.commission-des-sondages.fr/notices/files/notices/2021/novembre/9241-p-hi-challenges-v22.pdf,2027,1
+53,3,"France Télés, Radio France, LCP",2021-06-25,2021-06-26,http://www.commission-des-sondages.fr/notices/files/notices/2021/juillet/9199-pres-ipsos-france-tv.pdf,871,2
+54,4,Challenges,2021-09-24,2021-09-27,http://www.commission-des-sondages.fr/notices/files/notices/2021/septembre/9212-p-hi-challenges-v-15.pdf,1048,1
+55,7,,2021-07-04,2021-07-23,https://cluster17.com/docs/notice_juillet.pdf,15390,1
+56,3,"Libres !",2021-08-20,2021-08-22,http://www.commission-des-sondages.fr/notices/files/notices/2021/aout/9201-p-ipsos-libres-le-point.pdf,1060,2
+57,2,Marianne,2021-03-05,2021-03-11,http://www.commission-des-sondages.fr/notices/files/notices/2021/mars/9106-p-ifop-marianne.pdf,2554,1
+58,8,"L'Obs, Saegus",2021-11-05,2021-11-08,http://www.commission-des-sondages.fr/notices/files/notices/2021/novembre/9237-p-odoxa-l-obs.pdf,2756,1
+59,2,"CNews, Sud Radio",2020-06-18,2020-06-19,http://www.commission-des-sondages.fr/notices/files/notices/2020/juin/9063-pdt-ifop-c-news.pdf,992,1
+60,9,,2021-04-14,2021-04-15,https://redfieldandwiltonstrategies.com/first-france-presidential-election-voting-intention-14-15-april-2021/,1617,1
+61,2,"Parti animaliste",2021-10-26,2021-10-27,http://www.commission-des-sondages.fr/notices/files/notices/2021/novembre/9240-p-ifop-parti-animaliste.pdf,915,1
+62,7,,2021-10-01,2021-10-18,https://cluster17.com/docs/notice_octobre.pdf,9646,1
+63,2,"Club de la presse",2021-02-23,2021-02-24,http://www.commission-des-sondages.fr/notices/files/notices/2021/mars/9103-p-ifop-club-de-la-presse.pdf,902,1
