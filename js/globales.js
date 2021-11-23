@@ -1,3 +1,1 @@
-var G_sondage = {
-    
-}
+var G_sondages = {}
