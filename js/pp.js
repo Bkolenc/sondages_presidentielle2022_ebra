@@ -1,13 +1,17 @@
 // pp = programme principal
 
 
-recup_csv_tour1(function(){ // FOnction Async, attention
+recup_csv_tour1(function(){ // Fonction Async, attention
     
     // On formate les données :
     formater_donnees();
     
-    // Voici à quoi ressemblent maintenant les données brutes pour former les courbes :
+    afficher_boutons_candidats();
+    // On sélectionne les candidats s'affichant par défaut en fixant un seuil (en pourcent)
+    candidats_par_defaut(5);
+       // Voici à quoi ressemblent maintenant les données brutes pour former les courbes :
     console.log(G_sondages.courbe_par_candidat);
+    
     
     // Tests pour afficher toutes les infos relatives à un point :
     var point_1 = G_sondages.courbe_par_candidat["id_3"][4],
