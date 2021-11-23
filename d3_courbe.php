@@ -26,6 +26,7 @@
 
 <!-- Load d3.js -->
 <script src="https://d3js.org/d3.v7.js"></script>
+<script src='js/dl_traitement.js'></script>
 <script src='js/globales.js'></script>
 <script src='js/line_chart.js'></script>
 <script src='js/fonctions.js'></script>
