@@ -21,7 +21,8 @@
 
 </style>
 <body>
-
+    <div id='conteneur_candidats'>
+    </div>
 </body>
 
 <!-- Load d3.js -->
