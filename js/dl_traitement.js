@@ -91,7 +91,7 @@ function recup_csv_tour1(callback)
     });
 }
 
-// Lit les csv téléchargés et les assemble dans un objet global minimaliste organisé par candidat (G_sondages.courbe_par_candidat)
+// Lit les tables téléchargées et les assemble dans un objet global minimaliste organisé par candidat (G_sondages.courbe_par_candidat)
 function formater_donnees()
 {
     
