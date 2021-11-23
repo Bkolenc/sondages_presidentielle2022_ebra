@@ -131,6 +131,47 @@ function formater_donnees()
     G_sondages.courbe_par_candidat = par_candidat;
 }
 
+// Pour ne pas trop saturer le html de code redondant, on crée les boutons de candidats en dynamique
+function afficher_boutons_candidats()
+{
+    var candidats = G_sondages.tables.candidats;
+    
+    Object.keys(candidats).forEach(function(id_candidat){
+        var couleur = G_sondages.couleurs[id_candidat];
+        var infos = candidats[id_candidat];
+        console.log(couleur, infos);
+    })
+}
+
+// Récupère les listes des points par candidats et ne garde que les listes dont les points du dernier sondage ont une moyenne supérieure ou égale au seuil
+function candidats_par_defaut(seuil)
+{
+    var candidats_select = [];
+    
+    var infos = G_sondages.courbe_par_candidat;
+    Object.keys(infos).forEach(function(id_candidat){
+        liste = infos[id_candidat];
+        var derniere_date = liste[liste.length-1].date_fin;
+        var derniers_scores = [];
+        liste.forEach(function(v, idx){
+            if(v.date_fin == derniere_date)
+            {
+                derniers_scores.push(+v.resultat);
+            }
+        });
+        var somme = 0;
+        derniers_scores.forEach(function(v, idx){
+            somme += v;
+        });
+        var moyenne = somme/derniers_scores.length;
+        if(moyenne >= seuil)
+        {
+            candidats_select.push(id_candidat);
+        }
+    });
+    G_sondages.selection_candidats = candidats_select;
+    
+}
 
 // Complète les données d'un des points de G_sondages.courbe_par_candidat donné en paramètre avec son id. Retourne toutes les infos nécessaires pour la popup et plus encore
 function completer_point(id_candidat, point)
