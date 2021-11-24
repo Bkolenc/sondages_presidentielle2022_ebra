@@ -15,7 +15,7 @@ html
 }
 
 
-/*Les boutons candidats*/
+/*Selection des candidats*/
 #fermer_candidats
 {
     position:absolute;
@@ -89,4 +89,15 @@ html
 .initiales[selected]
 {
     display:table-cell;
+}
+
+#tooltip
+{
+    background-color:white;
+    color:black;
+    border:solid black 1px;
+    display:none;
+    position:absolute;
+    padding:5px;
+    border-radius:5px;
 }
