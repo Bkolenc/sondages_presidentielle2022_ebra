@@ -134,15 +134,58 @@ function formater_donnees()
 // Pour ne pas trop saturer le html de code redondant, on crée les boutons de candidats en dynamique
 function afficher_boutons_candidats()
 {
+    // A FAIRE
+    // - Ajouter une photo placeholder (nopp.svg) si aucune photo dispo
+    
     var candidats = G_sondages.tables.candidats;
     
     Object.keys(candidats).forEach(function(id_candidat){
+        
         var couleur = G_sondages.couleurs[id_candidat];
         var infos = candidats[id_candidat];
-        console.log(couleur, infos);
+        
+        if(infos.nom_candidat != undefined && infos.nom_candidat != "")
+        {
+            //var url_img = "img/"+id_candidat+".jpg";
+            var url_img = "img/placeholder.jpg";
+
+            console.log(couleur, infos);
+            var rgb = hexToRgb(couleur);
+            console.log(rgb);
+            var initiales = recup_initiales(infos.nom_candidat);
+            
+            
+            // Format de la ribambelle de candidats à revoir avec Caroline Faure, mais la logique resterait la même
+            var selection = d3.select("#conteneur_candidats")
+                .append("div")
+                .attr("class", "candidat")
+                .style("border", "solid "+couleur+" 4px")
+                .attr("data-id",  id_candidat)
+                    .html("<div class='img_cont' style='background-image:url("+url_img+")'></div><p class='initiales' style='background-color:rgba("+rgb.r+","+rgb.g+","+rgb.b+", 0.3);'>&#128504;<br/>"+initiales+"</p>");
+//                    .attr("src",url_img);
+        }
+        
     })
 }
 
+
+function maj_boutons_candidats()
+{
+    console.log(G_sondages);
+    var selected_candidats = G_sondages.selection_candidats;
+    
+    d3.selectAll(".initiales").each(function(){
+        var id= this.parentNode.getAttribute("data-id");
+        if(inArray(id, selected_candidats))
+        {
+            this.setAttribute("selected","selected");
+        }
+        else
+        {
+            this.removeAttribute("selected")
+        }
+    })
+}
 // Récupère les listes des points par candidats et ne garde que les listes dont les points du dernier sondage ont une moyenne supérieure ou égale au seuil
 function candidats_par_defaut(seuil)
 {
