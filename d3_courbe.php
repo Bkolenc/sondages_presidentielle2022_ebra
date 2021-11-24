@@ -24,6 +24,7 @@
         <h2>Sélectionnez vos candidats</h2>
     </div>
 </body>
+<p id='tooltip'></p>
 
 <!-- Load d3.js -->
 <script src="https://d3js.org/d3.v7.js"></script>
