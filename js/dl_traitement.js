@@ -114,7 +114,6 @@ function formater_donnees()
             }
             
             var id_sondage = hypotheses["id_"+infos.id_hypothèse].id_sondage;
-//            console.log(id_sondage)
             var date_fin = sondages["id_"+id_sondage].fin;
             var a_push = {
                 resultat:infos.resultat,
@@ -149,9 +148,7 @@ function afficher_boutons_candidats()
             //var url_img = "img/"+id_candidat+".jpg";
             var url_img = "img/placeholder.jpg";
 
-            console.log(couleur, infos);
             var rgb = hexToRgb(couleur);
-            console.log(rgb);
             var initiales = recup_initiales(infos.nom_candidat);
             
             
@@ -161,21 +158,23 @@ function afficher_boutons_candidats()
                 .attr("class", "candidat")
                 .style("border", "solid "+couleur+" 4px")
                 .attr("data-id",  id_candidat)
-                    .html("<div class='img_cont' style='background-image:url("+url_img+")'></div><p class='initiales' style='background-color:rgba("+rgb.r+","+rgb.g+","+rgb.b+", 0.3);'>&#128504;<br/>"+initiales+"</p>");
+                    .html("<div class='img_cont' style='background-image:url("+url_img+")'></div><p class='initiales' style='background-color:rgba("+rgb.r+","+rgb.g+","+rgb.b+", 0.3);'>&#10003;<br/>"+initiales+"</p>");
 //                    .attr("src",url_img);
         }
         
-    })
+    });
+    maj_boutons_candidats();
 }
 
 
 function maj_boutons_candidats()
 {
-    console.log(G_sondages);
+    
     var selected_candidats = G_sondages.selection_candidats;
     
     d3.selectAll(".initiales").each(function(){
         var id= this.parentNode.getAttribute("data-id");
+        
         if(inArray(id, selected_candidats))
         {
             this.setAttribute("selected","selected");
@@ -184,7 +183,9 @@ function maj_boutons_candidats()
         {
             this.removeAttribute("selected")
         }
-    })
+    });
+    
+    click_candidats();
 }
 // Récupère les listes des points par candidats et ne garde que les listes dont les points du dernier sondage ont une moyenne supérieure ou égale au seuil
 function candidats_par_defaut(seuil)
@@ -232,6 +233,6 @@ function completer_point(id_candidat, point)
     var la_population = t.populations["id_"+le_sondage.id_population];
     a_return.population = la_population;
     a_return.institut = l_institut;
-    a_return = {...a_return, ...point, ...le_candidat, ...l_hypothese, ...le_sondage}
+    a_return = {...a_return, ...point, ...le_candidat, ...l_hypothese, ...le_sondage};
     return a_return;
 }
