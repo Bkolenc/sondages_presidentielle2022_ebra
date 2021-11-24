@@ -153,12 +153,15 @@ function afficher_boutons_candidats()
             
             
             // Format de la ribambelle de candidats à revoir avec Caroline Faure, mais la logique resterait la même
+            var avec_initiales = "&#10003;<br/>"+initiales; // plagiat du figaro
+            var sans_initiales = "&#10003;";
+            var sans_check = initiales;
             var selection = d3.select("#conteneur_candidats")
                 .append("div")
                 .attr("class", "candidat")
                 .style("border", "solid "+couleur+" 4px")
                 .attr("data-id",  id_candidat)
-                    .html("<div class='img_cont' style='background-image:url("+url_img+")'></div><p class='initiales' style='background-color:rgba("+rgb.r+","+rgb.g+","+rgb.b+", 0.3);'>&#10003;<br/>"+initiales+"</p>");
+                    .html("<div class='img_cont' style='background-image:url("+url_img+")'></div><p class='initiales' style='background-color:rgba("+rgb.r+","+rgb.g+","+rgb.b+", 0.3);'>"+sans_check+"</p>");
 //                    .attr("src",url_img);
         }
         
