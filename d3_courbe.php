@@ -13,8 +13,6 @@
 
         
 
-        
-<!-- Create an element where the map will take place -->
 <style>
 
     
@@ -22,6 +20,8 @@
 </style>
 <body>
     <div id='conteneur_candidats'>
+        <div id='fermer_candidats'>X</div>
+        <h2>Sélectionnez vos candidats</h2>
     </div>
 </body>
 
