@@ -146,7 +146,11 @@ function afficher_boutons_candidats()
         if(infos.nom_candidat != undefined && infos.nom_candidat != "")
         {
             //var url_img = "img/"+id_candidat+".jpg";
-            var url_img = "img/placeholder.jpg";
+            var url_img = "img/nopp.svg";
+            if(couleur != undefined)
+            {
+                url_img = "img/"+id_candidat+".jpg";
+            }
 
             var rgb = hexToRgb(couleur);
             var initiales = recup_initiales(infos.nom_candidat);
