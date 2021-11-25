@@ -1,0 +1,112 @@
+dl_traitement.js
+Description : fichier qui rassemble les fonctions destinées à récupérer, traiter et servir les données. Et peut-être d'autres fonctions mal rangées (soyons réalistes).
+
+recup_csv_tour1(callback)
+	Récupère tous les .csv générés par le script php.
+	Insère toutes les données dans G_sondages.tables
+	Modèle de données :
+	G_sondages.tables = {
+
+		candidats : 	{
+					id_1:{
+						nom_candidat:[STRING nom du candidat],
+						parti:[STRING nom du ou des partis]
+					},
+					id_2:{...}, ...
+				},
+
+		hypotheses_1:	{
+					id_1:{
+						nom_hyp:[STRING nom de l'hypothèse],
+						id_sondage:[STRING identifiant du sondage],
+						s_echantillon:[FLOAT sous-échantillon de l'hypothèse]
+					},
+					id_2:{...}, ...
+				},
+
+		instituts: 	{
+					id_1:[STRING nom de l'institut de sondage],
+					id_2:..., ...
+				},
+
+		populations:	{
+					id_1:[STRING nom du type de population],
+					id_2:..., ...
+				},
+
+		resultats_1:	[
+					{
+						id_candidat:[STRING chiffre de l'id du candidat (devrait être int)],
+						id_hypothèse:[STRING chiffre de l'id de l'hypothèse (devrait être int)],
+						borne_sup:[STRING marge d'erreur supérieure (devrait être float)],
+						borne_inf:[STRING marge d'erreur inférieure (devrait être float)],
+						resultat:[STRING le résultat du candidat à proprement parler (devrait être float)]
+						
+					},
+					{...}, ...
+				],
+
+		sondages:	{
+					id_1:{
+						id_institut:[STRING chiffre de l'id de l'institut de sondage],
+						id_population:[STRING chiffre de l'id du type de population],
+						commanditaire:[STRING nom du commanditaire du sondage],
+						debut:[STRING date en aaaa-mm-jj du début du sondage],
+						fin:[STRING date en aaaa-mm-jj de la fin du sondage]
+					},
+					id_2:{...}, ...
+				}
+		
+		
+	}
+
+	Execute enfin la fonction anonyme spécifiée en paramètre
+
+formater_donnees()
+	A appeler dans le callback de la fonction recup_csv_tour1()
+	Initie G_sondages.courbe_par_candidat, qui, pour chaque identifiant de candidat, liste par ordre chronologique (de fin du sondage) chaque résultat de chaque hypothèse de chaque sondage du jeu de données
+	Modèle de données :
+	G_sondages.courbe_par_candidat = {
+		id_1:[
+			{
+				date_fin:[STRING date de fin du sondage en format aaaa-mm-jj],
+				hyp:[STRING chiffre de l'id de l'hypothèse],
+				sup:[STRING marge d'erreur supérieure (devrait être float)],
+				inf:[STRING marge d'erreur inférieure (devrait être float)],
+				sup:[STRING le résultat du candidat dans le sondage (devrait être float)]
+			},
+			{...}, ...
+		],
+		id_2:[...], ...
+	}
+
+completer_point(id_candidat, point)
+	Récupère l'id complète du candidat (id_n) en premier paramètre, et les informations du point (les mêmes points que G_sondages.courbe_par_candidat) en paramètre 2.
+	Retourne l'intégralité des informations disponibles relatives à ce point
+	FLEMME D'ECRIRE LE MODELE DE DONNEES DSL
+
+candidats_par_defaut(seuil)
+	Une fonction à lancer à l'initialisation du programme pour établir une sélection par défaut des candidats à afficher sur la courbe et à cocher dans le menu de sélection.
+	Récupère grâce aux données de G_sondages.courbe_par_candidat les id des candidats qui dépassent dans les derniers sondages disponibles le seuil en % spécifié
+	Initialise l'array G_sondages.selection_candidats
+
+afficher_boutons_candidats()
+	Récupère les infos de tous les candidats et génère pour chacun un bouton dans le menu de sélection des candidats
+	
+maj_boutons_candidats() (devrait être dans events.js)
+	Coche les boutons des candidats dont l'id est présente dans l'array G_sondages.selection_candidats
+	Redéclare tous les events liés aux clicks sur les boutons candidats (fonction click_candidats())
+
+
+	
+___________________________________________________________________________________________________________________________________________________________________________________________________
+
+events.js
+
+click_candidats()
+Déclare tous les événements liés aux boutons des candidats
+	édite la sélection des candidats G_sondages.selection_candidats au click sur chaque bouton
+	positionne un tooltip précisant le nom de chaque candidat au hover/click sur les boutons
+
+
+
