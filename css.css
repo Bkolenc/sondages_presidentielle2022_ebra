@@ -102,3 +102,17 @@ html
     padding:5px;
     border-radius:5px;
 }
+
+#plus_de_candidats
+{
+    background-color:rgba(0,0,0,0);
+    border:none;
+    color:#3498db;
+    text-decoration:underline;
+    cursor:pointer;
+}
+
+#tier_2
+{
+    display:none;
+}

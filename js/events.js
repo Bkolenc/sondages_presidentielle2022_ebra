@@ -19,6 +19,7 @@ function click_candidats()
                 return item !== id;
             });
         }
+        console.log(G_sondages.selection_candidats);
         maj_boutons_candidats();
     })
     .on("mousemove", null).on("mousemove", function(e){
@@ -61,7 +62,26 @@ function click_candidats()
             d3.select("#tooltip").style("display","none");
         }
     }
+    
+    d3.select("#plus_de_candidats").on("click", null).on("click", function(){
+        var deploye = d3.select("#tier_2").attr("data-deploye");
+        console.log(deploye);
+        if(deploye == "false")
+        {
+            d3.select("#tier_2").style("display", "block")
+                .attr("data-deploye", true);
+            d3.select("#plus_de_candidats").text("Moins de candidats");
+        }
+        else
+        {
+            d3.select("#tier_2").style("display", "none")
+                .attr("data-deploye", false);
+            d3.select("#plus_de_candidats").text("Plus de candidats");
+        }
+        
+    });
 }
+
 
 
 

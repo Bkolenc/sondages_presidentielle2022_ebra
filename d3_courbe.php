@@ -22,6 +22,15 @@
     <div id='conteneur_candidats'>
         <div id='fermer_candidats'>X</div>
         <h2>Sélectionnez vos candidats</h2>
+        <div id='tier_1'  ></div>
+        
+        <div style='text-align:right;'>
+            <button id='plus_de_candidats'>Plus de candidats</button>
+        </div>
+        <hr style='margin:0; margin-bottom:15px;' />
+        
+        
+        <div id='tier_2' data-deploye=false></div>
     </div>
 </body>
 <p id='tooltip'></p>

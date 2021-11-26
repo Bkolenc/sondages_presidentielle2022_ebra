@@ -5,7 +5,7 @@ recup_csv_tour1(function(){ // Fonction Async, attention
     
     
     // On sélectionne les candidats s'affichant par défaut en fixant un seuil (en pourcent)
-    candidats_par_defaut(5);
+    candidats_par_defaut(G_sondages.vrac.seuil);
     afficher_boutons_candidats();
        // Voici à quoi ressemblent maintenant les données brutes pour former les courbes :
     console.log(G_sondages);
