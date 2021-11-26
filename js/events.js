@@ -8,7 +8,7 @@ function click_candidats()
         
         var id = this.getAttribute("data-id"); 
         var selection = G_sondages.selection_candidats;
-        tooltip(e.pageX, e.pageY, G_sondages.tables.candidats[id].nom_candidat);
+        tooltip(e.pageX, e.pageY, G_sondages.tables.candidats[id].nom_candidat, G_sondages.credits[id]);
         if(!inArray(id, selection))
         {
             G_sondages.selection_candidats.push(id);
@@ -19,12 +19,12 @@ function click_candidats()
                 return item !== id;
             });
         }
-        console.log(G_sondages.selection_candidats);
         maj_boutons_candidats();
     })
     .on("mousemove", null).on("mousemove", function(e){
         var id = this.getAttribute("data-id"); 
-        tooltip(e.pageX, e.pageY, G_sondages.tables.candidats[id].nom_candidat);
+        tooltip(e.pageX, e.pageY, G_sondages.tables.candidats[id].nom_candidat, G_sondages.credits[id]);
+        
     });
     
     
@@ -36,14 +36,33 @@ function click_candidats()
         
     });
 
-    function tooltip(x, y, candidat)
+    function tooltip(x, y, candidat, credit)
     {
         clearTimeout(G_sondages.vrac.tooltip_to);
-        d3.select("#tooltip")
-            .style("display","block")
-            .style("left", x+20+"px")
-            .style("top", y+20+"px")
-            .text(candidat);
+        
+        var mid_x = document.getElementsByTagName("html")[0].clientWidth / 2 ;
+        console.log(mid_x);
+        if(x<mid_x)
+        {
+            d3.select("#tooltip")
+                .style("display","block")
+                .style("width","150px")
+                .style("text-align","center")
+                .style("left", x+20+"px")
+                .style("top", y+20+"px")
+                .html(candidat+"<br/><span class='credit'>"+credit+"</span>");
+        }
+        else
+        {
+            d3.select("#tooltip")
+                .style("display","block")
+                .style("width","150px")
+                .style("text-align","center")
+                .style("left", (x-170)+"px")
+                .style("top", (y+20)+"px")
+                .html(candidat+"<br/><span class='credit'>"+credit+"</span>");
+        }
+        
 
         G_sondages.vrac.tooltip_to = setTimeout(function(){
             d3.select("#tooltip").style("display","none");
@@ -65,7 +84,6 @@ function click_candidats()
     
     d3.select("#plus_de_candidats").on("click", null).on("click", function(){
         var deploye = d3.select("#tier_2").attr("data-deploye");
-        console.log(deploye);
         if(deploye == "false")
         {
             d3.select("#tier_2").style("display", "block")
