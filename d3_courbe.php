@@ -32,6 +32,7 @@
         
         <div id='tier_2' data-deploye=false></div>
     </div>
+    <div id='conteneur_graphique'></div>
 </body>
 <p id='tooltip'></p>
 
@@ -42,9 +43,9 @@
 <script src='js/line_chart.js'></script>
 <script src='js/fonctions.js'></script>
 <script src='js/boiteAOutils.js'></script>
-<script src='js/pp.js'></script>
 <script src='js/events.js'></script>
-
+<script src='js/classes.js'></script>
+<script src='js/pp.js'></script>
 <script>
     // A FAIRE
     

@@ -65,7 +65,7 @@ function click_candidats()
     
     d3.select("#plus_de_candidats").on("click", null).on("click", function(){
         var deploye = d3.select("#tier_2").attr("data-deploye");
-        console.log(deploye);
+       // console.log(deploye);
         if(deploye == "false")
         {
             d3.select("#tier_2").style("display", "block")

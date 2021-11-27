@@ -2,92 +2,97 @@
 function recup_csv_tour1(callback)
 {
     G_sondages.tables = {};
-    
-    d3.csv("data/candidats.csv").then(function(candidats){
-    d3.csv("data/populations.csv").then(function(populations){
-    d3.csv("data/instituts.csv").then(function(instituts){
-    d3.csv("data/sondages.csv").then(function(sondages){
-    d3.csv("data/hypotheses_1.csv").then(function(hypotheses_1){
-    d3.csv("data/resultats_1.csv").then(function(resultats_1){
-        
-        // Pour faciliter l'assemblage des données, on fait passer la structure des tables de référence depuis des arrays vers des dictionnaires indexés par id
-        
+    let Promises=[],
+        files=['candidats','populations','instituts','sondages','hypotheses_1','resultats_1'];
+    files.forEach( (f) => Promises.push( d3.csv(`data/${f}.csv`)));
+
+    Promise.all(Promises).then((values) => {
+        [candidats,populations,instituts,sondages,hypotheses_1,resultats_1]=values;
         // Table candidats
         var candidats_formate = {};
-        Object.keys(candidats).forEach(function(k){
+        Object.keys(candidats).forEach(function (k) {
             var infos = candidats[k];
-            var id = "id_"+infos.id;
+            var id = "id_" + infos.id;
             var a_push = {
-                nom_candidat:infos.nom,
-                parti:infos.parti
+                nom_candidat: infos.nom,
+                parti: infos.parti
             }
             candidats_formate[id] = a_push;
         });
-        
+
         // Table populations
         var populations_formate = {};
-        Object.keys(populations).forEach(function(k){
+        Object.keys(populations).forEach(function (k) {
             var infos = populations[k];
-            var id = "id_"+infos.id;
+            var id = "id_" + infos.id;
             populations_formate[id] = infos.nom;
         });
-        
+
         // Table instituts
         var instituts_formate = {};
-        Object.keys(instituts).forEach(function(k){
+        Object.keys(instituts).forEach(function (k) {
             var infos = instituts[k];
-            var id = "id_"+infos.id;
+            var id = "id_" + infos.id;
             instituts_formate[id] = infos.nom;
         });
-        
+
         // Table sondages
         var sondages_formate = {};
-        Object.keys(sondages).forEach(function(k){
+        Object.keys(sondages).forEach(function (k) {
             var infos = sondages[k];
-            var id = "id_"+infos.id;
+            var id = "id_" + infos.id;
             var a_push = {
-                id_institut:infos.id_institut,
-                id_population:infos.id_population,
-                commanditaire:infos.commanditaire,
-                debut:infos.debut,
-                fin:infos.fin,
-                lien:infos.lien,
-                echantillon:infos.echantillon
+                id_institut: infos.id_institut,
+                id_population: infos.id_population,
+                commanditaire: infos.commanditaire,
+                debut: infos.debut,
+                fin: infos.fin,
+                lien: infos.lien,
+                echantillon: infos.echantillon
             }
             sondages_formate[id] = a_push;
-            
+
         });
-        
+
         // Table hypotheses
         var hypotheses_formate = {};
-        Object.keys(hypotheses_1).forEach(function(k){
+        Object.keys(hypotheses_1).forEach(function (k) {
             var infos = hypotheses_1[k];
-            var id = "id_"+infos.id;
+            var id = "id_" + infos.id;
             var a_push = {
-                nom_hyp:infos.nom,
-                id_sondage:infos.id_sondage,
-                s_echantillon:infos.sous_echantillon
+                nom_hyp: infos.nom,
+                id_sondage: infos.id_sondage,
+                s_echantillon: infos.sous_echantillon
             }
             hypotheses_formate[id] = a_push;
-            
+
         });
-        
+
+        //Ajout de la date dans la table résultats
+        console.log(hypotheses_formate, resultats_1);
+        resultats_1.forEach( (row)=> {
+            let h=hypotheses_formate['id_'+row.id_hypothèse],
+                s=sondages_formate['id_'+h.id_sondage];
+            row.debut=s.debut;
+        });
+
         G_sondages.tables = {
-            candidats:candidats_formate,
-            populations:populations_formate,
-            instituts:instituts_formate,
-            sondages:sondages_formate,
-            hypotheses_1:hypotheses_formate,
-            resultats_1:resultats_1
+            candidats: candidats_formate,
+            populations: populations_formate,
+            instituts: instituts_formate,
+            sondages: sondages_formate,
+            hypotheses_1: hypotheses_formate,
+            resultats_1: resultats_1
         }
-        
+
         callback();
-        
-    });
-    });
-    });
-    });
-    });
+
+        /*  });
+          });
+          });
+          });
+          });
+          });*/
     });
 }
 
@@ -128,11 +133,11 @@ function formater_donnees()
     });
     Object.keys(par_candidat).forEach(function(id){
         var tableau = par_candidat[id].sort(function(a, b){
-            return a.date_fin.localeCompare(b.date_fin); 
+            return a.date_fin.localeCompare(b.date_fin);
         });
         par_candidat[id] = tableau;
     });
-    
+
     G_sondages.courbe_par_candidat = par_candidat;
 }
 
