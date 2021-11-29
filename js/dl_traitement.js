@@ -1,108 +1,114 @@
 // Récupère tous les .csv
 function recup_csv_tour1(callback)
 {
+
     G_sondages.tables = {};
-    
-    d3.csv("data/candidats.csv").then(function(candidats){
-    d3.csv("data/populations.csv").then(function(populations){
-    d3.csv("data/instituts.csv").then(function(instituts){
-    d3.csv("data/sondages.csv").then(function(sondages){
-    d3.csv("data/hypotheses_1.csv").then(function(hypotheses_1){
-    d3.csv("data/resultats_1.csv").then(function(resultats_1){
-        
-        // Pour faciliter l'assemblage des données, on fait passer la structure des tables de référence depuis des arrays vers des dictionnaires indexés par id
-        
+    let Promises=[],
+        files=['candidats','populations','instituts','sondages','hypotheses_1','resultats_1'];
+    files.forEach( (f) => Promises.push( d3.csv(`data/${f}.csv`)));
+
+    Promise.all(Promises).then((values) => {
+        [candidats,populations,instituts,sondages,hypotheses_1,resultats_1]=values;
         // Table candidats
         var candidats_formate = {};
-        Object.keys(candidats).forEach(function(k){
+        Object.keys(candidats).forEach(function (k) {
             var infos = candidats[k];
-            var id = "id_"+infos.id;
+            var id = "id_" + infos.id;
             var a_push = {
-                nom_candidat:infos.nom,
-                parti:infos.parti
+                nom_candidat: infos.nom,
+                parti: infos.parti,
+                sigle: infos.sigle
             }
             candidats_formate[id] = a_push;
         });
-        
+
         // Table populations
         var populations_formate = {};
-        Object.keys(populations).forEach(function(k){
+        Object.keys(populations).forEach(function (k) {
             var infos = populations[k];
-            var id = "id_"+infos.id;
+            var id = "id_" + infos.id;
             populations_formate[id] = infos.nom;
         });
-        
+
         // Table instituts
         var instituts_formate = {};
-        Object.keys(instituts).forEach(function(k){
+        Object.keys(instituts).forEach(function (k) {
             var infos = instituts[k];
-            var id = "id_"+infos.id;
+            var id = "id_" + infos.id;
             instituts_formate[id] = infos.nom;
         });
-        
+
         // Table sondages
         var sondages_formate = {};
-        Object.keys(sondages).forEach(function(k){
+        Object.keys(sondages).forEach(function (k) {
             var infos = sondages[k];
-            var id = "id_"+infos.id;
+            var id = "id_" + infos.id;
             var a_push = {
-                id_institut:infos.id_institut,
-                id_population:infos.id_population,
-                commanditaire:infos.commanditaire,
-                debut:infos.debut,
-                fin:infos.fin,
-                lien:infos.lien,
-                echantillon:infos.echantillon
+                id_institut: infos.id_institut,
+                id_population: infos.id_population,
+                commanditaire: infos.commanditaire,
+                debut: infos.debut,
+                fin: infos.fin,
+                lien: infos.lien,
+                echantillon: infos.echantillon
             }
             sondages_formate[id] = a_push;
-            
+
         });
-        
+
         // Table hypotheses
         var hypotheses_formate = {};
-        Object.keys(hypotheses_1).forEach(function(k){
+        Object.keys(hypotheses_1).forEach(function (k) {
             var infos = hypotheses_1[k];
-            var id = "id_"+infos.id;
+            var id = "id_" + infos.id;
             var a_push = {
-                nom_hyp:infos.nom,
-                id_sondage:infos.id_sondage,
-                s_echantillon:infos.sous_echantillon
+                nom_hyp: infos.nom,
+                id_sondage: infos.id_sondage,
+                s_echantillon: infos.sous_echantillon
             }
             hypotheses_formate[id] = a_push;
-            
+
         });
-        
+
+        //Ajout de la date dans la table résultats
+        resultats_1.forEach( (row)=> {
+            let h=hypotheses_formate['id_'+row.id_hypothèse],
+                s=sondages_formate['id_'+h.id_sondage];
+            row.debut=s.debut;
+        });
+
         G_sondages.tables = {
-            candidats:candidats_formate,
-            populations:populations_formate,
-            instituts:instituts_formate,
-            sondages:sondages_formate,
-            hypotheses_1:hypotheses_formate,
-            resultats_1:resultats_1
+            candidats: candidats_formate,
+            populations: populations_formate,
+            instituts: instituts_formate,
+            sondages: sondages_formate,
+            hypotheses_1: hypotheses_formate,
+            resultats_1: resultats_1
         }
-        
+
         callback();
-        
-    });
-    });
-    });
-    });
-    });
+
+        /*  });
+          });
+          });
+          });
+          });
+          });*/
     });
 }
 
 // Lit les tables téléchargées et les assemble dans un objet global minimaliste organisé par candidat (G_sondages.courbe_par_candidat)
 function formater_donnees()
 {
-    
+
     var par_candidat = {};
-    var candidats = G_sondages.tables.candidats, 
-        populations = G_sondages.tables.populations, 
-        instituts=G_sondages.tables.instituts, 
-        sondages=G_sondages.tables.sondages, 
-        hypotheses=G_sondages.tables.hypotheses_1, 
+    var candidats = G_sondages.tables.candidats,
+        populations = G_sondages.tables.populations,
+        instituts=G_sondages.tables.instituts,
+        sondages=G_sondages.tables.sondages,
+        hypotheses=G_sondages.tables.hypotheses_1,
         resultats=G_sondages.tables.resultats_1;
-    
+
     Object.keys(resultats).forEach(function(k){
         if(k!="columns")
         {
@@ -112,7 +118,7 @@ function formater_donnees()
             {
                 par_candidat[id] = [];
             }
-            
+
             var id_sondage = hypotheses["id_"+infos.id_hypothèse].id_sondage;
             var date_fin = sondages["id_"+id_sondage].fin;
             var a_push = {
@@ -124,15 +130,15 @@ function formater_donnees()
             }
             par_candidat[id].push(a_push);
         }
-        
+
     });
     Object.keys(par_candidat).forEach(function(id){
         var tableau = par_candidat[id].sort(function(a, b){
-            return a.date_fin.localeCompare(b.date_fin); 
+            return a.date_fin.localeCompare(b.date_fin);
         });
         par_candidat[id] = tableau;
     });
-    
+
     G_sondages.courbe_par_candidat = par_candidat;
 }
 
@@ -142,13 +148,13 @@ function completer_point(id_candidat, point)
     var a_return = {};
     var t = G_sondages.tables;
     var le_candidat = t.candidats[id_candidat];
-    
+
     var l_hypothese = t.hypotheses_1["id_"+point.hyp];
-    
+
     var le_sondage = t.sondages["id_"+l_hypothese.id_sondage];
-    
+
     var l_institut = t.instituts["id_"+le_sondage.id_institut];
-    
+
     var la_population = t.populations["id_"+le_sondage.id_population];
     a_return.population = la_population;
     a_return.institut = l_institut;
@@ -161,9 +167,9 @@ function completer_point(id_candidat, point)
 function afficher_boutons_candidats()
 {
 
-    
+
     var candidats = G_sondages.tables.candidats;
-    
+
     var tous_candidats = [];
     var candidats_dessus = [];
     var candidats_dessous = [];
@@ -177,19 +183,19 @@ function afficher_boutons_candidats()
             var derniere_date = courbe[courbe.length-1].date_fin;
             var ts_derniere_date = new Date(derniere_date).getTime();
             tous_candidats.push({id_candidat, ...candidats[id_candidat],
-                                    derniere_date:ts_derniere_date,
-                                        dernier_score:dernier_score})
+                derniere_date:ts_derniere_date,
+                dernier_score:dernier_score})
 
-            
+
         }
     });
     tous_candidats = tous_candidats.sort(function(a, b){
-        return (b.dernier_score - a.dernier_score); 
+        return (b.dernier_score - a.dernier_score);
     });
     tous_candidats.forEach(function(v, k){
         if(v.derniere_date < G_sondages.vrac.seuil_date)
         {
-            
+
             candidats_oublies.push(v);
         }
         else if(v.dernier_score >= G_sondages.vrac.seuil)
@@ -201,23 +207,23 @@ function afficher_boutons_candidats()
             candidats_dessous.push(v);
         }
     });
-    
+
     candidats_dessus.forEach(function(v, k){
-        
-         afficher_candidat(v, "#tier_1")
+
+        afficher_candidat(v, "#tier_1")
     });
     candidats_dessous.forEach(function(v, k){
-         afficher_candidat(v, "#tier_2")
+        afficher_candidat(v, "#tier_2")
     });
     candidats_oublies.forEach(function(v, k){
-         afficher_candidat(v, "#tier_2")
+        afficher_candidat(v, "#tier_2")
     });
-    
+
     function afficher_candidat(v, tier, selected)
     {
         var couleur = G_sondages.couleurs[v.id_candidat];
-        
-        
+
+
         if(v.nom_candidat != undefined && v.nom_candidat != "")
         {
             var url_img = "img/nopp.svg";
@@ -235,7 +241,7 @@ function afficher_boutons_candidats()
                 .attr("class", "candidat")
                 .style("border", "solid "+couleur+" 4px")
                 .attr("data-id",  v.id_candidat)
-                    .html("<div class='img_cont' style='background-image:url("+url_img+")'></div><p class='initiales' style='background-color:rgba("+rgb.r+","+rgb.g+","+rgb.b+", 0.3);'>"+sans_check+"</p>");
+                .html("<div class='img_cont' style='background-image:url("+url_img+")'></div><p class='initiales' style='background-color:rgba("+rgb.r+","+rgb.g+","+rgb.b+", 0.3);'>"+sans_check+"</p>");
         }
     }
 
@@ -245,12 +251,12 @@ function afficher_boutons_candidats()
 
 function maj_boutons_candidats()
 {
-    
+
     var selected_candidats = G_sondages.selection_candidats;
-    
+
     d3.selectAll(".initiales").each(function(){
         var id= this.parentNode.getAttribute("data-id");
-        
+
         if(inArray(id, selected_candidats))
         {
             this.setAttribute("selected","selected");
@@ -260,20 +266,20 @@ function maj_boutons_candidats()
             this.removeAttribute("selected")
         }
     });
-    
+
     click_candidats();
 }
 // Récupère les listes des points par candidats et ne garde que les listes dont les points du dernier sondage ont une moyenne supérieure ou égale au seuil
 function candidats_par_defaut(seuil)
 {
     var candidats_select = [];
-    
+
     var infos = G_sondages.courbe_par_candidat;
     Object.keys(infos).forEach(function(id_candidat){
         liste = infos[id_candidat];
         var derniere_date = liste[liste.length-1].date_fin;
         var derniers_scores = [];
-        
+
         var derniere_date = liste[liste.length-1].date_fin;
         var ts_derniere_date = new Date(derniere_date).getTime();
         liste.forEach(function(v, idx){
@@ -293,17 +299,17 @@ function candidats_par_defaut(seuil)
         }
     });
     G_sondages.selection_candidats = candidats_select;
-    
+
 }
 
 function check_derniers_scores(id_candidat)
 {
-   
+
     var infos = G_sondages.courbe_par_candidat;
     liste = infos[id_candidat];
     var derniere_date = liste[liste.length-1].date_fin;
 //    var ts_derniere_date = new Date(derniere_date).getTime();
-    
+
     var derniers_scores = [];
     liste.forEach(function(v, idx){
         if(v.date_fin == derniere_date)
