@@ -1,3 +1,8 @@
+/**
+ * Recupère les paramètres de l'url
+ * @param key
+ * @returns {string|number[]|Date}
+ */
 function getUrlParams (key){
     const params = new URLSearchParams(window.location.search);
     console.log(params.get(key));
