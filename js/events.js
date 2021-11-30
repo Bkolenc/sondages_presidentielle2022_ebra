@@ -4,6 +4,15 @@ function click_candidats()
     // - Placer la tooltip à gauche ou à droite en fonction de la position de la souris par rapport au milieu de l'écran
     // - Styler la popup
     d3.selectAll(".candidat").on("click", null).on("click", function(e){
+        var selected = this.getAttribute("selected");
+        if(selected == null)
+        {
+            this.querySelector(".plus_moins").innerHTML = "-";
+        }
+        else
+        {
+            this.querySelector(".plus_moins").innerHTML = "+";
+        }
         
         
         var id = this.getAttribute("data-id"); 
@@ -19,7 +28,17 @@ function click_candidats()
                 return item !== id;
             });
         }
+        console.log(G_sondages.selection_candidats );
         maj_boutons_candidats();
+        
+        var selected_candidats = G_sondages.selection_candidats;
+        var selected_mieux = [];
+        selected_candidats.forEach(function(v, k){
+            selected_mieux.push(+v.split("_")[1]);
+        });
+        Candidat.hide('all',0);
+        Candidat.show(selected_mieux,0);
+        console.log(selected_mieux);
     })
     .on("mousemove", null).on("mousemove", function(e){
         var id = this.getAttribute("data-id"); 

@@ -233,12 +233,27 @@ function afficher_boutons_candidats()
             var avec_initiales = "&#10003;<br/>"+initiales; // plagiat du figaro
             var sans_initiales = "&#10003;";
             var sans_check = initiales;
+            
+            var couleur_croix = "";
+            if(v.id_candidat == "id_12" || v.id_candidat == "id_4" || v.id_candidat == "id_20" || v.id_candidat == "id_29")
+            {
+                couleur_croix = " style='color:black;'";
+            }
             var selection = d3.select(tier)
                 .append("div")
+                .attr("class","cont_candidat")
+                .append("div")
                 .attr("class", "candidat")
-                .style("border", "solid "+couleur+" 4px")
+//                .style("border", "solid "+couleur+" 4px")
+                .style("background-color",couleur)
                 .attr("data-id",  v.id_candidat)
-                .html("<div class='img_cont' style='background-image:url("+url_img+")'></div><p class='initiales' style='background-color:rgba("+rgb.r+","+rgb.g+","+rgb.b+", 0.3);'>"+sans_check+"</p>");
+//                .html("div class='img")
+                .html("<div class='img_et_init'>"+
+                        "<div class='img_cont' style='background-image:url("+url_img+");'></div><p class='initiales' style='font-family:merriweather-sans;'>"+sans_check+"</p></div><p class='plus_moins'"+couleur_croix+">-</p>");
+            
+            
+            
+            //style='background-color:rgba("+rgb.r+","+rgb.g+","+rgb.b+", 0.3);
         }
     }
 
@@ -250,20 +265,27 @@ function maj_boutons_candidats()
 {
 
     var selected_candidats = G_sondages.selection_candidats;
-
-    d3.selectAll(".initiales").each(function(){
-        var id= this.parentNode.getAttribute("data-id");
-
+    var selected_mieux = [];
+    selected_candidats.forEach(function(v, k){
+        selected_mieux.push(+v.split("_")[1]);
+    });
+    
+    d3.selectAll(".candidat").each(function(){
+        var id= this.getAttribute("data-id");
+//        console.log(id);
         if(inArray(id, selected_candidats))
         {
             this.setAttribute("selected","selected");
+            this.querySelector(".plus_moins").innerHTML = "-";
+            
         }
         else
         {
-            this.removeAttribute("selected")
+            this.removeAttribute("selected");
+            this.querySelector(".plus_moins").innerHTML = "+";
         }
     });
-
+    
     click_candidats();
 }
 // Récupère les listes des points par candidats et ne garde que les listes dont les points du dernier sondage ont une moyenne supérieure ou égale au seuil
