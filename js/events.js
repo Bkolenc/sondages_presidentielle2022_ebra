@@ -37,8 +37,10 @@ function click_candidats()
             selected_mieux.push(+v.split("_")[1]);
         });
         Candidat.hide('all',0);
-        Candidat.show(selected_mieux,0);
-        console.log(selected_mieux);
+        setTimeout( function(){
+            Candidat.show(selected_mieux,0);
+        });
+        
     })
     .on("mousemove", null).on("mousemove", function(e){
         var id = this.getAttribute("data-id"); 
