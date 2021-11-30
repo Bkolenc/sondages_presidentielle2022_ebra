@@ -56,9 +56,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 .push( 'sondages',dictToMap(G_sondages.tables.sondages))
                 .draw();
 
-        let Macron=new Candidat(12,{});
-        console.log(Macron);
-        Macron.hide();
+Candidat.hide('all').show([1,2,3,4,5,7,11,12,13]);
 
 
         /*Candidat.hide('all',0);

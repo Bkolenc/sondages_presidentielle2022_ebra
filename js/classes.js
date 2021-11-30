@@ -243,7 +243,7 @@ class Poll {
 
     static size = {width: 1600, height: 800};
     static margins = {top: 50, right: 50, bottom: 100, left: 80};
-    static params = { minPoints:10, curveMode:d3.curveBasis, bandWidth:.25, curveWidth:5, areaWidth:1, areaOpacity:.2, dotsOpacity:.1 };
+    static params = { minPoints:10, curveMode:d3.curveBasis, bandWidth:.2, curveWidth:5, areaWidth:1, areaOpacity:.2, dotsOpacity:.1 };
 
     constructor() {
         //Dimensions et paramètres du tracé
@@ -272,7 +272,9 @@ class Poll {
             .attr('transform', `translate(${Poll.margins.left} ${Poll.margins.top})`);
         //Objet data
         this.data = {
-            candidats: undefined
+            resultats: undefined,
+            candidats: undefined,
+            sondages: undefined
         };
         //Détermine la taille effective (une fois enlevées les marges)
         this.size = {
@@ -286,13 +288,19 @@ class Poll {
         this.yScale = d3.scaleLinear()
             .range([this.size.height, 0]);
         //Axes
+        this.size.calHeight=this.size.height/30;        //Hauteur de l'axe des mois et des années
         this.dateFn = d3.timeFormat('%d %b %Y');
         this.xAxisGenerator = d3.axisBottom(this.xScale).ticks(5).tickFormat(x => this.dateFn(x));
-        this.yAxisGenerator = d3.axisLeft(this.yScale).tickValues(d3.range(0, 61, 10)).tickFormat(x => x + '%').tickSizeOuter(0);
+        this.xAxisGeneratorM = d3.axisBottom(this.xScale).ticks(d3.timeMonth).tickSize(20).tickFormat(d3.timeFormat("%B"));
+        this.yAxisGenerator = d3.axisLeft(this.yScale).tickValues(d3.range(0, 61, 5)).tickFormat(x => x + '%').tickSizeOuter(0);
         //Création des calques
         this.layers = {};
         this.layers.xAxis = this.container.append('svg:g')
             .attr('id', 'xAxis')
+            .classed('axis', true)
+            .attr('transform', `translate(0 ${this.size.height+this.size.calHeight})`);
+        this.layers.xAxisM = this.container.append('svg:g')
+            .attr('id', 'mAxis')
             .classed('axis', true)
             .attr('transform', `translate(0 ${this.size.height})`);
         this.layers.yAxis = this.container.append('svg:g')
@@ -341,7 +349,7 @@ class Poll {
     _calcDomainAndScales() {
         //Calcule les domaines (et les élargit un peu) et les échelles
         this.xDomain = this.data.resultats.extent('debut');
-        this.xDomain[0] = this.xDomain[0].setDate(this.xDomain[0].getDate() - 1);   //La veille
+        this.xDomain[0] = this.xDomain[0].setDate(this.xDomain[0].getDate() - 3);   //Trois jours avant
         this.xDomain[1] = this.xDomain[1].setDate(this.xDomain[1].getDate() + 1);   //Le lendemain
         this.xScale.domain(this.xDomain);
 
@@ -421,6 +429,7 @@ class Poll {
         this._calcDomainAndScales()
 
         this._drawXAxis()
+            ._drawMAxis()
             ._drawYAxis()
             ._drawDots()
             ._drawChart();
@@ -434,15 +443,60 @@ class Poll {
      * @private
      */
     _drawXAxis() {
-
-        this.xAxisGenerator.tickValues(this._getPollDates());
+        this.xAxisGenerator
+            .tickValues(this._getPollDates());
         this.layers.xAxis
             .call(this.xAxisGenerator)
             .selectAll('text')
             .style('font-size', this.size.font)
             .style('text-transform', 'capitalize')
-            .attr('transform', 'rotate(50) translate(0 5)')
+            .attr('transform', 'translate(-10 5)')
             .style('text-anchor', 'start');
+        return this;
+    }
+
+    /**
+     * Création de l'axe secondaire des abscisses
+     * @returns {Poll}
+     * @private
+     */
+    _drawMAxis() {
+        this.layers.xAxisM
+            .call(this.xAxisGeneratorM)
+            .selectAll('text')
+                .style('text-transform', 'uppercase')
+                .style('text-anchor', 'middle')
+                .style('font-size', this.size.calHeight/2)
+                .style('font-weight', 'bold')
+                .each( (date,i,nodes)=> {
+                    //Décalage du label de la moitié de la distance jusqu'au prochain tick
+                    let nextMonth=new Date(date.getTime());
+                    nextMonth.setMonth(nextMonth.getMonth() + 1);
+                    let offsetX=(this.xScale(nextMonth)-this.xScale(date))/2;
+                    if (new Date()>nextMonth) {
+                        d3.select(nodes[i]).attr('transform',`translate(${offsetX} -${this.size.calHeight*.75})`);
+                    }
+                    else {
+                        d3.select(nodes[i]).remove();
+                    }
+                    //Colorie une case sur deux
+                    if (i%2==0) {
+                        d3.select(nodes[i].parentNode)
+                            .append('rect')
+                                .attr('x',0)
+                                .attr('y',0)
+                                .attr('width',offsetX*2)
+                                .attr('height',this.size.calHeight)
+                                .style('fill','rgba(10,10,10,.1)')
+                    }
+                });
+/*        this.layers.xAxisM.append('rect')
+            .attr('x',0)
+            .attr('y',0)
+            .attr('width',this.size.width)
+            .attr('height',this.size.calHeight)
+            .style('fill','rgba(128,128,128,.1)');*/
+
         return this;
     }
 
@@ -471,7 +525,7 @@ class Poll {
             .data(this.data.resultats.dataset)
             .enter()
             .append('circle')
-                .attr('class',d => `c${d.id_candidat}`)
+                .attr('class',d => `id_${d.id_candidat}`)
                 .attr("cx", d => this.xScale(d.debut))
                 .attr("cy", d => this.yScale(d.resultat))
                 .attr("r", 6)
@@ -479,7 +533,7 @@ class Poll {
                 .style('fill', (d) => this.data.candidats.get(d.id_candidat).couleur)
                 .call(this._fadeIn,1000,2000,Poll.params.dotsOpacity)
                 .append('title')
-                .html(d => this.data.candidats.get(d.id_candidat).nom_candidat + ': ' + d.resultat + '%');
+                    .html(d => this.data.candidats.get(d.id_candidat).nom + ': ' + d.resultat + '%');
         return this;
     }
 
@@ -505,7 +559,7 @@ class Poll {
                 .filter(d => d.id_candidat === id);
             if (data.length >= Poll.params.minPoints) {      //Inutile de tracer une courbe si moins de x points
                 //Creation calque candX
-                const layer=this.layers.charts.append('svg:g').classed(`c${id}`,true);
+                const layer=this.layers.charts.append('svg:g').classed(`id_${id}`,true);
                 //Tracé de la courbe
                 this._drawCurve(id,data,curveGen,layer);
                 //Tracé de la marge d'erreur
@@ -531,7 +585,7 @@ class Poll {
     _drawCurve(id,data,generator,container){
         container.append("path")
             .classed('courbe', true)
-            .classed(`cand${id}`, true)
+            .classed(`id_${id}`, true)
             .datum( this._loessRegression('resultat')(data))
             .attr("d", generator)
             .style('stroke', this.color(id))
@@ -555,6 +609,7 @@ class Poll {
                 container.datum(data)
                     .append('path')
                         .classed('area',true)
+                        .classed(`id_${id}`, true)
                         .attr('d', generator(data))
                         .attr('fill', this.color(id, Poll.params.areaOpacity))
                         .attr('mask', 'url(#mask-stripe)')
@@ -603,9 +658,17 @@ class Poll {
 
 }
 
+
+class NewDate{
+    constructor(date){
+        this.date=date;
+    }
+
+}
+
 class Candidat {
 
-    static duration=1000;
+    static duration=500;
 
     constructor(id,data){
         this.id=id;
@@ -644,7 +707,7 @@ class Candidat {
                                             .style('display','block')
                                             .transition()
                                             .duration(duration)
-                                            .style('opacity',1);
+                                            .style('opacity',(d,i,n)=> (n[i].tagName=='circle')?.1:1 );
                                 break;
                 case 'hide':    Candidat._getItems(id)
                                             .transition()
@@ -661,7 +724,7 @@ class Candidat {
     static _getItems(id){
         return d3.select('#motherOfPolls')
             .selectAll('g#chart,g#dots')
-            .selectAll(`.c${id}`);
+            .selectAll(`.id_${id}`);
     }
 
 
