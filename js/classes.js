@@ -471,7 +471,7 @@ class Poll {
             .data(this.data.resultats.dataset)
             .enter()
             .append('circle')
-                .attr('class',d => `c${d.id_candidat}`)
+                .attr('class',d => `id_${d.id_candidat}`)
                 .attr("cx", d => this.xScale(d.debut))
                 .attr("cy", d => this.yScale(d.resultat))
                 .attr("r", 6)
@@ -479,7 +479,7 @@ class Poll {
                 .style('fill', (d) => this.data.candidats.get(d.id_candidat).couleur)
                 .call(this._fadeIn,1000,2000,Poll.params.dotsOpacity)
                 .append('title')
-                .html(d => this.data.candidats.get(d.id_candidat).nom_candidat + ': ' + d.resultat + '%');
+                    .html(d => this.data.candidats.get(d.id_candidat).nom_candidat + ': ' + d.resultat + '%');
         return this;
     }
 
@@ -531,7 +531,7 @@ class Poll {
     _drawCurve(id,data,generator,container){
         container.append("path")
             .classed('courbe', true)
-            .classed(`cand${id}`, true)
+            .classed(`id_${id}`, true)
             .datum( this._loessRegression('resultat')(data))
             .attr("d", generator)
             .style('stroke', this.color(id))
@@ -555,6 +555,7 @@ class Poll {
                 container.datum(data)
                     .append('path')
                         .classed('area',true)
+                        .classed(`id_${id}`, true)
                         .attr('d', generator(data))
                         .attr('fill', this.color(id, Poll.params.areaOpacity))
                         .attr('mask', 'url(#mask-stripe)')
@@ -661,7 +662,7 @@ class Candidat {
     static _getItems(id){
         return d3.select('#motherOfPolls')
             .selectAll('g#chart,g#dots')
-            .selectAll(`.c${id}`);
+            .selectAll(`.id_${id}`);
     }
 
 
