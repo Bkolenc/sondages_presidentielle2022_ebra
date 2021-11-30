@@ -1,3 +1,13 @@
+@font-face {
+ font-family: "merriweather";
+ src: url("fonts/Merriweather/Merriweather-Regular.ttf");
+}
+
+@font-face {
+ font-family: "merriweather-sans";
+ src: url("fonts/Merriweather_Sans/Static/MerriweatherSans-Regular.ttf");
+}
+
 body
 {
     margin:0;
@@ -12,8 +22,12 @@ html
     height:100%;
     margin:0;
     padding:0;
+    font-family:merriweather;
 }
-
+*
+{
+    font-family:merriweather;
+}
 
 /*Selection des candidats*/
 #fermer_candidats
@@ -32,6 +46,7 @@ html
     font-weight:600;
     border:solid black 1px;
     cursor:pointer;
+    font-family:merriweather-sans;
 }
 #conteneur_candidats
 {
@@ -82,9 +97,9 @@ html
     color:white;
     border-radius: 12px;
     cursor: pointer;
-    font-weight: 600;
+/*    font-weight: 600;*/
     text-shadow: 1px 1px black, -1px 1px black, 1px -1px black, -1px -1px black;
-    
+    font-family:merriweather-sans!important;
 }
 
 .initiales[selected]

@@ -185,8 +185,6 @@ function afficher_boutons_candidats()
             tous_candidats.push({id_candidat, ...candidats[id_candidat],
                 derniere_date:ts_derniere_date,
                 dernier_score:dernier_score})
-
-
         }
     });
     tous_candidats = tous_candidats.sort(function(a, b){
@@ -195,7 +193,6 @@ function afficher_boutons_candidats()
     tous_candidats.forEach(function(v, k){
         if(v.derniere_date < G_sondages.vrac.seuil_date)
         {
-
             candidats_oublies.push(v);
         }
         else if(v.dernier_score >= G_sondages.vrac.seuil)
