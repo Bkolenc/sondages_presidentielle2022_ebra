@@ -49,15 +49,22 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         const MainData=new DataWrapper('mainData')
                 .push(G_sondages.tables.resultats_1)
-                .map(d3.autoType),
-            Graph=new Poll('motherOfPolls')
+                .map(d3.autoType);
+        const Graph=new Poll('motherOfPolls')
                 .push('resultats',MainData)
-          //      .push( 'candidats',dictToMap(G_sondages.tables.candidats))
                 .push( 'candidats',tableCandidats)
-           //     .push( 'couleurs',dictToMap(G_sondages.couleurs))
                 .push( 'sondages',dictToMap(G_sondages.tables.sondages))
                 .draw();
 
+        let Macron=new Candidat(12,{});
+        console.log(Macron);
+        Macron.hide();
+
+
+        /*Candidat.hide('all',0);
+        setTimeout( function(){
+            Candidat.show([1,3,5,7,11,12,13]);
+        },2000 )*/
 
         // Tests pour afficher toutes les infos relatives à un point :
 //    var point_1 = G_sondages.courbe_par_candidat["id_3"][4],

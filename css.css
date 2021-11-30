@@ -121,3 +121,38 @@ html
 {
     font-size:0.65em;
 }
+
+
+/* GRAPHIQUE */
+
+svg {
+    width:100%;
+}
+
+svg g.axis text {
+    font-weight:bold;
+}
+
+
+@keyframes rollEffect {
+    0% {
+        clip-path: inset(0px 1600px 0px 0px);
+    }
+    100% {
+        clip-path: inset(0px 0px 0px 0px);
+    }
+}
+@keyframes fadeEffect {
+    0% {
+        opacity:0;
+    }
+    100% {
+        opacity:.3;
+    }
+}
+
+g#chart,g#dots {
+    animation-name: rollEffect;
+    animation-timing-function: ease-in-out;
+    animation-duration: 2s;
+}

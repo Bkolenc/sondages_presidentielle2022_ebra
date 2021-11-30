@@ -241,39 +241,45 @@ class DataWrapper {
 
 class Poll {
 
+    static size = {width: 1600, height: 800};
+    static margins = {top: 50, right: 50, bottom: 100, left: 80};
+    static params = { minPoints:10, curveMode:d3.curveBasis, bandWidth:.25, curveWidth:5, areaWidth:1, areaOpacity:.2, dotsOpacity:.1 };
+
     constructor() {
         //Dimensions et paramètres du tracé
-        this.size = {width: 1600, height: 800};
-        this.margins = {top: 50, right: 50, bottom: 100, left: 50};
-        this.params = { minPoints:10, curveMode:d3.curveBasis, bandWidth:.25, curveWidth:5, areaWidth:1, areaOpacity:.2 };
+
         //Creation du SVG, du calque principal et du clippath
         this.svg = d3.select('#conteneur_graphique')
             .append("svg:svg")
             .attr('id', 'motherOfPolls')
             .attr(`preserveAspectRatio`, 'xMaxYMin meet')
-            .attr('viewBox', `0 0 ${this.size.width} ${this.size.height}`)
+            .attr('viewBox', `0 0 ${Poll.size.width} ${Poll.size.height}`)
             .attr('width', `100%`);
         this.svg.append('clipPath')
             .attr('id', 'clipPoll')
             .append("rect")
-            .attr('x', this.margins.left)
-            .attr('y', this.margins.top)
-            .attr("width", this.size.width)
-            .attr("height", this.size.height)
+            .attr('x', Poll.margins.left)
+            .attr('y', Poll.margins.top)
+            .attr("width", Poll.size.width/2)
+            .attr("height", Poll.size.height)
             .style("fill", "none")
             .style("pointer-events", "all");
+        this.svg.append('defs')
+            .html('<pattern id="pattern-stripe" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="4" transform="translate(0,0)" fill="white"></rect></pattern><mask id="mask-stripe"> <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-stripe)"/></mask>')
         this.container = this.svg
             .append('svg:g')
             .classed('mainLayer', true)
-            .attr('transform', `translate(${this.margins.left} ${this.margins.top})`);
+            .attr('transform', `translate(${Poll.margins.left} ${Poll.margins.top})`);
         //Objet data
         this.data = {
             candidats: undefined
         };
         //Détermine la taille effective (une fois enlevées les marges)
-        this.size.font = this.size.width / 80;
-        this.size.width = (this.size.width - this.margins.left - this.margins.right);
-        this.size.height = (this.size.height - this.margins.top - this.margins.bottom);
+        this.size = {
+            font: Poll.size.width / 100,
+            width: (Poll.size.width - Poll.margins.left - Poll.margins.right),
+            height: (Poll.size.height - Poll.margins.top - Poll.margins.bottom)
+        };
         //Scales
         this.xScale = d3.scaleTime()
             .range([0, this.size.width]);
@@ -294,10 +300,8 @@ class Poll {
             .classed('axis', true);
         this.layers.dots = this.container.append('svg:g')
             .attr('id', 'dots');
-        this.layers.areas = this.container.append('svg:g')
-            .attr('id', 'areas');
-        this.layers.curves = this.container.append('svg:g')
-            .attr('id', 'curves');
+        this.layers.charts = this.container.append('svg:g')
+            .attr('id', 'chart');
 
     }
 
@@ -399,9 +403,12 @@ class Poll {
         return d3.regressionLoess()
             .x(d => d.debut)
             .y(d => d[key])
-            .bandwidth(this.params.bandWidth);
+            .bandwidth(Poll.params.bandWidth);
     }
 
+    /**
+     * Lance le tracé des courbes, de la marge d'erreur et des points
+     */
     draw() {
 
         /* Test
@@ -416,11 +423,16 @@ class Poll {
         this._drawXAxis()
             ._drawYAxis()
             ._drawDots()
-            ._drawAreas()
-            ._drawCurves();
+            ._drawChart();
+        return this;
 
     }
 
+    /**
+     * Création de l'axe des abscisses
+     * @returns {Poll}
+     * @private
+     */
     _drawXAxis() {
 
         this.xAxisGenerator.tickValues(this._getPollDates());
@@ -434,86 +446,140 @@ class Poll {
         return this;
     }
 
+    /**
+     * Création de l'axe des ordonnées
+     * @returns {Poll}
+     * @private
+     */
     _drawYAxis() {
         this.layers.yAxis
             .call(this.yAxisGenerator)
             .selectAll('text')
-            .style('font-size', this.size.font)
+            .style('font-size', this.size.font*1.5)
             .style('text-anchor', 'end');
         return this;
     }
 
+    /**
+     * Création des points (estimations des sondages)
+     * @returns {Poll}
+     * @private
+     */
     _drawDots() {
         this.dots = this.layers.dots
             .selectAll('circle')
             .data(this.data.resultats.dataset)
             .enter()
             .append('circle')
-            .attr("cx", d => this.xScale(d.debut))
-            .attr("cy", d => this.yScale(d.resultat))
-            .attr("r", 6)
-            .style('opacity', .1)
-            .style('fill', (d) => this.data.candidats.get(d.id_candidat).couleur)
-            .append('title')
-            .html(d => this.data.candidats.get(d.id_candidat).nom_candidat + ': ' + d.resultat + '%');
+                .attr('class',d => `c${d.id_candidat}`)
+                .attr("cx", d => this.xScale(d.debut))
+                .attr("cy", d => this.yScale(d.resultat))
+                .attr("r", 6)
+                .style('opacity', Poll.params.dotsOpacity)
+                .style('fill', (d) => this.data.candidats.get(d.id_candidat).couleur)
+                .call(this._fadeIn,1000,2000,Poll.params.dotsOpacity)
+                .append('title')
+                .html(d => this.data.candidats.get(d.id_candidat).nom_candidat + ': ' + d.resultat + '%');
         return this;
     }
 
-    _drawCurves() {
-        let loessCurveGen = d3.line()
+    /**
+     * Création du graphique
+     * @returns {Poll}
+     * @private
+     */
+    _drawChart() {
+        //Fonctions generatrices du path pour la courbe et la surface
+        const curveGen = d3.line()
             .x(d => this.xScale(d[0]))
             .y(d => this.yScale(d[1]))
-            .curve(this.params.curveMode);
-        for (let id of this.data.candidats.keys()) {
-            let data = this.data.resultats.dataset
-                .filter(d => d.id_candidat === id);
-            if (data.length >= this.params.minPoints) {      //Inutile de tracer une courbe si moins de 2 points
-                this.layers.curves
-                    .append("path")
-                    .classed('courbe', true)
-                    .classed(`cand${id}`, true)
-                    .datum( this._loessRegression()(data))
-                    .attr("d", loessCurveGen)
-                    .style('stroke', this.color(id))
-                    .style('stroke-linecap', 'round')
-                    .style('stroke-linejoin', 'round')
-                    .style('stroke-width', this.params.curveWidth)
-                    .style('fill', 'transparent')
-                    .append('title')
-                    .html( `${this.data.candidats.get(id).nom} (${this.data.candidats.get(id).sigle})`);
-            }
-        }
-        return this;
-    }
-
-    _drawAreas() {
-        let areaGen = d3.area()
+            .curve(Poll.params.curveMode);
+        const areaGen = d3.area()
             .x(d=> this.xScale(d[0]))
             .y0(d=> this.yScale(d[1]))
             .y1( d=> this.yScale(d[2]))
-            .curve(this.params.curveMode);
-
+            .curve(Poll.params.curveMode);
+        //Boucle candidats
         for (let id of this.data.candidats.keys()) {
             let data = this.data.resultats.dataset
                 .filter(d => d.id_candidat === id);
-            if (data.length >= this.params.minPoints) {
-                let loessData=[ this._loessRegression('borne_inf')(data), this._loessRegression('borne_sup')(data)],
+            if (data.length >= Poll.params.minPoints) {      //Inutile de tracer une courbe si moins de x points
+                //Creation calque candX
+                const layer=this.layers.charts.append('svg:g').classed(`c${id}`,true);
+                //Tracé de la courbe
+                this._drawCurve(id,data,curveGen,layer);
+                //Tracé de la marge d'erreur
+                let loessData=[ this._loessRegression('borne_inf')(data),
+                                this._loessRegression('borne_sup')(data)],
                     combinedData=[];
                 for (let i=0;i<loessData[0].length;i++)
                     combinedData.push([loessData[0][i][0],loessData[0][i][1],loessData[1][i][1]]);
-                this.layers.areas
-                    .datum(combinedData)
-                    .append('path')
-                    .attr('d', areaGen(combinedData))
-                    .attr('fill', this.color(id, this.params.areaOpacity))
-                    .style('stroke-linecap', 'round')
-                    .style('stroke-linejoin', 'round')
-                    .attr('stroke', this.color(id,(this.params.areaOpacity-.1)))
-                    .attr('stroke-width',this.params.areaWidth);
-
+                this._drawArea(id,combinedData,areaGen,layer);
             }
         }
         return this;
+    }
+
+    /**
+     * Création de la courbe d'un candidat
+     * @param id {Number} : identifiant du candidat
+     * @param data {Object} : données des sondages correspondant au candidat
+     * @param generator {Function} : fonction pour le tracé de la courbe (curveGen, définie dans la méthode _drawChart)
+     * @param container {Object} : selection D3 de l'élement parent (g)
+     * @private
+     */
+    _drawCurve(id,data,generator,container){
+        container.append("path")
+            .classed('courbe', true)
+            .classed(`cand${id}`, true)
+            .datum( this._loessRegression('resultat')(data))
+            .attr("d", generator)
+            .style('stroke', this.color(id))
+            .style('stroke-linecap', 'round')
+            .style('stroke-linejoin', 'round')
+            .style('stroke-width', Poll.params.curveWidth)
+            .style('fill', 'transparent')
+            .append('title')
+            .html( `${this.data.candidats.get(id).nom} (${this.data.candidats.get(id).sigle})`);
+    }
+
+    /**
+     * Création de la marge d'erreur d'un candidat
+     * @param id {Number} : identifiant du candidat
+     * @param data {Object} : données des sondages correspondant au candidat
+     * @param generator {Function} : fonction pour le tracé de la surface (areaGen, définie dans la méthode _drawChart)
+     * @param container {Object} : selection D3 de l'élement parent (g)
+     * @private
+     */
+    _drawArea(id,data,generator,container) {
+                container.datum(data)
+                    .append('path')
+                        .classed('area',true)
+                        .attr('d', generator(data))
+                        .attr('fill', this.color(id, Poll.params.areaOpacity))
+                        .attr('mask', 'url(#mask-stripe)')
+                        .attr('stroke', this.color(id,(Poll.params.areaOpacity-.1)))
+                        .attr('stroke-width',Poll.params.areaWidth)
+                        .style('stroke-linecap', 'round')
+                        .style('stroke-linejoin', 'round')
+                        .call(this._fadeIn,1000,2000);
+      }
+
+    /**
+     * Fonction appelée pour ajouter un effet d'animation
+     * @param selection
+     * @param delay
+     * @param duration
+     * @param opacity
+     * @private
+     */
+    _fadeIn(selection,delay=0,duration=1000,opacity=1){
+        selection
+            .style('opacity',0)
+            .transition()
+                .delay(delay)
+                .duration(duration)
+                .style('opacity',opacity);
     }
 
     /**
@@ -534,5 +600,69 @@ class Poll {
     update() {
 
     }
+
+}
+
+class Candidat {
+
+    static duration=1000;
+
+    constructor(id,data){
+        this.id=id;
+        this.data=data;
+    }
+
+    hide(){
+        Candidat.hide(this.id);
+        return this;
+    }
+    show(){
+        Candidat.show(this.id);
+        return this;
+    }
+    highlight(){
+        Candidat.highlight(this.id);
+        return this;
+    }
+
+    static hide(listeCandidats,duration){
+        return Candidat._toggle('hide',listeCandidats,duration);
+    }
+
+    static show(listeCandidats,duration){
+        return Candidat._toggle('show',listeCandidats,duration);
+    }
+
+    static _toggle(type='show',listeCandidats,duration){
+        if (duration===undefined) duration=Candidat.duration;
+        if (listeCandidats=='all') listeCandidats=d3.range(0,40,1);
+        if (!Array.isArray(listeCandidats)) listeCandidats=[listeCandidats];
+        listeCandidats.forEach( id => {
+            switch (type){
+                case 'show':    Candidat._getItems(id)
+                                            .style('opacity',0)
+                                            .style('display','block')
+                                            .transition()
+                                            .duration(duration)
+                                            .style('opacity',1);
+                                break;
+                case 'hide':    Candidat._getItems(id)
+                                            .transition()
+                                            .duration(duration)
+                                            .style('opacity',0)
+                                            .on('end', function(e) { d3.select(this).style('display','none'); } );
+                                 break;
+                case 'highlight': break;
+            }
+        });
+        return Candidat;
+    }
+
+    static _getItems(id){
+        return d3.select('#motherOfPolls')
+            .selectAll('g#chart,g#dots')
+            .selectAll(`.c${id}`);
+    }
+
 
 }
