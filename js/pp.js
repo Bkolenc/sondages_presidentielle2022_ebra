@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
         // On sélectionne les candidats s'affichant par défaut en fixant un seuil (en pourcent)
-        candidats_par_defaut(G_sondages.vrac.seuil);
+        candidats_par_defaut(G_sondages.vrac.seuil); //Encore utile???
         afficher_boutons_candidats();
         // Voici à quoi ressemblent maintenant les données brutes pour former les courbes :
 
@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 .forEach( (key) => myMap.set( parseInt(key.replace('id_','')) , dict[key] )   );
             return myMap;
         };
-
 
         let tableCandidats=new Map();
         Object.keys(G_sondages.tables.candidats)
@@ -44,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 if (!isNaN(newKey)) tableCandidats.set(newKey,newValue);
             })
 
-
+console.warn(tableCandidats);
 
 
         const MainData=new DataWrapper('mainData')
@@ -57,14 +56,16 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 .draw();
 
 
-        console.log(Graph.view.dots);
 
-        /*
+/*
 Candidat.hide('all',0)
     .show([1],3000)
     .show( [7,11,12,13], 3000);
 
 
+
+
+ */
         /*Candidat.hide('all',0);
         setTimeout( function(){
             Candidat.show([1,3,5,7,11,12,13]);

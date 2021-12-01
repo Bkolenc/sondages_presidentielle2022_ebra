@@ -1,14 +1,10 @@
 Object.assign(d3,d3regression);
 
 class Queue {
+    static queue = [];
+    static pendingPromise = false;
 
-    constructor() {
-        this.queue = [];
-        this.workingOnPromise = false;
-    }
-
-    enqueue(promise) {
-        console.log("enqueue",promise);
+    static enqueue(promise) {
         return new Promise((resolve, reject) => {
             this.queue.push({
                 promise,
@@ -19,7 +15,7 @@ class Queue {
         });
     }
 
-    dequeue() {
+    static dequeue() {
         if (this.workingOnPromise) {
             return false;
         }
@@ -29,8 +25,7 @@ class Queue {
         }
         try {
             this.workingOnPromise = true;
-            console.log(item);
-            item.promise
+            item.promise()
                 .then((value) => {
                     this.workingOnPromise = false;
                     item.resolve(value);
@@ -49,7 +44,6 @@ class Queue {
         return true;
     }
 }
-
 class DataWrapper {
 
     constructor(id) {
@@ -331,12 +325,10 @@ class Poll {
             set: (target,property,value)=> {
                if (property==='dots') {
                    let o=(value)?Poll.params.dotsOpacity:0;
-                   console.log(o);
                    d3.select('g#dots').call(this._fade,0,Poll.params.duration,o);
                }
                else if (property==='areas') {
                     let o=(value)?Poll.params.areaOpacity:0;
-                    console.log(o);
                     d3.selectAll('g#curves path.area').call(this._fade,0,Poll.params.duration,o);
                 }
                return true;
@@ -540,18 +532,35 @@ class Poll {
             .selectAll('text')
                 .style('text-transform', 'uppercase')
                 .style('text-anchor', 'middle')
-                .style('font-size', this.size.calHeight/2)
+                .style('font-size', this.size.calHeight/1.7)
                 .style('font-weight', 'bold')
                 .each( (date,i,nodes)=> {
                     //Décalage du label de la moitié de la distance jusqu'au prochain tick
                     let nextMonth=new Date(date.getTime());
                     nextMonth.setMonth(nextMonth.getMonth() + 1);
-                    let offsetX=(this.xScale(nextMonth)-this.xScale(date))/2;
+                    let x=this.xScale(date),
+                        offsetX=(this.xScale(nextMonth)-x)/2;
                     if (new Date()>nextMonth) {
                         d3.select(nodes[i]).attr('transform',`translate(${offsetX} -${this.size.calHeight*.75})`);
                     }
                     else {
                         d3.select(nodes[i]).remove();
+                    }
+                    if (date.getMonth()==0) {
+                        this.layers.mAxis.append('text')
+                            .text(date.getFullYear())
+                            .attr('x',x+this.size.calHeight/2)
+                            .attr('dy',-(this.size.calHeight/2) )
+                            .style('text-anchor', 'start')
+                            .style('font-size', this.size.calHeight*3)
+                            .style('font-weight', 'bolder')
+                            .style('fill','#eee');
+                        this.layers.mAxis.append('line')
+                            .attr('x1',x)
+                            .attr('x2',x)
+                            .attr('y1',0)
+                            .attr('y2', -(this.size.height))
+                            .style('stroke','#eee');
                     }
                     //Colorie une case sur deux
                     if (i%2==0) {
@@ -643,7 +652,9 @@ class Poll {
                 .filter(d => d.id_candidat === id);
             if (data.length >= Poll.params.minCurvePoints) {      //Inutile de tracer une courbe si moins de x points
                 //Creation calque id_X
-                const layer=this.layers.curves.append('svg:g').classed(`id_${id}`,true);
+                const layer=this.layers.curves.append('svg:g').classed(`id_${id}`,true)
+                    .style('display', ()=> this.data.candidats.get(id).defaut?'auto':'none' )
+                    .style('opacity', ()=> this.data.candidats.get(id).defaut?1:0 );
                 //Tracé de la courbe
                 this._drawCurve(id,data,curveGen,layer);
                 //Tracé de la marge d'erreur
@@ -760,7 +771,6 @@ class Candidat extends Queue{
 
     static duration=500;
     static delay=0;
-    static queue=new Queue();
 
     constructor(id,data){
         super();
@@ -782,26 +792,23 @@ class Candidat extends Queue{
     }
 
     static hide(listeCandidats,duration,delay){
-        console.warn('HIDE');
-        Candidat.queue.enqueue( Candidat._animate('hide',listeCandidats,duration));
+        Queue.enqueue( Candidat._animate('hide',listeCandidats,duration));
         return Candidat;
     }
 
     static show(listeCandidats,duration,delay){
-        console.warn('SHOW');
-        Candidat.queue.enqueue( Candidat._animate('show',listeCandidats,duration));
+        Queue.enqueue( Candidat._animate('show',listeCandidats,duration));
         return Candidat;
     }
 
     static _animate(type='show', listeCandidats, duration,delay){
-        console.warn(type);
         let nodes=new Array();
         if (duration===undefined) duration=Candidat.duration;
         if (delay===undefined)  delay=Candidat.delay;
         if (listeCandidats=='all') listeCandidats=d3.range(0,40,1);
         if (!Array.isArray(listeCandidats)) listeCandidats=[listeCandidats];
         listeCandidats.forEach( id => {  nodes=nodes.concat( Candidat._getNodes(id));});
-        return new Promise((resolve,reject) => {
+        return ()=> new Promise((resolve,reject) => {
                 switch (type){
                     case 'show':
                         d3.selectAll(nodes)
@@ -810,17 +817,20 @@ class Candidat extends Queue{
                             .transition()
                             .duration(duration)
                             .delay(delay)
-                            .style('opacity',(d,i,n)=> (n[i].tagName=='circle')?.1:1 )
-                            .on('start', ()=> { console.log('Begin show',duration, listeCandidats)})
-                            .on('end', ()=> { console.log('shwed'); resolve('Show');});
+                            .style('opacity',(d,i,n)=> (n[i].tagName=='circle')?Poll.params.dotsOpacity:1 )
+                            .on('end', ()=> {
+                                resolve('Affichage courbe');
+                            });
                         break;
                     case 'hide':
                         d3.selectAll(nodes)
                             .transition()
                             .duration(duration)
                             .style('opacity',0)
-                            .on('start', ()=> { console.log('Begin hide',duration, listeCandidats)})
-                            .on('end', ()=> { d3.selectAll(nodes).style('display','none'); resolve('Hide'); } );
+                            .on('end', ()=> {
+                                d3.selectAll(nodes).style('display','none');
+                                resolve('Masquage courbe');
+                            } );
                         break;
                     case 'highlight':
                         break;
@@ -832,7 +842,7 @@ class Candidat extends Queue{
 
     static _getNodes(id){
         return d3.select('#motherOfPolls')
-            .selectAll('g#chart,g#dots')
+            .selectAll('g#curves,g#dots')
             .selectAll(`.id_${id}`)
             .nodes();
     }
