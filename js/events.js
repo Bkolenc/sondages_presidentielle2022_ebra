@@ -16,19 +16,24 @@ function click_candidats()
         
         
         var id = this.getAttribute("data-id"); 
+        var id_chiffre = +id.split("_")[1];
         var selection = G_sondages.selection_candidats;
         tooltip(e.pageX, e.pageY, G_sondages.tables.candidats[id].nom_candidat, G_sondages.credits[id]);
         if(!inArray(id, selection))
         {
             G_sondages.selection_candidats.push(id);
+            Candidat.show(id_chiffre,0);
+            
         }
         else
         {
             G_sondages.selection_candidats = G_sondages.selection_candidats.filter(function(item){
                 return item !== id;
             });
+            Candidat.hide(id_chiffre,0);
+            
         }
-        console.log(G_sondages.selection_candidats );
+//        console.log(G_sondages.selection_candidats );
         maj_boutons_candidats();
         
         var selected_candidats = G_sondages.selection_candidats;
@@ -36,10 +41,10 @@ function click_candidats()
         selected_candidats.forEach(function(v, k){
             selected_mieux.push(+v.split("_")[1]);
         });
-        Candidat.hide('all',0);
-        setTimeout( function(){
-            Candidat.show(selected_mieux,0);
-        });
+//        Candidat.hide('all',0);
+//        setTimeout( function(){
+//            Candidat.show(selected_mieux,0);
+//        });
         
     })
     .on("mousemove", null).on("mousemove", function(e){
@@ -93,7 +98,7 @@ function click_candidats()
     function check_si_click_hors_bouton(e)
     {
         var classe = e.target.getAttribute("class");
-        if(classe == "img_cont" || classe == "initiales" || classe=="candidat")
+        if(classe == "img_cont" || classe == "initiales" || classe=="candidat" || classe=='plus_moins')
         {
             // do nothing
         }
@@ -120,6 +125,38 @@ function click_candidats()
         
     });
 }
+
+function resize(){
+    var barre = document.getElementById("division_candidats").getBoundingClientRect();
+    var top = barre.bottom;
+    var left = barre.left;
+    var width = barre.width;
+    
+    d3.select("#tier_2")
+        .style("top",top+"px")
+        .style("left", (left-10)+"px")
+        .style("width", (width+20)+"px")
+        .style("border", "solid lightgray 1px, solid lightgray 1px, solid lightgray 1px, solid lightgray 1px")
+        .style("padding", "10px")
+//        .style("padding-bottom", "5px")
+        .style("border-radius","10px");
+
+    
+    var tier1 = document.getElementById("tier_1").getBoundingClientRect();
+    var width_t1 = tier1.width;
+    var paddingleft = (width_t1%79) / 2;
+    d3.select("#tier_1").style("padding-left",paddingleft+"px");
+    
+    
+    var tier2 = document.getElementById("tier_2").getBoundingClientRect();
+    var width_t2 = tier2.width;
+    var paddingleft2 = (width_t1%79) / 2;
+    d3.select("#tier_2").style("padding-left",paddingleft2+10+"px");
+   
+}
+//resize();
+window.removeEventListener("resize", resize, true)
+window.addEventListener('resize', resize);
 
 
 
