@@ -56,7 +56,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 .push( 'sondages',dictToMap(G_sondages.tables.sondages))
                 .draw();
 
-Candidat.hide('all').show([1,2,3,4,5,7,11,12,13]);
+
+        console.log(Graph.view.dots);
+
+        /*
+Candidat.hide('all',0)
+    .show([1],3000)
+    .show( [7,11,12,13], 3000);
 
 
         /*Candidat.hide('all',0);

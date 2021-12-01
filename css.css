@@ -223,20 +223,6 @@ svg {
 svg g.axis text {
     font-weight:bold;
     font-family: 'Roboto', sans-serif;
+    user-select:none;
 }
 
-
-@keyframes rollEffect {
-    0% {
-        clip-path: inset(0px 1600px 0px 0px);
-    }
-    100% {
-        clip-path: inset(0px 0px 0px 0px);
-    }
-}
-
-g#chart,g#dots {
-    animation-name: rollEffect;
-    animation-timing-function: ease-in-out;
-    animation-duration: 2s;
-}
