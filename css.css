@@ -31,6 +31,33 @@ html
     font-family:merriweather;
 }
 
+#logo_pres
+{
+    font-family:merriweather-sans;
+    color:#06366F;
+    background-color:#F4F4F4;
+    position:relative;
+    padding:4px;
+    padding-left:23px;
+    padding-right:10px;
+    font-size:13px;
+    width:fit-content;
+    font-weight:700;
+    border-radius:5px;
+    margin-top:20px;
+    margin-bottom:10px;
+    
+}
+#logo_pres img
+{
+    width:13px;
+    height:13px;
+    position:absolute;
+    left:10px;
+    top:6px;
+    
+}
+
 /*Selection des candidats*/
 #fermer_candidats
 {
@@ -205,6 +232,10 @@ html
     position:absolute;
     padding:5px;
     border-radius:5px;
+    font-family:merriweather-sans!important;
+    z-index:1001;
+    font-size:0.8em;
+    box-shadow: 4px 4px 2px 1px rgba(0,0,0,0.2);
 }
 
 #plus_de_candidats
@@ -216,11 +247,17 @@ html
     cursor:pointer;
 }
 
+#tier_1
+{
+    background-color:#f4f4f4;
+    padding-top:5px;
+    padding-bottom:5px;
+}
 #tier_2
 {
+    background-color:#f4f4f4;
     display:none;
     position:absolute;
-    background-color:white;
     z-index:1000;
     border-radius: 0px 0px 10px 10px;
     border-width: 0px 1px 1px;
@@ -233,6 +270,7 @@ html
 .credit
 {
     font-size:0.65em;
+    font-family:merriweather-sans!important;
 }
 
 

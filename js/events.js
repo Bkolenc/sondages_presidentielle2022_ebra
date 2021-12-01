@@ -33,7 +33,7 @@ function click_candidats()
             Candidat.hide(id_chiffre,0);
             
         }
-        console.log(G_sondages.selection_candidats );
+//        console.log(G_sondages.selection_candidats );
         maj_boutons_candidats();
         
         var selected_candidats = G_sondages.selection_candidats;
@@ -98,7 +98,7 @@ function click_candidats()
     function check_si_click_hors_bouton(e)
     {
         var classe = e.target.getAttribute("class");
-        if(classe == "img_cont" || classe == "initiales" || classe=="candidat")
+        if(classe == "img_cont" || classe == "initiales" || classe=="candidat" || classe=='plus_moins')
         {
             // do nothing
         }
@@ -140,9 +140,21 @@ function resize(){
         .style("padding", "10px")
 //        .style("padding-bottom", "5px")
         .style("border-radius","10px");
-    ;
+
+    
+    var tier1 = document.getElementById("tier_1").getBoundingClientRect();
+    var width_t1 = tier1.width;
+    var paddingleft = (width_t1%79) / 2;
+    d3.select("#tier_1").style("padding-left",paddingleft+"px");
+    
+    
+    var tier2 = document.getElementById("tier_2").getBoundingClientRect();
+    var width_t2 = tier2.width;
+    var paddingleft2 = (width_t1%79) / 2;
+    d3.select("#tier_2").style("padding-left",paddingleft2+10+"px");
+   
 }
-resize();
+//resize();
 window.removeEventListener("resize", resize, true)
 window.addEventListener('resize', resize);
 

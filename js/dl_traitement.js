@@ -258,6 +258,7 @@ function afficher_boutons_candidats()
     }
 
     maj_boutons_candidats();
+    resize();
 }
 
 
