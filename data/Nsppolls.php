@@ -1,7 +1,7 @@
 <?php
 
-//$url = "https://raw.githubusercontent.com/nsppolls/nsppolls/master/presidentielle.json";
-$url = "presidentielle.json";
+$url = "https://raw.githubusercontent.com/nsppolls/nsppolls/master/presidentielle.json";
+//$url = "presidentielle.json";
 $file = file_get_contents($url);
 
 $objet = json_decode($file);
@@ -50,10 +50,21 @@ foreach ($objet as $k=>$v)
     
     // Les objets
     $tours = $v->tours;
-    
+    $tour1;
+    $tour2;
     // premier tour
-    $tour1 = $tours[0]->hypotheses;
-    $tour2 = $tours[1]->hypotheses;
+    foreach($tours as $kk=>$vv)
+    {
+        echo $vv->tour;
+        if($vv->tour == "Deuxième tour")
+        {
+            $tour2 = $vv->hypotheses;
+        }
+        else if($vv->tour == "Premier tour")
+        {
+            $tour1 = $vv->hypotheses;
+        }
+    }
     
     
     

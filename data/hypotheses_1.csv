@@ -1,235 +1,265 @@
-id,nom,id_sondage,sous_echantillon
-1,Pécresse / Zemmour,1,838.35
-2,Bertrand,1,838.35
-3,Barnier / Zemmour,1,859.05
-4,Bertrand / Zemmour,1,859.05
-5,Pécresse / Zemmour,2,685.224
-6,Bertrand / Zemmour,2,700.881
-7,Barnier,3,3426.783
-8,Pécresse,3,3431.286
-9,Bertrand,3,3431.286
-10,Bertrand / Zemmour,4,8808.08
-11,Pécresse,4,8472.99
-12,Barnier / Zemmour,4,8712.34
-13,Bertrand,4,8568.73
-14,Pécresse / Zemmour,4,8760.21
-15,Barnier,4,8472.99
-16,Pécresse,5,902.7
-17,Barnier,5,892.08
-18,Bertrand,5,902.7
-19,Pécresse,6,1498.98
-20,Bertrand,6,1517.04
-21,Rousseau / Bertrand,7,858.48
-22,Jadot / Pécresse,7,838.04
-23,Jadot / Bertrand,7,868.7
-24,Bertrand et Hidalgo,8,931.889
-25,Wauquiez,8,934.563
-26,Pécresse,8,929.215
-27,Bertrand et Jadot,8,929.215
-28,Bertrand,8,949.27
-29,Pécresse / Zemmour,9,873.16
-30,Barnier / Zemmour,9,873.16
-31,Bertrand,9,852.12
-32,Pécresse,9,852.12
-33,Bertrand / Zemmour,9,883.68
-34,Barnier,9,852.12
-35,Pécresse,10,774.2
-36,Barnier,10,774.2
-37,Bertrand,10,784
-38,Bertrand / Zemmour,10,793.8
-39,X. Bertrand,11,1006
-40,F. Baroin,11,1006
-41,Dati,12,1062.888
-42,Royal,12,1119.168
-43,Retailleau,12,1035.552
-44,UG-Mélenchon,12,1056.456
-45,UG-Hidalgo,12,1069.32
-46,Pécresse,12,1061.28
-47,Hollande,12,1114.344
-48,UG-Jadot,12,1043.592
-49,Baroin,12,1077.36
-50,Bertrand,12,1096.656
-51,Hidalgo,12,1104.696
-52,,13,626.195
-53,M. Barnier,14,841.68
-54,X. Bertrand,14,841.68
-55,Jadot-Hidalgo,15,637.5
-56,Jadot-Montebourg,15,637.5
-57,Jadot-Montebourg-Hidalgo,15,637.5
-58,Piolle-Hidalgo,15,615
-59,Hidalgo,15,607.5
-60,Jadot-Hollande,15,630
-61,Jadot,15,607.5
-62,Ciotti,16,839.77
-63,Juvin,16,818.51
-64,Bertrand / Zemmour,16,892.92
-65,Bertrand,16,871.66
-66,Pécresse,16,861.03
-67,Payre,16,807.88
-68,Barnier,16,850.4
-69,Pécresse,17,1685.04
-70,Bertrand,17,1725.16
-71,Barnier,17,1705.1
-72,Bertrand / Zemmour,18,806.49
-73,Barnier / Zemmour,18,778.68
-74,Pécresse / Zemmour,18,787.95
-75,Barnier,18,778.68
-76,Bertrand,18,797.22
-77,Pécresse,18,778.68
-78,Barnier sans Zemmour,19,851.31
-79,Barnier,19,893.35
-80,Pécresse sans Zemmour,19,851.31
-81,Pécresse,19,893.35
-82,Bertrand,19,903.86
-83,Bertrand sans Zemmour,19,861.82
-84,Bertrand / Zemmour,20,436.1
-85,Bertrand,20,411.6
-86,Barnier,20,416.5
-87,Pécresse,20,416.5
-88,Barnier / Zemmour,20,436.1
-89,Pécresse / Zemmour,20,436.1
-90,Baroin-Faure-Jadot,21,607.24
-91,Bertrand-Jadot,21,598.31
-92,Baroin-Jadot,21,607.24
-93,Bertrand-Faure-Jadot,21,589.38
-94,Montebourg / Bertrand,22,901.53
-95,Hidalgo / Bertrand / Pécresse,22,934.92
-96,Hidalgo / Bertrand,22,934.92
-97,Hidalgo / Pécresse,22,912.66
-98,Bertrand / Zemmour,23,955.144
-99,Juvin,23,887.11
-100,Bertrand,23,956.478
-101,Ciotti,23,920.46
-102,Pécresse / Zemmour,23,943.138
-103,Pécresse,23,931.132
-104,Barnier,23,915.124
-105,Bertrand / Montebourg,23,960.48
-106,Bertrand,24,1260
-107,Bertrand et Zemmour,24,1260
-108,Pécresse,24,1260
-109,Pécresse-Montebourg,25,732
-110,Bertrand-Montebourg,25,732
-111,Pécresse-Hidalgo,25,741.76
-112,Bertrand-Hidalgo,25,732
-113,Valérie Pécresse,26,992.264
-114,Michel Barnier,26,966.367
-115,Bruno Retailleau,26,943.196
-116,Xavier Bertrand,26,971.819
-117,Laurent Wauquiez,26,951.374
-118,Macron / Le Pen,27,1420.71
-119,Macron / Pécresse,27,1160.58
-120,Macron / Zemmour,27,1380.69
-121,Macron / Bertrand,27,1200.6
-122,Macron / Mélenchon,27,1240.62
-123,Macron / Barnier,27,1140.57
-124,Juvin,28,941.34
-125,Bertrand,28,962.98
-126,Pécresse,28,952.16
-127,Barnier,28,962.98
-128,Ciotti,28,941.34
-129,Bertrand,29,1730
-130,Jadot-Pécresse,29,1730
-131,Hidalgo-Bertrand,29,1730
-132,Wauquiez,29,1730
-133,Pécresse,29,1730
-134,Hidalgo-Pécresse,29,1730
-135,Retailleau,29,1730
-136,Jadot-Bertrand,29,1730
-137,Montebourg-Jadot,29,1730
-138,Hidalgo-Piolle,29,1730
-139,« offre complète »,30,1095.36
-140,Union de la gauche derrière Jadot,30,1069.28
-141,Union de la gauche derrière Mélenchon,30,1043.2
-142,Union de la gauche derrière Hidalgo,30,1030.16
-143,,31,15737
-144,Pécresse,32,6195.28
-145,Bertrand,32,6263.36
-146,Retailleau,32,6127.2
-147,X. Bertrand,33,676.45
-148,V. Pécresse,33,676.45
-149,L. Wauquiez,33,676.45
-150,Montebourg / Bertrand,34,888.06
-151,Hidalgo / Ciotti,34,855.57
-152,Hidalgo / Pécresse,34,877.23
-153,Hidalgo / Bertrand,34,888.06
-154,,35,2540
-155,Pécresse,36,805.8
-156,Bertrand / Zemmour,36,815.28
-157,Pécresse / Zemmour,36,815.28
-158,Bertrand,36,824.76
-159,Pécresse / Zemmour,37,975.422
-160,Barnier / Zemmour,37,1351
-161,Bertrand,37,959.21
-162,Bertrand / Zemmour,37,990.283
-163,Ciotti / Zemmour,37,947.051
-164,Barnier,37,933.541
-165,Pécresse,37,938.945
-166,Bertrand,38,1911
-167,Pécresse,38,1813
-168,Union de la gauche derrière Jadot,38,2009
-169,Wauquiez,39,1020
-170,Pécresse,39,1020
-171,Bertrand,39,1020
-172,V. Pécresse,40,1057
-173,X. Bertrand,40,1057
-174,Rousseau / Pécresse,41,607.5
-175,Jadot / Pécresse,41,623.7
-176,Rousseau / Bertrand,41,623.7
-177,Jadot / Bertrand,41,623.7
-178,Bertrand,42,667.5
-179,Bertrand / Zemmour,42,690
-180,Pécresse / Zemmour,42,675
-181,Pécresse,42,660
-182,Barnier / Zemmour,42,675
-183,Barnier,42,667.5
-184,Barnier,43,1771.6
-185,Pécresse,43,1751
-186,Bertrand,43,1812.8
-187,Bertrand,44,903.84
-188,Barnier,44,871.56
-189,Bertrand / Zemmour,44,903.84
-190,Pécresse,44,914.6
-191,Bertrand / Montebourg,44,903.84
-192,Xavier Bertrand,45,710.64
-193,Valérie Pécresse,45,693.72
-194,Barnier,46,824.76
-195,Pécresse,46,824.76
-196,Bertrand,46,834.24
-197,Bertrand,47,1762.64
-198,Pécresse,47,1722.58
-199,Barnier,47,1702.55
-200,Macron / Pécresse,48,768.628
-201,Macron / Barnier,48,752.332
-202,Macron / Le Pen,48,916.65
-203,Macron / Bertrand,48,782.208
-204,Macron / Zemmour,48,879.984
-205,,49,642.067
-206,X. Bertrand,50,861.9
-207,V. Pécresse,50,841.62
-208,V. Pécresse,51,800.8
-209,X. Bertrand,51,820.82
-210,Pécresse,52,1743.22
-211,Bertrand,52,1743.22
-212,Barnier,52,1743.22
-213,Bertrand,53,801.32
-214,Wauquiez,53,783.9
-215,Pécresse,53,783.9
-216,Bertrand,54,890.8
-217,Barnier,54,859.36
-218,Pécresse,54,880.32
-219,,55,15390
-220,Wauquiez,56,922.2
-221,Barnier,56,932.8
-222,Bertrand,56,954
-223,Pécresse,56,943.4
-224,,57,1741.828
-225,Barnier,58,2067
-226,Bertrand,58,2067
-227,Pécresse,58,2039.44
-228,François Baroin,59,614.048
-229,Xavier Bertrand,59,614.048
-230,Xavier Bertrand,59,615.04
-231,,60,1277.43
-232,,61,670.695
-233,,62,9646
-234,,63,515.042
+id,nom,id_sondage,tour,sous_echantillon
+1,"Hypothèse Pécresse / Zemmour",1,1,838.35
+2,"Hypothèse Bertrand",1,1,838.35
+3,"Hypothèse Barnier / Zemmour",1,1,859.05
+4,"Hypothèse Bertrand / Zemmour",1,1,859.05
+5,"Hypothèse Pécresse / Zemmour",2,1,685.224
+6,"Hypothèse Bertrand / Zemmour",2,1,700.881
+7,"Hypothèse Barnier",3,1,3426.783
+8,"Hypothèse Pécresse",3,1,3431.286
+9,"Hypothèse Bertrand",3,1,3431.286
+10,"Hypothèse Bertrand / Zemmour",4,1,8808.08
+11,"Hypothèse Pécresse",4,1,8472.99
+12,"Hypothèse Barnier / Zemmour",4,1,8712.34
+13,"Hypothèse Bertrand",4,1,8568.73
+14,"Hypothèse Pécresse / Zemmour",4,1,8760.21
+15,"Hypothèse Barnier",4,1,8472.99
+16,"Hypothèse Pécresse",5,1,902.7
+17,"Hypothèse Barnier",5,1,892.08
+18,"Hypothèse Bertrand",5,1,902.7
+19,"Hypothèse Bertrand sans Zemmour",6,1,872.33
+20,"Hypothèse Barnier sans Zemmour",6,1,861.82
+21,"Hypothèse Pécresse sans Zemmour",6,1,872.33
+22,"Hypothèse Bertrand / Zemmour",6,1,893.35
+23,"Hypothèse Pécresse / Zemmour",6,1,882.84
+24,"Hypothèse Barnier / Zemmour",6,1,872.33
+25,"Hypothèse Pécresse",7,1,1498.98
+26,"Hypothèse Bertrand",7,1,1517.04
+27,"Hypothèse Rousseau / Bertrand",8,1,858.48
+28,"Hypothèse Jadot / Pécresse",8,1,838.04
+29,"Hypothèse Jadot / Bertrand",8,1,868.7
+30,"Hypothèse Bertrand et Hidalgo",9,1,931.889
+31,"Hypothèse Wauquiez",9,1,934.563
+32,"Hypothèse Pécresse",9,1,929.215
+33,"Hypothèse Bertrand et Jadot",9,1,929.215
+34,"Hypothèse Bertrand",9,1,949.27
+35,"Hypothèse Pécresse / Zemmour",10,1,873.16
+36,"Hypothèse Barnier / Zemmour",10,1,873.16
+37,"Hypothèse Bertrand",10,1,852.12
+38,"Hypothèse Pécresse",10,1,852.12
+39,"Hypothèse Bertrand / Zemmour",10,1,883.68
+40,"Hypothèse Barnier",10,1,852.12
+41,"Hypothèse Pécresse",11,1,774.2
+42,"Hypothèse Barnier",11,1,774.2
+43,"Hypothèse Bertrand",11,1,784
+44,"Hypothèse Bertrand / Zemmour",11,1,793.8
+45,"Hypothèse X. Bertrand",12,1,1006
+46,"Hypothèse F. Baroin",12,1,1006
+47,"Hypothèse Dati",13,1,1062.888
+48,"Hypothèse Royal",13,1,1119.168
+49,"Hypothèse Retailleau",13,1,1035.552
+50,"Hypothèse UG-Mélenchon",13,1,1056.456
+51,"Hypothèse UG-Hidalgo",13,1,1069.32
+52,"Hypothèse Pécresse",13,1,1061.28
+53,"Hypothèse Hollande",13,1,1114.344
+54,"Hypothèse UG-Jadot",13,1,1043.592
+55,"Hypothèse Baroin",13,1,1077.36
+56,"Hypothèse Bertrand",13,1,1096.656
+57,"Hypothèse Hidalgo",13,1,1104.696
+58,,14,1,626.195
+59,"Hypothèse Bertrand / Zemmour",15,1,1177.74
+60,"Hypothèse Pécresse / Zemmour",15,1,1192.28
+61,"Hypothèse Bertrand sans Zemmour",15,1,1163.2
+62,"Hypothèse Barnier / Zemmour",15,1,1177.74
+63,"Hypothèse M. Barnier",16,1,841.68
+64,"Hypothèse X. Bertrand",16,1,841.68
+65,"Hypothèse Jadot-Hidalgo",17,1,637.5
+66,"Hypothèse Jadot-Montebourg",17,1,637.5
+67,"Hypothèse Jadot-Montebourg-Hidalgo",17,1,637.5
+68,"Hypothèse Piolle-Hidalgo",17,1,615
+69,"Hypothèse Hidalgo",17,1,607.5
+70,"Hypothèse Jadot-Hollande",17,1,630
+71,"Hypothèse Jadot",17,1,607.5
+72,"Hypothèse Ciotti",18,1,839.77
+73,"Hypothèse Juvin",18,1,818.51
+74,"Hypothèse Bertrand / Zemmour",18,1,892.92
+75,"Hypothèse Bertrand",18,1,871.66
+76,"Hypothèse Pécresse",18,1,861.03
+77,"Hypothèse Payre",18,1,807.88
+78,"Hypothèse Barnier",18,1,850.4
+79,"Hypothèse Pécresse",19,1,1685.04
+80,"Hypothèse Bertrand",19,1,1725.16
+81,"Hypothèse Barnier",19,1,1705.1
+82,"Hypothèse Bertrand / Zemmour",20,1,806.49
+83,"Hypothèse Barnier / Zemmour",20,1,778.68
+84,"Hypothèse Pécresse / Zemmour",20,1,787.95
+85,"Hypothèse Barnier",20,1,778.68
+86,"Hypothèse Bertrand",20,1,797.22
+87,"Hypothèse Pécresse",20,1,778.68
+88,"Hypothèse Barnier sans Zemmour",21,1,851.31
+89,"Hypothèse Barnier",21,1,893.35
+90,"Hypothèse Pécresse sans Zemmour",21,1,851.31
+91,"Hypothèse Pécresse",21,1,893.35
+92,"Hypothèse Bertrand",21,1,903.86
+93,"Hypothèse Bertrand sans Zemmour",21,1,861.82
+94,"Hypothèse Bertrand / Zemmour",22,1,436.1
+95,"Hypothèse Bertrand",22,1,411.6
+96,"Hypothèse Barnier",22,1,416.5
+97,"Hypothèse Pécresse",22,1,416.5
+98,"Hypothèse Barnier / Zemmour",22,1,436.1
+99,"Hypothèse Pécresse / Zemmour",22,1,436.1
+100,"Hypothèse Baroin-Faure-Jadot",23,1,607.24
+101,"Hypothèse Bertrand-Jadot",23,1,598.31
+102,"Hypothèse Baroin-Jadot",23,1,607.24
+103,"Hypothèse Bertrand-Faure-Jadot",23,1,589.38
+104,"Hypothèse Montebourg / Bertrand",24,1,901.53
+105,"Hypothèse Hidalgo / Bertrand / Pécresse",24,1,934.92
+106,"Hypothèse Hidalgo / Bertrand",24,1,934.92
+107,"Hypothèse Hidalgo / Pécresse",24,1,912.66
+108,"Hypothèse Bertrand / Zemmour",25,1,955.144
+109,"Hypothèse Juvin",25,1,887.11
+110,"Hypothèse Bertrand",25,1,956.478
+111,"Hypothèse Ciotti",25,1,920.46
+112,"Hypothèse Pécresse / Zemmour",25,1,943.138
+113,"Hypothèse Pécresse",25,1,931.132
+114,"Hypothèse Barnier",25,1,915.124
+115,"Hypothèse Bertrand / Montebourg",25,1,960.48
+116,"Hypothèse Bertrand",26,1,1260
+117,"Hypothèse Bertrand et Zemmour",26,1,1260
+118,"Hypothèse Pécresse",26,1,1260
+119,"Hypothèse Pécresse-Montebourg",27,1,732
+120,"Hypothèse Bertrand-Montebourg",27,1,732
+121,"Hypothèse Pécresse-Hidalgo",27,1,741.76
+122,"Hypothèse Bertrand-Hidalgo",27,1,732
+123,"Hypothèse Valérie Pécresse",28,1,992.264
+124,"Hypothèse Michel Barnier",28,1,966.367
+125,"Hypothèse Bruno Retailleau",28,1,943.196
+126,"Hypothèse Xavier Bertrand",28,1,971.819
+127,"Hypothèse Laurent Wauquiez",28,1,951.374
+128,"Hypothèse Barnier",29,1,1720.86
+129,"Hypothèse Pécresse",29,1,1720.86
+130,"Hypothèse Bertrand",29,1,1720.86
+131,"Hypothèse Juvin",30,1,941.34
+132,"Hypothèse Bertrand",30,1,962.98
+133,"Hypothèse Pécresse",30,1,952.16
+134,"Hypothèse Barnier",30,1,962.98
+135,"Hypothèse Ciotti",30,1,941.34
+136,"Hypothèse Bertrand",31,1,1730
+137,"Hypothèse Jadot-Pécresse",31,1,1730
+138,"Hypothèse Hidalgo-Bertrand",31,1,1730
+139,"Hypothèse Wauquiez",31,1,1730
+140,"Hypothèse Pécresse",31,1,1730
+141,"Hypothèse Hidalgo-Pécresse",31,1,1730
+142,"Hypothèse Retailleau",31,1,1730
+143,"Hypothèse Jadot-Bertrand",31,1,1730
+144,"Hypothèse Montebourg-Jadot",31,1,1730
+145,"Hypothèse Hidalgo-Piolle",31,1,1730
+146,"Hypothèse « offre complète »",32,1,1095.36
+147,"Hypothèse Union de la gauche derrière Jadot",32,1,1069.28
+148,"Hypothèse Union de la gauche derrière Mélenchon",32,1,1043.2
+149,"Hypothèse Union de la gauche derrière Hidalgo",32,1,1030.16
+150,,33,1,10071.68
+151,"Hypothèse Pécresse",34,1,6195.28
+152,"Hypothèse Bertrand",34,1,6263.36
+153,"Hypothèse Retailleau",34,1,6127.2
+154,"Hypothèse Ciotti",35,1,896.12
+155,"Hypothèse Barnier",35,1,906.54
+156,"Hypothèse Bertrand",35,1,906.54
+157,"Hypothèse Juvin",35,1,875.28
+158,"Hypothèse Pécresse",35,1,906.54
+159,"Hypothèse X. Bertrand",36,1,676.45
+160,"Hypothèse V. Pécresse",36,1,676.45
+161,"Hypothèse L. Wauquiez",36,1,676.45
+162,"Hypothèse Montebourg / Bertrand",37,1,888.06
+163,"Hypothèse Hidalgo / Ciotti",37,1,855.57
+164,"Hypothèse Hidalgo / Pécresse",37,1,877.23
+165,"Hypothèse Hidalgo / Bertrand",37,1,888.06
+166,,38,1,1727.2
+167,"Hypothèse Pécresse",39,1,805.8
+168,"Hypothèse Bertrand / Zemmour",39,1,815.28
+169,"Hypothèse Pécresse / Zemmour",39,1,815.28
+170,"Hypothèse Bertrand",39,1,824.76
+171,"Hypothèse Pécresse / Zemmour",40,1,975.422
+172,"Hypothèse Barnier / Zemmour",40,1,967.316
+173,"Hypothèse Bertrand",40,1,959.21
+174,"Hypothèse Bertrand / Zemmour",40,1,990.283
+175,"Hypothèse Ciotti / Zemmour",40,1,947.051
+176,"Hypothèse Barnier",40,1,933.541
+177,"Hypothèse Pécresse",40,1,938.945
+178,"Hypothèse Bertrand",41,1,1911
+179,"Hypothèse Pécresse",41,1,1813
+180,"Hypothèse Union de la gauche derrière Jadot",41,1,2009
+181,"Hypothèse Wauquiez",42,1,1020
+182,"Hypothèse Pécresse",42,1,1020
+183,"Hypothèse Bertrand",42,1,1020
+184,"Hypothèse V. Pécresse",43,1,1057
+185,"Hypothèse X. Bertrand",43,1,1057
+186,"Hypothèse Juvin",44,1,1351
+187,"Hypothèse Ciotti",44,1,1351
+188,"Hypothèse Pécresse",44,1,1351
+189,"Hypothèse Barnier",44,1,1351
+190,"Hypothèse Bertrand",44,1,1351
+191,"Hypothèse Ciotti",45,1,1557.12
+192,"Hypothèse Barnier",45,1,1581.45
+193,"Hypothèse Bertrand",45,1,1654.44
+194,"Hypothèse Juvin",45,1,1532.79
+195,"Hypothèse Pécresse",45,1,1630.11
+196,"Hypothèse Rousseau / Pécresse",46,1,607.5
+197,"Hypothèse Jadot / Pécresse",46,1,623.7
+198,"Hypothèse Rousseau / Bertrand",46,1,623.7
+199,"Hypothèse Jadot / Bertrand",46,1,623.7
+200,"Hypothèse Bertrand",47,1,667.5
+201,"Hypothèse Bertrand / Zemmour",47,1,690
+202,"Hypothèse Pécresse / Zemmour",47,1,675
+203,"Hypothèse Pécresse",47,1,660
+204,"Hypothèse Barnier / Zemmour",47,1,675
+205,"Hypothèse Barnier",47,1,667.5
+206,"Hypothèse Barnier",48,1,1771.6
+207,"Hypothèse Pécresse",48,1,1751
+208,"Hypothèse Bertrand",48,1,1812.8
+209,"Hypothèse Bertrand",49,1,903.84
+210,"Hypothèse Barnier",49,1,871.56
+211,"Hypothèse Bertrand / Zemmour",49,1,903.84
+212,"Hypothèse Pécresse",49,1,914.6
+213,"Hypothèse Bertrand / Montebourg",49,1,903.84
+214,"Hypothèse Pécresse",50,1,2071
+215,"Hypothèse Barnier",50,1,2071
+216,"Hypothèse Bertrand",50,1,2071
+217,"Hypothèse Xavier Bertrand",51,1,710.64
+218,"Hypothèse Valérie Pécresse",51,1,693.72
+219,"Hypothèse Barnier",52,1,824.76
+220,"Hypothèse Pécresse",52,1,824.76
+221,"Hypothèse Bertrand",52,1,834.24
+222,"Hypothèse Bertrand",53,1,1762.64
+223,"Hypothèse Pécresse",53,1,1722.58
+224,"Hypothèse Barnier",53,1,1702.55
+225,"Hypothèse Juvin",54,1,965.538
+226,"Hypothèse Bertrand",54,1,991.34
+227,"Hypothèse Barnier",54,1,985.908
+228,"Hypothèse Pécresse",54,1,977.76
+229,"Hypothèse Ciotti",54,1,957.39
+230,,55,1,642.067
+231,"Hypothèse X. Bertrand",56,1,861.9
+232,"Hypothèse V. Pécresse",56,1,841.62
+233,"Hypothèse Pécresse",57,1,1823.2
+234,"Hypothèse Juvin",57,1,1780.8
+235,"Hypothèse Ciotti",57,1,1780.8
+236,"Hypothèse Bertrand",57,1,1865.6
+237,"Hypothèse Barnier",57,1,1844.4
+238,"Hypothèse V. Pécresse",58,1,800.8
+239,"Hypothèse X. Bertrand",58,1,820.82
+240,"Hypothèse Pécresse",59,1,1743.22
+241,"Hypothèse Bertrand",59,1,1743.22
+242,"Hypothèse Barnier",59,1,1743.22
+243,"Hypothèse Bertrand",60,1,801.32
+244,"Hypothèse Wauquiez",60,1,783.9
+245,"Hypothèse Pécresse",60,1,783.9
+246,"Hypothèse Bertrand",61,1,890.8
+247,"Hypothèse Barnier",61,1,859.36
+248,"Hypothèse Pécresse",61,1,880.32
+249,,62,1,9387.9
+250,"Hypothèse Wauquiez",63,1,922.2
+251,"Hypothèse Barnier",63,1,932.8
+252,"Hypothèse Bertrand",63,1,954
+253,"Hypothèse Pécresse",63,1,943.4
+254,,64,1,1741.828
+255,"Hypothèse Barnier",65,1,2067
+256,"Hypothèse Bertrand",65,1,2067
+257,"Hypothèse Pécresse",65,1,2039.44
+258,"Hypothèse François Baroin",66,1,614.048
+259,"Hypothèse Xavier Bertrand",66,1,614.048
+260,"Hypothèse Xavier Bertrand",66,1,615.04
+261,,67,1,1277.43
+262,,68,1,670.695
+263,,69,1,6655.74
+264,,70,1,515.042
