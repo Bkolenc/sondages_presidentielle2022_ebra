@@ -16,17 +16,22 @@ function click_candidats()
         
         
         var id = this.getAttribute("data-id"); 
+        var id_chiffre = +id.split("_")[1];
         var selection = G_sondages.selection_candidats;
         tooltip(e.pageX, e.pageY, G_sondages.tables.candidats[id].nom_candidat, G_sondages.credits[id]);
         if(!inArray(id, selection))
         {
             G_sondages.selection_candidats.push(id);
+            Candidat.show(id_chiffre,0);
+            
         }
         else
         {
             G_sondages.selection_candidats = G_sondages.selection_candidats.filter(function(item){
                 return item !== id;
             });
+            Candidat.hide(id_chiffre,0);
+            
         }
         console.log(G_sondages.selection_candidats );
         maj_boutons_candidats();
@@ -36,10 +41,10 @@ function click_candidats()
         selected_candidats.forEach(function(v, k){
             selected_mieux.push(+v.split("_")[1]);
         });
-        Candidat.hide('all',0);
-        setTimeout( function(){
-            Candidat.show(selected_mieux,0);
-        });
+//        Candidat.hide('all',0);
+//        setTimeout( function(){
+//            Candidat.show(selected_mieux,0);
+//        });
         
     })
     .on("mousemove", null).on("mousemove", function(e){
