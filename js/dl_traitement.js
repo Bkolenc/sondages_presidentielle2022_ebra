@@ -69,7 +69,7 @@ function recup_csv_tour1(callback)
             hypotheses_formate[id] = a_push;
 
         });
-
+        console.log(resultats_1);
         //Ajout de la date dans la table résultats
         resultats_1.forEach( (row)=> {
             let h=hypotheses_formate['id_'+row.id_hypothèse],

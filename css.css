@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,500;0,900;1,300&display=swap');
+
 @font-face {
  font-family: "merriweather";
  src: url("fonts/Merriweather/Merriweather-Regular.ttf");
@@ -5,10 +7,8 @@
 
 @font-face {
  font-family: "merriweather-sans";
- src: url("fonts/Merriweather_Sans/Static/MerriweatherSans-Regular.ttf");
+ src: url("fonts/Merriweather_Sans/static/MerriweatherSans-Regular.ttf");
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,500;0,900;1,300&display=swap');
 
 body
 {
@@ -48,7 +48,7 @@ html
     font-weight:600;
     border:solid black 1px;
     cursor:pointer;
-    font-family:merriweather-sans;
+    font-family:merriweather-sans!important;
 }
 #conteneur_candidats
 {
@@ -219,6 +219,15 @@ html
 #tier_2
 {
     display:none;
+    position:absolute;
+    background-color:white;
+    z-index:1000;
+    border-radius: 0px 0px 10px 10px;
+    border-width: 0px 1px 1px;
+    border-color: lightgray;
+    border-style: solid;
+    box-shadow: 4px 4px 2px 1px rgba(0,0,0,0.2);
+    
 }
 
 .credit

@@ -126,6 +126,26 @@ function click_candidats()
     });
 }
 
+function resize(){
+    var barre = document.getElementById("division_candidats").getBoundingClientRect();
+    var top = barre.bottom;
+    var left = barre.left;
+    var width = barre.width;
+    
+    d3.select("#tier_2")
+        .style("top",top+"px")
+        .style("left", (left-10)+"px")
+        .style("width", (width+20)+"px")
+        .style("border", "solid lightgray 1px, solid lightgray 1px, solid lightgray 1px, solid lightgray 1px")
+        .style("padding", "10px")
+//        .style("padding-bottom", "5px")
+        .style("border-radius","10px");
+    ;
+}
+resize();
+window.removeEventListener("resize", resize, true)
+window.addEventListener('resize', resize);
+
 
 
 
