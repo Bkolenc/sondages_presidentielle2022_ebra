@@ -326,16 +326,13 @@ class Poll {
             },
             dots:(bool)=>{
                 if (bool===undefined) return this.toggle.states.dots;
-
                 let o = (bool) ? Poll.params.dotsOpacity : 0;
-                console.log(bool,o);
                 d3.selectAll('g#dots circle')
                     .call(this._fade, 0, Poll.params.duration, o);
                 this.toggle.states.dots=bool;
             },
             areas:(bool)=>{
                 if (bool===undefined) return this.toggle.states.areas;
-
                 let o = (bool) ? Poll.params.areaOpacity : 0;
                 d3.selectAll('g#curves path.area')
                     .call(this._fade, 0, Poll.params.duration, o);
@@ -467,6 +464,7 @@ class Poll {
 
     _zoomTo() {        //A developper
         let zoomed = (event) => {
+            console.log(event);
             let transform = event.transform;
                             transform.x = 0;
                             transform.y = this.size.height + this.size.ribbonHeight;
@@ -479,6 +477,14 @@ class Poll {
             this._drawXAxis(newScale)
             this._drawXMonths(newScale);
             this._drawXYears(newScale);
+            let [x,y,k]=[transform.x,transform.y,transform.k];
+           // console.log(x,y,z,transform.toString());
+            d3.selectAll('g#curves')
+                .attr('transform',`translate(${x} 0) scale(${k} 1)`);
+            d3.select('#pattern-stripe')
+                .attr('patternTransform',`scale(${1/k} 1) rotate(45)`);
+            d3.selectAll('g#dots')
+                .attr('transform',`translate(${x} 0) scale(${k} 1)`);
         //    this._drawChart(newScale);
             //   this.layers.xMonths                .call(this.xMonthsGenerator);
 
@@ -572,15 +578,29 @@ class Poll {
             width: this.size.width,
             delay: 10,
             duration: 2000,
-            complete: () => this.toggle.areas(true)
+            complete: () => {
+                this.toggle.areas(true);
+                this._zoomTo();
+            }
         });
 
         setTimeout(() => {
-            this._zoomTo();
-            /*
-            this.xDomain=[new Date('2021-01-01'),new Date('2021-11-01')];
-            this.xScale.domain(this.xDomain);
-            this._drawXAxis();*/
+            let elt=this.layers.curves.append('text').attr('id','motionTest').text('Test suivi').style('font-size',20).attr('dy',-10);
+            var path = anime.path('path.courbe.id_12');
+
+            anime({
+                targets: "#motionTest",
+                translateX: path('x'),
+                translateY: path('y'),
+                rotate: 0, //path('angle')
+                easing: 'easeOutQuad',
+                delay: 6000,
+                duration: 4000,
+                begin: () => elt.style('display','auto'),
+                complete: () => elt.style('display','none')
+               });
+
+
         }, 1000)
         return this;
 
@@ -761,7 +781,7 @@ class Poll {
      * @private
      */
     _drawChart(xScale) {
-        xScale=xScale||this.xScale;
+        xScale=xScale||this.xScale; //ENCORE UTILE???
         //Fonctions generatrices du path pour la courbe et la surface
         const curveGen = d3.line()
             .x(d => xScale(d[0]))

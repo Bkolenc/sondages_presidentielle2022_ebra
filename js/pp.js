@@ -54,10 +54,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 .push( 'sondages',dictToMap(G_sondages.tables.sondages))
                 .draw();
 
-/*
-        setTimeout(function(){
-            Graph.toggle.dots(true);
-        },4000);
+
+
 
 
 
