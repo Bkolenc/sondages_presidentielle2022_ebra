@@ -33,7 +33,6 @@ function click_candidats()
             Candidat.hide(id_chiffre,0);
             
         }
-//        console.log(G_sondages.selection_candidats );
         maj_boutons_candidats();
         
         var selected_candidats = G_sondages.selection_candidats;
@@ -67,7 +66,7 @@ function click_candidats()
         clearTimeout(G_sondages.vrac.tooltip_to);
         
         var mid_x = document.getElementsByTagName("html")[0].clientWidth / 2 ;
-        console.log(mid_x);
+        
         if(x<mid_x)
         {
             d3.select("#tooltip")

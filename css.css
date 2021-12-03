@@ -132,6 +132,7 @@ html
     background-position: center;
     background-size: contain;
     display:inline-block;
+    image-rendering: -webkit-optimize-contrast;
 /*    vertical-align:middle;*/
 /*    transition:0.3s;*/
     

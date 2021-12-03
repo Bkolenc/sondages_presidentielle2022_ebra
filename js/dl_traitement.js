@@ -1,11 +1,11 @@
 // Récupère tous les .csv
 function recup_csv_tour1(callback)
 {
-
+var nocache = Date().now;
     G_sondages.tables = {};
     let Promises=[],
         files=['candidats','populations','instituts','sondages','hypotheses_1','resultats_1'];
-    files.forEach( (f) => Promises.push( d3.csv(`data/${f}.csv`)));
+    files.forEach( (f) => Promises.push( d3.csv(`data/${f}.csv?nocache=`+ Date().now )) ) ;
 
     Promise.all(Promises).then((values) => {
         [candidats,populations,instituts,sondages,hypotheses_1,resultats_1]=values;
@@ -167,7 +167,7 @@ function completer_point(id_candidat, point)
 function afficher_boutons_candidats()
 {
 
-
+    var nocache = Date().now
     var candidats = G_sondages.tables.candidats;
 
     var tous_candidats = [];
@@ -218,6 +218,7 @@ function afficher_boutons_candidats()
 
     function afficher_candidat(v, tier, selected)
     {
+        var nocache=Date.now();
         var couleur = G_sondages.couleurs[v.id_candidat];
 
 
@@ -235,7 +236,7 @@ function afficher_boutons_candidats()
             var sans_check = initiales;
             
             var couleur_croix = "";
-            if(v.id_candidat == "id_12" || v.id_candidat == "id_4" || v.id_candidat == "id_20" || v.id_candidat == "id_29")
+            if(v.id_candidat == "id_18" || v.id_candidat == "id_4" || v.id_candidat == "id_20" || v.id_candidat == "id_29")
             {
                 couleur_croix = " style='color:black;'";
             }
@@ -249,7 +250,7 @@ function afficher_boutons_candidats()
                 .attr("data-id",  v.id_candidat)
 //                .html("div class='img")
                 .html("<div class='img_et_init'>"+
-                        "<div class='img_cont' style='background-image:url("+url_img+");'></div><p class='initiales' style='font-family:merriweather-sans;'>"+sans_check+"</p></div><p class='plus_moins'"+couleur_croix+">-</p>");
+                        "<div class='img_cont' style='background-image:url("+url_img+"?nocache="+nocache+");'></div><p class='initiales' style='font-family:merriweather-sans;'>"+sans_check+"</p></div><p class='plus_moins'"+couleur_croix+">-</p>");
             
             
             
