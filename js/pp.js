@@ -18,8 +18,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
         // On sélectionne les candidats s'affichant par défaut en fixant un seuil (en pourcent)
-        candidats_par_defaut(G_sondages.vrac.seuil); //Encore utile???
+        candidats_par_defaut(G_sondages.vrac.seuil); //Encore utile??? - bah ouais, ça évite de passer du temps à mettre des 1 et des 0 sur le php
+        
+        
         afficher_boutons_candidats();
+        var candidats_sans_prefixe = [];
+        G_sondages.selection_candidats.forEach(function(v, k){
+            var chiffre = v.split("_")[1];
+            candidats_sans_prefixe.push(chiffre);
+        });
+        
+        
         // Voici à quoi ressemblent maintenant les données brutes pour former les courbes :
 
         //Reformatage des données et injection dans la classe Poll
@@ -34,50 +43,37 @@ document.addEventListener("DOMContentLoaded", function(event) {
         let tableCandidats=new Map();
         Object.keys(G_sondages.tables.candidats)
             .forEach( (key)=> {
-                let newKey=parseInt(key.replace('id_','')),
-                    newValue=Object.assign({}, G_sondages.tables.candidats[key]);   //Shallow copy
-                newValue.couleur=G_sondages.couleurs[key];
+            
+                let newKey = parseInt(key.replace('id_','')),
+                    newValue = Object.assign({}, G_sondages.tables.candidats[key]);   //Shallow copy
+                newValue.couleur = G_sondages.couleurs[key];
                 newValue.nom=newValue.nom_candidat;
                 newValue.initiales=(newValue.nom)?newValue.nom.match(/[A-Z]/g).join(''):'';
                 delete(newValue.nom_candidat);
                 if (!isNaN(newKey)) tableCandidats.set(newKey,newValue);
+                
+            
             })
 
-
-
+        console.log(tableCandidats);
         const MainData=new DataWrapper('mainData')
                 .push(G_sondages.tables.resultats_1)
                 .map(d3.autoType);
+        
         const Graph=new Poll('motherOfPolls')
                 .push('resultats',MainData)
                 .push( 'candidats',tableCandidats)
                 .push( 'sondages',dictToMap(G_sondages.tables.sondages))
                 .draw();
+        
+//        Candidat.hide("all", 0);
+//        Candidat.show(candidats_sans_prefixe,0);
 
 
 
 
 
 
-/*
-Candidat.hide('all',0)
-    .show([1],3000)
-    .show( [7,11,12,13], 3000);
-
-
-
-
- */
-        /*Candidat.hide('all',0);
-        setTimeout( function(){
-            Candidat.show([1,3,5,7,11,12,13]);
-        },2000 )*/
-
-        // Tests pour afficher toutes les infos relatives à un point :
-//    var point_1 = G_sondages.courbe_par_candidat["id_3"][4],
-//        point_2 = G_sondages.courbe_par_candidat["id_16"][32];
-//    console.log(completer_point("id_3", point_1));
-//    console.log(completer_point("id_16", point_2));
     });
 });
 

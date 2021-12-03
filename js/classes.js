@@ -810,8 +810,28 @@ class Poll {
             if (data.length >= Poll.params.minCurvePoints) {      //Inutile de tracer une courbe si moins de x points
                 //Creation calque id_X
                 const layer = this.layers.curves.append('svg:g').classed(`id_${id}`, true)
-                    .style('display', () => this.data.candidats.get(id).defaut ? 'auto' : 'none')
-                    .style('opacity', () => this.data.candidats.get(id).defaut ? 1 : 0);
+                    .style('display', () => {
+                        if(inArray("id_"+id, G_sondages.selection_candidats))
+                        {
+                            return "auto";
+                        }
+                        else
+                        {
+                            return "none";
+                        }
+                    })
+                    .style('opacity', () => {
+                        if(inArray("id_"+id, G_sondages.selection_candidats))
+                        {
+                            return 1;
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+//                        this.data.candidats.get(id).defaut ? 1 : 0
+                    });
+                console.log(id);
                 //Tracé de la courbe
                 this._drawCurve(id, data, curveGen, layer);
                 //Tracé de la marge d'erreur
