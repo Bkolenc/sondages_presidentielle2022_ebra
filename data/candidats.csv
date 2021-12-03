@@ -1,35 +1,35 @@
-id,nom,parti
-1,"Anne Hidalgo","Parti socialiste "
-2,"Nicolas Dupont-Aignan","Debout la France "
-3,"Marine Le Pen","Rassemblement national "
-4,"Yannick Jadot","EE-LV "
-5,"Valérie Pécresse","Les Républicains "
-6,"Fabien Roussel","Parti communiste "
-7,"Eric Zemmour"," "
-8,"Nathalie Arthaud","Lutte ouvrière "
-9,"Arnaud Montebourg"," "
-10,"Philippe Poutou","NPA "
-11,"Jean-Luc Mélenchon","France insoumise "
-12,"Emmanuel Macron","LRM "
-13,"Xavier Bertrand","Les Républicains "
-14,"Michel Barnier","Les Républicains "
-15,"Jean Lassalle","Résistons "
-16,"Florian Philippot","Les Patriotes "
-17,"François Asselineau","UPR "
-18,"Jean-Christophe Lagarde","UDI "
-19,"Jean-Frédéric Poisson","PCD "
-20,"Sandrine Rousseau","EE-LV "
-21,"Laurent Wauquiez","Les Républicains "
-22,"François Baroin","Les Républicains "
-23,"Rachida Dati","Les Républicains "
-24,"Olivier Faure","Parti socialiste "
-25,"Ségolène Royal","Parti socialiste "
-26,"Bruno Retailleau","Les Républicains "
-27,"François Hollande","Parti socialiste "
-28,,"« ext. gauche » "
-29,"Eric Piolle","EE-LV "
-30,"Eric Ciotti","Les Républicains "
-31,"Philippe Juvin","Les Républicains "
-32,"Denis Payre","Les Républicains "
-33,"Jacques Cheminade","Solidarité et progrès "
-34,"Hélène Thouy","Parti animaliste "
+id,nom,parti,sigle,defaut
+1,"Anne Hidalgo","Parti socialiste","PS",1
+2,"Nicolas Dupont-Aignan","Debout la France","DLF",0
+3,"Marine Le Pen","Rassemblement national","RN",1
+4,"Yannick Jadot","Europe Ecologie - Les Verts","EELV",1
+5,"Valérie Pécresse","Les Républicains","LR",1
+6,"Fabien Roussel","Parti communiste","PCF",0
+7,"Eric Zemmour","","",1
+8,"Nathalie Arthaud","Lutte ouvrière","LO",0
+9,"Arnaud Montebourg","","",0
+10,"Philippe Poutou","Nouveau parti anticapitaliste","NPA",0
+11,"Jean-Luc Mélenchon","La France insoumise","LFI",1
+12,"Emmanuel Macron","La République en marche","LREM",1
+13,"Xavier Bertrand","Les Républicains","LR",1
+14,"Michel Barnier","Les Républicains","LR",1
+15,"Jean Lassalle","Résistons","",0
+16,"Florian Philippot","Les Patriotes","LP",0
+17,"François Asselineau","Union populaire républicaine","UPR",0
+18,"Jean-Christophe Lagarde","Union des démocrates et indépendants","UDI",0
+19,"Jean-Frédéric Poisson","Parti chrétien-démocrate","PCD",0
+20,"Sandrine Rousseau","Europe Ecologie - Les Verts","EELV",0
+21,"Laurent Wauquiez","Les Républicains","LR",0
+22,"François Baroin","Les Républicains","LR",0
+23,"Rachida Dati","Les Républicains","LR",0
+24,"Olivier Faure","Parti socialiste","PS",0
+25,"Ségolène Royal","Parti socialiste","PS",0
+26,"Bruno Retailleau","Les Républicains","LR",0
+27,"François Hollande","Parti socialiste","PS",0
+28,,"Extrème-gauche","Ext-G",0
+29,"Eric Piolle","Europe Ecologie - Les Verts","EELV",0
+30,"Eric Ciotti","Les Républicains","LR",1
+31,"Philippe Juvin","Les Républicains","LR",0
+32,"Denis Payre","Les Républicains","LR",0
+33,"Jacques Cheminade","Solidarité et progrès","SP",0
+34,"Hélène Thouy","Parti animaliste","PA",0
