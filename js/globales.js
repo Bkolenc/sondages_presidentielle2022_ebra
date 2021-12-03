@@ -1,39 +1,39 @@
 var G_sondages = {
     couleurs:{
-        "id_1" :"#FF0059",
-        "id_2" :"#2B99FC",
-        "id_3" :"#042FA0",
+        "id_1" :"#f76e9e",
+        "id_2" :"#042fa0",
+        "id_3" :"#071868",
         "id_4" :"#6EF000",
-        "id_5" :"#071868",
+        "id_5" :"#2b99fc",
         "id_6" :"#FF0000",
-        "id_7" :"#3f4782", // Eric Zemmour
-        "id_8" :"#e32831", // Lutte ouvrière
-        "id_9" :"#eb0045", // Montebourg
-        "id_10":"#c0081f",// NPA
-        "id_11":"#CE291D",
-        "id_12":"#F7FA05",
-        "id_13":"#071868",
-        "id_14":"#071868",
-        "id_15":"#00647a", // Jean Lassalle
-        "id_16":"#2B99FC", // Les Patriotes
-        "id_17":"#1d7f85", // UPR
-        "id_18":"#FF8000",
-        "id_19":"#003b5c", // Chrétiens démocrates (via)
+        "id_7" :"#071868", // Eric Zemmour
+        "id_8" :"#ce291D", // Lutte ouvrière
+        "id_9" :"#f76e9e", // Montebourg
+        "id_10":"#ce291D",// NPA
+        "id_11":"#ce291D",
+        "id_12":"#FF8000",
+        "id_13":"#2b99fc",
+        "id_14":"#2b99fc",
+        "id_15":"#c4c4c4", // Jean Lassalle
+        "id_16":"#071868", // Les Patriotes
+        "id_17":"#c4c4c4", // UPR
+        "id_18":"#f7fa05",
+        "id_19":"#042fa0", // Chrétiens démocrates (via)
         "id_20":"#6EF000",
-        "id_21":"#003b5c",
-        "id_22":"#003b5c",
-        "id_23":"#003b5c",
-        "id_24":"#FF0059",
-        "id_25":"#FF0059",
-        "id_26":"#003b5c",
-        "id_27":"#FF0059",
+        "id_21":"#2b99fc",
+        "id_22":"#2b99fc",
+        "id_23":"#2b99fc",
+        "id_24":"#f76e9e",
+        "id_25":"#f76e9e",
+        "id_26":"#2b99fc",
+        "id_27":"#f76e9e",
         "id_28":"#000000",
         "id_29":"#6EF000",
-        "id_30":"#003b5c",
-        "id_31":"#003b5c",
-        "id_32":"#003b5c",
+        "id_30":"#2b99fc",
+        "id_31":"#2b99fc",
+        "id_32":"#2b99fc",
         "id_33":"#808080",
-        "id_34":"#9C0D99"
+        "id_34":"#c4c4c4"
     },
     credits:{
         "id_1" :"© Mona Blanchet - LDL",
@@ -48,26 +48,26 @@ var G_sondages = {
         "id_10":"© Vincent Ollivier - LDL",
         "id_11":"© Pierre Mouny - LDL",
         "id_12":"© Christophe Agostinis - LDL",
-        "id_13":"© ",
+        "id_13":"© Ketty Beyondas - JSL",
         "id_14":"© Lionel Vadam - LER",
         "id_15":"© Jean-Charles Ole - VOM",
-        "id_16":"© ",
+        "id_16":"© Jérôme Humbrecht - VOM",
         "id_17":"© Christine Dumas - LER",
-        "id_18":"© Philippe Vacher - LPR",
+        "id_18":"© Eve Moulinier - LDL",
         "id_19":"© Stéphane Marc - LDL",
         "id_20":"© Joël Philippon - LPR",
-        "id_21":"© Richard Mouillaud",
+        "id_21":"© Richard Mouillaud - LPR",
         "id_22":"© Jean-François Souchet - LDL",
         "id_23":"© Joël Alexandre - VOM",
         "id_24":"© Christophe Agostinis - LDL",
         "id_25":"© Philippe Briqueleur - VOM",
-        "id_26":"© ",
-        "id_27":"© Jean-Noël Portmann - LER",
-        "id_28":"© ",
+        "id_26":"© Guillaume Georges - MAXPPP",
+        "id_27":"© Fabrice Antérion - LDL",
+        "id_28":"©",
         "id_29":"© Mona Blanchet - LDL",
         "id_30":"© Fabrice Anterion - LDL",
-        "id_31":"© ",
-        "id_32":"Photo Christophe Lebedinsky - Nous Citoyens",
+        "id_31":"© Christophe Agostinis - LDL",
+        "id_32":"© Serge Dumont - LPR",
         "id_33":"© Eric Thiebaut - VOM",
         "id_34":"© Romain Metairie - LDL"
     },
