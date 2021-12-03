@@ -1,9 +1,44 @@
 <?php
 
-$url = "https://raw.githubusercontent.com/nsppolls/nsppolls/master/presidentielle.json";
-//$url = "presidentielle.json";
+//$url = "https://raw.githubusercontent.com/nsppolls/nsppolls/master/presidentielle.json";
+$url = "presidentielle.json";
 $file = file_get_contents($url);
-
+$correspondances = array(
+    "1"=>["PS", 1],
+    "2"=>["DLF", 1],
+    "3"=>["RN",1],
+    "4"=>["EELV",1],
+    "5"=>["LR",1],
+    "6"=>["PCF",1],
+    "7"=>["",1],
+    "8"=>["LO",1],
+    "9"=>["",1],
+    "10"=>["NPA",1],
+    "11"=>["LFI",1],
+    "12"=>["LREM",1],
+    "13"=>["LR",0],
+    "14"=>["LR",0],
+    "15"=>["",1],
+    "16"=>["LP",1],
+    "17"=>["UPR",1],
+    "18"=>["UDI",0],
+    "19"=>["PCD",1],
+    "20"=>["EELV",-1],
+    "21"=>["LR",0],
+    "22"=>["LR",-1],
+    "23"=>["LR",-1],
+    "24"=>["PS",-1],
+    "25"=>["PS",-1],
+    "26"=>["LR",-1],
+    "27"=>["PS",-1],
+    "29"=>["EELV",-1],
+    "30"=>["LR",1],
+    "31"=>["LR",0],
+    "32"=>["LR",-1],
+    "33"=>["SP",1],
+    "34"=>["PA",1]
+    
+);
 $objet = json_decode($file);
 
 $instituts_traites = array();
@@ -32,7 +67,7 @@ $resultats_2 = array();
 $resultats_2[] = ["id_candidat", "id_hypothèse", "borne_sup", "borne_inf", "resultat"];
 
 $candidats = array();
-$candidats[] = ["id", "nom", "parti"];
+$candidats[] = ["id", "nom", "parti", "sigle","defaut"];
 
 foreach ($objet as $k=>$v)
 {
@@ -124,7 +159,22 @@ foreach ($objet as $k=>$v)
             {
                 $candidats_traites[] = $nom;
                 $index = count($candidats);
-                $candidats[] = [$index, $nom, $parti];
+                $sigle = "";
+                $degage = "";
+                try
+                {
+                    $sigle = $correspondances[$index][0];
+                    $degage = $correspondances[$index][1];
+                }
+                catch(Exception $e)
+                {
+                    
+                }
+                
+                
+                
+                
+                $candidats[] = [$index, $nom, $parti, $sigle, $degage];
             }
             
             $id_candidat = nom_vers_id($nom, $candidats, 0,1);
@@ -145,7 +195,7 @@ foreach ($objet as $k=>$v)
             ///////////
 
             $candidatss = $hyp->candidats;
-
+            
             foreach($candidatss as $kkk=>$c)
             {
     //            var_dump($c);
