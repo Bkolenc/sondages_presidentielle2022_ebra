@@ -290,12 +290,14 @@ class Poll {
 
     //Dimensions et paramètres du tracé
     static size = {width: 1600, height: 800};
-    static margins = {top: 50, right: 50, bottom: 100, left: 80};
+    static margins = {top: 50, right: 50, bottom: 100, left: 100};
     static params = {
         minCurvePoints: 10, curveMode: d3.curveBasis, bandWidth: .2, curveWidth: 5,
-        areaWidth: 1, areaOpacity: .4,
+        areaWidth: 1, areaOpacity: .3,
         dotsOpacity: .1, dotsRadius: 5,
+        lineWidth: 2,
         duration: 1000
+
     };
 
     constructor() {
@@ -370,6 +372,7 @@ class Poll {
         this.yGridGenerator = d3.axisLeft(this.yScale).tickFormat('').tickSize(-this.size.width * .99).tickSizeOuter(0);
         //Création des calques
         this.layers = {};
+        this._createLayer('axis', 'axis');
         this._createLayer('xAxis', 'axis').attr('transform', `translate(0 ${this.size.height + this.size.ribbonHeight})`);
         this._createLayer('xMonths', 'axis').attr('transform', `translate(0 ${this.size.height})`);
         this._createLayer('xYears', 'axis').attr('transform', `translate(0 ${this.size.height})`);
@@ -445,6 +448,7 @@ class Poll {
         this.yDomain = [0, (this.yDomain[1] + 1)];
         this.yScale.domain(this.yDomain);
         this.yAxisGenerator.tickValues(d3.range(0, this.yDomain[1], 5));
+        this.yGridGenerator.tickValues(d3.range(5, this.yDomain[1], 5));
 
         return this;
     }
@@ -462,17 +466,17 @@ class Poll {
     }
 
 
-    _zoomTo() {        //A developper
+    _enableZoom() {        //A developper
         let zoomed = (event) => {
-            console.log(event);
+        console.log(event);
             let transform = event.transform;
-                            transform.x = 0;
-                            transform.y = this.size.height + this.size.ribbonHeight;
+                     transform.x = 0;
+                     transform.y = this.size.height + this.size.ribbonHeight;
             if (transform.k>2) this.xMonthsGenerator.tickFormat(d3.timeFormat("%B"));
             else this.xMonthsGenerator.tickFormat(d3.timeFormat("%b"))
 
             let newScale = transform.rescaleX(this.xScale);
-            // this.xAxisGenerator.scale(newScale);
+
 
             this._drawXAxis(newScale)
             this._drawXMonths(newScale);
@@ -481,6 +485,8 @@ class Poll {
            // console.log(x,y,z,transform.toString());
             d3.selectAll('g#curves')
                 .attr('transform',`translate(${x} 0) scale(${k} 1)`);
+            d3.select('#mainClip')
+                .attr('transform',`translate(${x} 0) scale(${1/k} 1)`);
             d3.select('#pattern-stripe')
                 .attr('patternTransform',`scale(${1/k} 1) rotate(45)`);
             d3.selectAll('g#dots')
@@ -555,15 +561,16 @@ class Poll {
 
         this._calcDomainAndScales()
 
-        this._drawXAxis()
+        this._drawYAxis()
             ._drawXMonths()
             ._drawXYears()
-            ._drawYAxis()
+            ._drawXAxis()
             ._drawDots()
             ._drawChart();
         //Animation initiale (effet de rollover pour les courbes, puis affichage graduel des marges)
         this.layers.curves.attr('clip-path', 'url(#mainClipPath)');
         this.layers.dots.attr('clip-path', 'url(#mainClipPath)');
+        this.layers.axis.attr('clip-path', 'url(#mainClipPath)');
         this.container.append('clipPath')    //Clippath pour l'animation
             .attr('id', 'mainClipPath')
             .append("rect")
@@ -571,7 +578,7 @@ class Poll {
                 .attr('x', 0)
                 .attr('y', 0)
                 .attr('width', 0)
-                .attr('height', this.size.height);
+                .attr('height', this.size.height+Poll.margins.bottom);
         anime({
             targets: '#mainClip',
             easing: 'easeInOutExpo',
@@ -580,7 +587,7 @@ class Poll {
             duration: 2000,
             complete: () => {
                 this.toggle.areas(true);
-                this._zoomTo();
+                this._enableZoom();
             }
         });
 
@@ -618,7 +625,7 @@ class Poll {
         const xAxis = this.layers.xAxis
             .call(this.xAxisGenerator);
         xAxis.selectAll('text')
-                .style('font-size', this.size.font)
+                .style('font-size', `${this.size.font}px`)
                 .style('text-transform', 'capitalize')
                 .attr('transform', 'translate(-10 5)')
                 .style('text-anchor', 'start');
@@ -641,7 +648,7 @@ class Poll {
         axis.selectAll('text')
             .style('text-transform', 'uppercase')
             .style('text-anchor', 'middle')
-            .style('font-size', this.size.ribbonHeight / 1.7)
+            .style('font-size', `${this.size.ribbonHeight / 1.7}px`)
             .style('font-weight', 'bold')
             .each((date, i, nodes) => {     //Centrage des étiquettes
                 if (date){ //A supprimer qd problème année réglée
@@ -663,12 +670,15 @@ class Poll {
                             .attr('y', 0)
                             .attr('width', offsetX * 2)
                             .attr('height', this.size.ribbonHeight)
-                            .style('fill', 'rgba(10,10,10,.1)');
+                            .style('fill', 'rgba(100,100,100,.1)');
 
                     }
                 }
             });
-
+        axis.selectAll('path')
+            .style('stroke-width',Poll.params.lineWidth);
+        axis.selectAll('line')
+            .style('stroke','#eee');
         /*        this.layers.xMonths.append('rect')
                     .attr('x',0)
                     .attr('y',0)
@@ -695,7 +705,7 @@ class Poll {
             .attr('dx',this.size.width/100)
             .style('text-transform', 'uppercase')
             .style('text-anchor', 'start')
-            .style('font-size', this.size.ribbonHeight *2)
+            .style('font-size', `${this.size.ribbonHeight *2}px`)
             .style('font-weight', 'bold')
             .style('font-weight', 'bolder')
             .style('fill', '#ddd');
@@ -734,17 +744,18 @@ class Poll {
         this.layers.yAxis
             .call(this.yAxisGenerator)
             .selectAll('text')
-            .style('font-size', this.size.font * 1.5)
+            .style('font-size', `${this.size.font * 2}px`)
             .style('text-anchor', 'end');
         this.layers.yAxis
             .call(this.yAxisGenerator)
-            .selectAll('line')
-            .style('stroke-width', 2);
+            .selectAll('line,path')
+            .style('stroke-width', Poll.params.lineWidth);
         //Grid
         this.layers.yGrid
             .attr('transform', `translate(${this.size.width / 200} 0)`)
             .call(this.yGridGenerator)
             .selectAll('line')
+            .attr('stroke-dasharray','2,2')
             .style('stroke', '#ddd');
         this.layers.yGrid
             .selectAll('path')
