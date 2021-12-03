@@ -1,7 +1,7 @@
 <?php
 
 $url = "https://raw.githubusercontent.com/nsppolls/nsppolls/master/presidentielle.json";
-//$url = "presidentielle.json";
+//$url = "presidentielle.jsgit on";
 $file = file_get_contents($url);
 $correspondances = array(
     "1"=>["PS",     1],

@@ -18,7 +18,7 @@ var nocache = Date().now;
                 nom_candidat: infos.nom,
                 parti: infos.parti,
                 sigle: infos.sigle,
-                defaut: (infos.defaut=='1')?true:false
+                defaut: infos.defaut
             }
             candidats_formate[id] = a_push;
         });
@@ -170,7 +170,7 @@ function afficher_boutons_candidats()
 
     var nocache = Date().now
     var candidats = G_sondages.tables.candidats;
-
+    console.log(candidats);
     var tous_candidats = [];
     var candidats_dessus = [];
     var candidats_dessous = [];
@@ -192,22 +192,22 @@ function afficher_boutons_candidats()
         return (b.dernier_score - a.dernier_score);
     });
     tous_candidats.forEach(function(v, k){
-        if(v.derniere_date < G_sondages.vrac.seuil_date)
+        if( (v.derniere_date < G_sondages.vrac.seuil_date && v.defaut != "-1") || v.defaut == "0")
         {
             candidats_oublies.push(v);
         }
-        else if(v.dernier_score >= G_sondages.vrac.seuil)
+        else if(v.dernier_score >= G_sondages.vrac.seuil && v.defaut == "1")
         {
             candidats_dessus.push(v);
         }
-        else
+        else if(v.defaut ==  "1")
         {
             candidats_dessous.push(v);
         }
     });
 
     candidats_dessus.forEach(function(v, k){
-
+        
         afficher_candidat(v, "#tier_1")
     });
     candidats_dessous.forEach(function(v, k){
@@ -314,8 +314,9 @@ function candidats_par_defaut(seuil)
         derniers_scores.forEach(function(v, idx){
             somme += v;
         });
+        var defaut = G_sondages.tables.candidats[id_candidat].defaut;
         var moyenne = somme/derniers_scores.length;
-        if(moyenne >= seuil && ts_derniere_date>=G_sondages.vrac.seuil_date)
+        if(moyenne >= seuil && ts_derniere_date>=G_sondages.vrac.seuil_date && defaut == "1")
         {
             candidats_select.push(id_candidat);
         }
