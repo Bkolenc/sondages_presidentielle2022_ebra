@@ -59,7 +59,13 @@ function click_candidats()
         
         check_si_click_hors_bouton(e);
         
+        
     });
+    d3.select("html").on("click", function(e){
+        e.stopPropagation();
+        check_si_click_hors_tier_2(e);
+        
+    })
 
     function tooltip(x, y, candidat, credit)
     {
@@ -107,6 +113,22 @@ function click_candidats()
         }
     }
     
+    function check_si_click_hors_tier_2(e)
+    {
+        var id = e.target.getAttribute("id");
+        var classe= e.target.getAttribute("class");
+        if(id == "tier_2" || id == "plus_de_candidats" || classe == "img_cont" || classe == "initiales" || classe=="candidat" || classe=='plus_moins' || classe=='cont_candidat')
+        {
+            // do nothing
+        }
+        else
+        {
+            d3.select("#tier_2").style("display","none").attr("data-deploye", false);
+            d3.select("#plus_de_candidats").text("Plus de candidats");
+        }
+        
+    }
+    
     d3.select("#plus_de_candidats").on("click", null).on("click", function(){
         var deploye = d3.select("#tier_2").attr("data-deploye");
         if(deploye == "false")
@@ -130,9 +152,8 @@ function resize(){
     var top = barre.bottom;
     var left = barre.left;
     var width = barre.width;
-    
     d3.select("#tier_2")
-        .style("top",top+"px")
+        .style("top",(top+ window.scrollY)+"px")
         .style("left", (left-10)+"px")
         .style("width", (width+20)+"px")
         .style("border", "solid lightgray 1px, solid lightgray 1px, solid lightgray 1px, solid lightgray 1px")
