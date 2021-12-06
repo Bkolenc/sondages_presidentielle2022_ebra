@@ -117,7 +117,7 @@ function click_candidats()
     {
         var id = e.target.getAttribute("id");
         var classe= e.target.getAttribute("class");
-        if(id == "tier_2" || id == "plus_de_candidats" || classe == "img_cont" || classe == "initiales" || classe=="candidat" || classe=='plus_moins' || classe=='cont_candidat')
+        if(id == "tier_2" || id == "plus_de_candidats" || classe=="img_et_init" || classe == "img_cont" || classe == "initiales" || classe=="candidat" || classe=='plus_moins' || classe=='cont_candidat')
         {
             // do nothing
         }
