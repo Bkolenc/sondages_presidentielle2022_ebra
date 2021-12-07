@@ -183,6 +183,13 @@ class DataWrapper {
 
     }
 
+    toGroups(keys){
+        if (typeof keys==='string') keys=[keys];
+        let fns=keys.map( (k) => (d)=>d[k] ),
+            nested=d3.groups(this.dataset,...fns);      //A vérifier que ça marche avec plusieurs clés...
+        return nested;
+    }
+
     map(fn) {
         this._dataset.full = this._dataset.full.map(fn);
         return this;
@@ -290,11 +297,11 @@ class Poll {
 
     //Dimensions et paramètres du tracé
     static size = {width: 1600, height: 1000};
-    static margins = {top: 50, right: 50, bottom: 150, left: 100};
+    static margins = {top: 50, right: 200, bottom: 150, left: 100};
     static params = {
         minCurvePoints: 10, curveMode: d3.curveBasis, bandWidth: .2, curveWidth: 3,
         areaWidth: 1, areaOpacity: .3,
-        dotsOpacity: .1, dotsRadius: 5,
+        pointsOpacity: .1, pointsRadius: 3,
         lineWidth: 1,
         duration: 1000
 
@@ -327,10 +334,10 @@ class Poll {
             });
         this._createSelector('Afficher le détail des estimations','insights')
             .on('click',(e,n)=> {
-                let state=this.toggle.dots(),
+                let state=this.toggle.points(),
                     text=(state)?'Afficher':'Masquer';
                 d3.select(e.target).select('span.text').text(`${text}  le détail des estimations`);
-                this.toggle.dots(!state);
+                this.toggle.points(!state);
             });
         //Objet data
         this.data = {
@@ -338,18 +345,18 @@ class Poll {
             candidats: undefined,
             sondages: undefined
         }
-        //Objet permettant d'afficher ou masquer certaines parties du graphique. Usage : Poll.toggle.dots(true|false)
+        //Objet permettant d'afficher ou masquer certaines parties du graphique. Usage : Poll.toggle.points(true|false)
         this.toggle={
             states: {
-                dots:false,
+                points:false,
                 areas:true,
             },
-            dots:(bool)=>{
-                if (bool===undefined) return this.toggle.states.dots;
-                let o = (bool) ? Poll.params.dotsOpacity : 0;
-                d3.selectAll('g#dots circle')
+            points:(bool)=>{
+                if (bool===undefined) return this.toggle.states.points;
+                let o = (bool) ? Poll.params.pointsOpacity : 0;
+                d3.selectAll('g#points ellipse')
                     .call(this._fade, 0, Poll.params.duration, o);
-                this.toggle.states.dots=bool;
+                this.toggle.states.points=bool;
             },
             areas:(bool)=>{
                 if (bool===undefined) return this.toggle.states.areas;
@@ -367,54 +374,39 @@ class Poll {
             ribbonHeight: (Poll.size.height - Poll.margins.top - Poll.margins.bottom) / 40
         };
         this.size.ribbonHeight = this.size.height / 15;        //Hauteur de l'axe des mois et des années
-        //Handler pour le zoom & pan (rectangle transparent sur toute la surface)
         //Handlers
-        this.zoomHandler = this.container
-            .append('rect')
-            .attr('id', 'zoomHandler')
-            .attr('y', (this.size.height-this.size.ribbonHeight*4))
-            .attr('width', this.size.width)
-            .attr('height', this.size.ribbonHeight*6)
-            .style('opacity', 0)
-            .style('pointer-events', 'all');
+        this.zoomHandler = this._createHandler('zoomHandler',0, this.size.height-this.size.ribbonHeight*4, this.size.width,this.size.ribbonHeight*6);
+        this.focusHandler = this._createHandler('focusHandler',0, 0, this.size.width,this.size.height-this.size.ribbonHeight*4);
+
         //Scales
         this.xScale = d3.scaleTime().range([0, this.size.width]);
         this.yScale = d3.scaleLinear().range([this.size.height, 0]);
-        //Axes
-        this.dateFn = d3.timeFormat('%d %b %Y');
+        //Générateurs des axes
+        //this.dateFn = d3.timeFormat('%d %b %Y');
         this.xAxisGenerator = d3.axisBottom(this.xScale).ticks(5).tickSize(10).tickSizeOuter(0).tickFormat(x => x.getDate());
         this.xMonthsGenerator = d3.axisBottom(this.xScale).ticks(d3.timeMonth).tickSize(this.size.ribbonHeight).tickFormat(d3.timeFormat("%b"));
         this.xYearsGenerator = d3.axisBottom(this.xScale).ticks(d3.timeYear).tickSize(-this.size.height).tickFormat(d3.timeFormat("%Y")).tickSizeOuter(0);
         this.yAxisGenerator = d3.axisLeft(this.yScale).tickFormat(x => x + '%').tickSizeOuter(0);
         this.yGridGenerator = d3.axisLeft(this.yScale).tickFormat('').tickSize(-this.size.width * .99).tickSizeOuter(0);
         //CLippaths
-        this.svg.select('defs')
-            .append('clipPath')
-            .attr('id', 'clipChart')
-            .append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', 0)       //Fixé à 0 initialement pour créer une impression d'animation
-            .attr('height', this.size.height+Poll.margins.bottom);
-        this.svg.select('defs')
-            .append('clipPath')
-            .attr('id', 'clipXAxis')
-            .append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', this.size.width)
-            .attr('height', Poll.size.height);
+        this._createClipPath('clipChart',0,0,0, (this.size.height+Poll.margins.bottom));
+        this._createClipPath('clipXAxis',0,-Poll.size.height,this.size.width, Poll.size.height+100);
         //Création des calques
         this.layers = {};
         const axis = this._createLayer('axis', 'axis');
-        this._createLayer('xAxis', 'axis',axis).attr('transform', `translate(0 ${this.size.height + this.size.ribbonHeight})`);
-        this._createLayer('xMonths', 'axis',axis).attr('transform', `translate(0 ${this.size.height})`)
+        this._createLayer('xAxis', 'axis',axis)
+            .attr('transform', `translate(0 ${this.size.height + this.size.ribbonHeight})`)
+            .attr('clip-path', 'url(#clipXAxis)');
+        this._createLayer('xMonths', 'axis',axis)
+            .attr('transform', `translate(0 ${this.size.height})`)
             .attr('clip-path', 'url(#clipXAxis)');
         this._createLayer('xYears', 'axis',axis).attr('transform', `translate(0 ${this.size.height})`);
         this._createLayer('yAxis', 'axis',axis);
         this._createLayer('yGrid', 'axis',axis);
-        this._createLayer('dots').attr('clip-path', 'url(#clipChart)');
-        this._createLayer('curves').attr('clip-path', 'url(#clipChart)');
+        this._createLayer('points')
+            .attr('clip-path', 'url(#clipChart)');
+        this._createLayer('curves')
+            .attr('clip-path', 'url(#clipChart)');
 
         //       this.layers.axis.attr('clip-path', 'url(#mainClipPath)');
 
@@ -479,6 +471,58 @@ class Poll {
         return selector;
     }
 
+    /**
+     * Crée dans le calque principal, et renvoie, un handler rectangulaire pour la gestion des interactions
+     * @param id {String} : identifiant
+     * @param x {Number}: origine x du rectangle
+     * @param y {Number}: origine y du rectangle
+     * @param width {Number} : largeur du rectangle
+     * @param height {Number} : hauteur du rectangle
+     * @returns {*} : selection D3
+     * @private
+     */
+    _createHandler(id,x,y,width,height){
+        const rect=this._createRect(x,y,width,height)
+            .attr('id',id)
+            .style('opacity', 0)
+            .style('pointer-events', 'all');
+        return this.container.append( ()=> rect.node() );
+    }
+
+    /**
+     * Crée dans le defs un clippath rectangulaire et le renvoie
+     * @param id {String} : identifiant
+     * @param x {Number}: origine x du rectangle
+     * @param y {Number}: origine y du rectangle
+     * @param width {Number} : largeur du rectangle
+     * @param height {Number} : hauteur du rectangle
+     * @returns {*} : selection D3
+     * @private
+     */
+    _createClipPath(id,x,y,width,height){
+        const rect=this._createRect(x,y,width,height);
+        return this.svg.select('defs')
+            .append('clipPath')
+            .attr('id', id)
+            .append( ()=> rect.node() );
+    }
+
+    /**
+     * Crée et renvoie un rectangle SVG (méthode commune à _createHandler et _createClippath)
+     * @param x {Number}: origine x du rectangle
+     * @param y {Number}: origine y du rectangle
+     * @param width {Number} : largeur du rectangle
+     * @param height {Number} : hauteur du rectangle
+     * @returns {*} : selection D3
+     * @private
+     */
+    _createRect( x,y,width,height){
+        return d3.create('svg:rect')
+            .attr('x', x)
+            .attr('y', y)
+            .attr('width', width)
+            .attr('height', height);
+    }
 
     /**
      * Injecte les données dans la propriété this.data
@@ -527,82 +571,30 @@ class Poll {
     }
 
 
-    _enablePanAndZoom() {        //A developper
+    /**
+     * Initialise le zoom & pan
+     * @private
+     */
+    _initializeZoom() {        //A developper
         const _this=this;
         function handleZoom(e) {
 
             //Déplacement et zoom des courbes, modification inverse du clippath et du pattern
-            d3.select('#curves').attr('transform',`translate(${e.transform.x} 0) scale(${e.transform.k} 1)`);
-            d3.select('#pattern-stripe').attr('patternTransform',`scale(${1/e.transform.k} 1) rotate(45)`);
-            d3.select('#clipChart rect').attr('transform',`translate(${-e.transform.x/e.transform.k} 0) scale(${1/e.transform.k} 1)`);
+            let [x,k,ki]=[e.transform.x,e.transform.k,1/e.transform.k];
+            d3.select('#curves').attr('transform',`translate(${x} 0) scale(${k} 1)`);
+            d3.select('#pattern-stripe').attr('patternTransform',`scale(${ki} 1) rotate(45)`);
+            d3.select('#clipChart rect').attr('transform',`translate(${-x/k} 0) scale(${ki} 1)`);
             //d3.select('#xAxis').attr('transform',`translate(${e.transform.x} 0) scale(${e.transform.k} 1)`);
 
+            d3.select('#points').attr('transform',`translate(${x} 0) scale(${k} 1)`);
+            d3.selectAll('#points ellipse').attr('transform',`scale(${ki} 1)`)
 
             //Déplacement et zoom des axes
             let newScale=e.transform.rescaleX(_this.xScale);
             _this._drawXAxis(newScale);
-            _this._drawXMonths(newScale,e.transform.k);
+            _this._drawXMonths(newScale,k);
             _this._drawXYears(newScale);
-         /*   d3.selectAll('g#dots circle')
-                .attr("cx", d => newScale(d.debut));*/  //FONCTIONNNE
 
-
-            //EN COURS
-            /*
-            const curveGen = d3.line()
-                .x(d => newScale(d[0]))
-                .y(d => _this.yScale(d[1]))
-                .curve(Poll.params.curveMode);;
-            const areaGen = d3.area()
-                .x(d => newScale(d[0]))
-                .y0(d => _this.yScale(d[1]))
-                .y1(d => _this.yScale(d[2]))
-                .curve(Poll.params.curveMode);;
-
-            d3.selectAll('g#curves path.courbe')
-                .attr("d", curveGen);
-            d3.selectAll('g#curves path.area')
-                .attr("d", areaGen);
-
-
-
-            /*
-        console.log(event);
-            let transform = event.transform;
-                     //transform.x = 0;
-                     transform.y = this.size.height + this.size.ribbonHeight;
-            if (transform.k>2) this.xMonthsGenerator.tickFormat(d3.timeFormat("%B"));
-            else this.xMonthsGenerator.tickFormat(d3.timeFormat("%b"))
-
-            let newScale = transform.rescaleX(this.xScale);
-
-
-            this._drawXAxis(newScale)
-            this._drawXMonths(newScale);
-            this._drawXYears(newScale);
-            let [x,y,k]=[transform.x,transform.y,transform.k];
-           // console.log(x,y,z,transform.toString());
-            d3.selectAll('g#curves')
-                //.attr('transform',`translate(${x} 0) scale(${k} 1)`);
-                .attr('transform',`translate(${x} 0) scale(${k} 1)`);
-            d3.select('#mainClip')
-                .attr('transform',`translate(${x} 0) scale(${1/k} 1)`);
-            d3.select('#pattern-stripe')
-                .attr('patternTransform',`scale(${1/k} 1) rotate(45)`);
-            d3.selectAll('g#dots')
-                .attr('transform',`translate(${x} 0) scale(${k} 1)`);
-        //    this._drawChart(newScale);
-            //   this.layers.xMonths                .call(this.xMonthsGenerator);
-
-
-            /*  let xAxis=this.layers.xAxis
-                              .attr('transform',transform.toString());
-      /*        xAxis.selectAll('text')
-                  .style('font-size', this.size.font)
-                  .style('text-transform', 'capitalize')
-                  .attr('transform', 'translate(-10 5)')
-                  .style('text-anchor', 'start');
-              this.xAxisGenerator.tickSize(5/event.transform.k);*/
         }
         let zoom = d3.zoom()
             .scaleExtent([1, 6])
@@ -610,27 +602,6 @@ class Poll {
             // .extent([Poll.margins.left, Poll.margins.top], [this.size.width, this.size.height])
             .on('zoom', handleZoom);
         this.zoomHandler.call(zoom);
-
-
-        /*
-       // this.xAxis2 = (g, x) => g.call(this.xAxisGenerator);
-        let zoomed = (event) => {
-            const xz = event.transform.rescaleX(this.xScale);
-            let zoomLevel = event.transform.k;
-            //path.attr("d", area(data, xz));
-            this.layers.xAxis.call(this.xAxisGenerator, xz);
-        }
-        const zoom = d3.zoom()
-            .scaleExtent([1, 32])
-            .extent([[Poll.margins.left, 0], [this.size.width, this.size.height]])
-            .translateExtent([[Poll.margins.left, -Infinity], [this.size.width, Infinity]])
-            .on('zoom', zoomed);
-
-        this.svg.call(zoom)
-            .transition()
-            .duration(2000)
-            .call(zoom.scaleTo, 1, [this.xScale(Date.UTC(2021, 2, 1)), 0]);
-*/
 
     }
 
@@ -666,7 +637,7 @@ class Poll {
             ._drawXMonths()
             ._drawXYears()
             ._drawXAxis()
-            ._drawDots()
+            ._drawPoints()
             ._drawChart();
         //Animation initiale (effet de rollover pour les courbes, puis affichage graduel des marges)
         anime({
@@ -678,7 +649,7 @@ class Poll {
             complete: () => {
                 this._firstDraw=false;
                 this.toggle.areas(true);
-                this._enablePanAndZoom();
+                this._initializeZoom();
             }
         });
         /*
@@ -721,7 +692,8 @@ class Poll {
             xAxis.selectAll('text')
                 .attr('transform', 'translate(0 5)')
                 .style('font-size', `${this.size.font}px`);
-            xAxis.selectAll('line,path')
+            xAxis.selectAll('line')
+                .attr('y1',-100)
                 .attr('vector-effect', 'non-scaling-stroke');
         }
 
@@ -790,8 +762,6 @@ class Poll {
         return this;
     }
 
-
-
     /**
      * Création de l'axe des ordonnées
      * @returns {Poll}
@@ -824,28 +794,36 @@ class Poll {
         return this;
     }
 
+
     /**
-     * Création des points (estimations des sondages). Caché par défaut
+     * Création des points
+     * @param xScale {Function} : échelle X
      * @returns {Poll}
      * @private
      */
-    _drawDots(xScale) {
+    _drawPoints(xScale){
         xScale= xScale || this.xScale;
-        console.log('dots!',this.data.resultats.dataset);
-        this.dots = this.layers.dots
-            .selectAll('circle')
-            .data(this.data.resultats.dataset)
+        let data=this.data.resultats.toGroups('sondage');
+        this.layers.points
+            .selectAll('g')
+            .data(data)
             .enter()
-            .append('circle')
-            .attr('class', d => `id_${d.id_candidat}`)
-            .attr("cx", d => xScale(d.debut))
-            .attr("cy", d => this.yScale(d.resultat))
-            .attr("r", 6)
-            .style('opacity', 0)
-            .style('pointer-events', 'none')
+            .append('g')
+            .attr('id',(d)=> `sond_${d[0]}`)
+            .attr('transform', (d)=> 'translate('+xScale( d[1][0]['debut'])+' 0)')
+            .selectAll('ellipse')
+            .data( function(d) { return d[1] })
+            .enter()
+            .append('ellipse')
+            .attr('cx', 0 )
+            .attr('cy', d => this.yScale(d.resultat) )
+            .attr('rx', Poll.params.pointsRadius )
+            .attr('ry', Poll.params.pointsRadius )
             .style('fill', (d) => this.data.candidats.get(d.id_candidat).couleur)
-            .append('title')
-            .html(d => this.data.candidats.get(d.id_candidat).nom + ': ' + d.resultat + '%');
+            .style('opacity', 0)
+            .style('pointer-events', 'none');
+          //  .html(d => this.data.candidats.get(d.id_candidat).nom + ': ' + d.resultat + '%');
+
         return this;
     }
 
@@ -907,10 +885,7 @@ class Poll {
             .datum(this._loessRegression('resultat')(data))
             .attr("d", generator)
             .style('stroke', this.color(id))
-            .style('stroke-linecap', 'round')
-            .style('stroke-linejoin', 'round')
             .style('stroke-width', Poll.params.curveWidth)
-            .style('fill', 'transparent')
             .append('title')
             .html(`${this.data.candidats.get(id).nom} (${this.data.candidats.get(id).sigle})`);
 
@@ -933,10 +908,8 @@ class Poll {
             .attr('fill', this.color(id, Poll.params.areaOpacity))
             .attr('mask', 'url(#mask-stripe)')
             .attr('stroke', this.color(id, (Poll.params.areaOpacity - .1)))
-            .attr('stroke-width', Poll.params.areaWidth)
-            .style('opacity', 0)
-            .style('stroke-linecap', 'round')
-            .style('stroke-linejoin', 'round');
+            .attr('stroke-width', Poll.params.areaWidth*5)
+            .style('opacity', 0);
 
     }
 
@@ -1028,7 +1001,7 @@ class Candidat extends Queue {
                         .transition()
                         .duration(duration)
                         .delay(delay)
-                        .style('opacity', (d, i, n) => (n[i].tagName == 'circle') ? Poll.params.dotsOpacity : 1)
+                        .style('opacity', (d, i, n) => (n[i].tagName == 'ellipse') ? Poll.params.pointsOpacity : 1)
                         .on('end', () => {
                             resolve('Affichage courbe');
                         });
@@ -1053,7 +1026,7 @@ class Candidat extends Queue {
 
     static _getNodes(id) {
         return d3.select('#motherOfPolls')
-            .selectAll('g#curves,g#dots')
+            .selectAll('g#curves,g#points')
             .selectAll(`.id_${id}`)
             .nodes();
     }

@@ -70,12 +70,13 @@ var nocache = Date().now;
             hypotheses_formate[id] = a_push;
 
         });
-        console.log(resultats_1);
-        //Ajout de la date dans la table résultats
+       // console.log(resultats_1);
+        //Ajout de la date et de l'id sondage dans la table résultats
         resultats_1.forEach( (row)=> {
             let h=hypotheses_formate['id_'+row.id_hypothèse],
                 s=sondages_formate['id_'+h.id_sondage];
             row.debut=s.debut;
+            row.sondage=h.id_sondage;
         });
 
         G_sondages.tables = {

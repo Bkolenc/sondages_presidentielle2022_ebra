@@ -332,6 +332,14 @@ g#xMonths rect.odd {
 g#xAxis {
     text-anchor:middle;
 }
+g#curves path.courbe {
+    fill: transparent;
+    vector-effect: non-scaling-stroke;
+}
+path.area, path.courbe {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
 
 nav#options {
     display:flex;
@@ -373,16 +381,18 @@ div.img_cont {
 
 }
 div.img_et_init {
-    background: radial-gradient(25% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 100% ,rgba(255,255,255,1) 300%);
+    background: radial-gradient(25% 50%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.5) 50% ,rgba(255,255,255,1) 300%);
     box-shadow: 1px 0 2px rgba(255,255,255,.4);
    /* rgba(255,255,255,.8) 0% ,rgba(255,255,255,.1) 100%); /* ???? */
 }
 div.candidat {
+
     transition: all 500ms ease-in-out;
     box-shadow: 1px 1px 3px rgba(128,128,128,.8);
 }
 p.initiales {
-    margin-left:1px;
+    font-size:10px!important;
+    margin:2px 0 0 1px;
     font-weight: bold;
 }
 div.candidat:hover {
@@ -406,8 +416,4 @@ button#plus_de_candidats span {
     margin-bottom:-3px;
     vertical-align:bottom;
     pointer-events:none;
-}
-g#curves path.courbe {
-    fill: transparent;
-    vector-effect: non-scaling-stroke;
 }

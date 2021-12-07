@@ -56,12 +56,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
             })
 
         //console.log(tableCandidats);
-        const MainData=new DataWrapper('mainData')
+        const mainData=new DataWrapper('mainData')
                 .push(G_sondages.tables.resultats_1)
                 .map(d3.autoType);
 
         const Graph=new Poll('conteneur_graphique')
-            .push('resultats',MainData)
+            .push('resultats',mainData)
             .push( 'candidats',tableCandidats)
             .push( 'sondages',dictToMap(G_sondages.tables.sondages))
             .draw();
