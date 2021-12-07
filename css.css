@@ -274,24 +274,140 @@ html
 }
 
 
-/* GRAPHIQUE */
 
+/* GRAPHIQUE */
 svg {
     width:100%;
 }
-
-svg g.axis text {
-    font-weight:900;
-    font-family: merriweather-sans, sans-serif;
-
+svg #zoomHandler {
+    cursor:grab;
 }
-svg g.axis *, svg path.area {
+g.axis text {
+    font-family: merriweather-sans, sans-serif;
+}
+g.axis line {
+    stroke: #333;
+}
+g.axis *, path.area {
     user-select:none;
     pointer-events: none;
     vector-effect:non-scaling-stroke;
 }
-svg rect#zoomHandler {
-    cursor:zoom-in;
+g#yAxis text {
+    text-anchor:end;
 }
 
+g#yGrid line {
+    stroke-dasharray:1,1;
+    stroke:#eee;
+}
+g#yGrid path {
+    display:none;
+}
+g#xYears line {
+    stroke: rgba(128,128,128,.1);
+    stroke-width:2px;
+}
+g#xYears text {
+    text-transform: uppercase;
+    text-anchor: start;
+    font-weight: bold;
+    fill: rgba(128,128,128,.1);
+}
+g#xMonths text {
+    text-transform: uppercase;
+    text-anchor:middle;
+    color:#888;
+}
+g#xMonths line {
+    stroke-width:0;
+}
+g#xMonths path, g#yAxis path {
+    display:none;
+}
 
+g#xMonths rect.odd {
+    fill: rgba(128,128,128,.1);
+}
+g#xAxis {
+    text-anchor:middle;
+}
+
+nav#options {
+    display:flex;
+    justify-content:flex-end;
+}
+nav#options p {
+    cursor:pointer;
+    border: thin solid #333;
+    box-shadow: 2px 2px 3px rgba(128,128,128,.2);
+    padding:.1rem .5rem;
+    margin:.2rem 1rem;
+    opacity:.5;
+    transition: all 200ms ease-in-out;
+    border-radius:.2rem;
+    color:#333;
+}
+nav#options p:hover {
+    opacity:1;
+}
+nav#options span {
+    font-size:14px;
+    pointer-events:none;
+    margin-right:.2rem;
+    height:20px!important;
+    vertical-align: middle;
+}
+nav#options span.material-icons {
+    font-size:24px;
+    margin-top:-5px;
+}
+
+/* MODIFS NAVIGATION CANDIDATS ??? */
+
+div#tier_1{
+    background-color:transparent!important;
+}
+div.img_cont {
+    margin-left:2px;
+
+}
+div.img_et_init {
+    background: radial-gradient(25% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 100% ,rgba(255,255,255,1) 300%);
+    box-shadow: 1px 0 2px rgba(255,255,255,.4);
+   /* rgba(255,255,255,.8) 0% ,rgba(255,255,255,.1) 100%); /* ???? */
+}
+div.candidat {
+    transition: all 500ms ease-in-out;
+    box-shadow: 1px 1px 3px rgba(128,128,128,.8);
+}
+p.initiales {
+    margin-left:1px;
+    font-weight: bold;
+}
+div.candidat:hover {
+    transform:scale(1.04);
+    box-shadow: 1px 1px 2px rgba(128,128,128,1);
+}
+button#plus_de_candidats {
+    outline: none;
+    border:none!important;
+}
+button#plus_de_candidats  {
+    transition: all 500ms ease-in-out;
+    opacity:.8;
+    color: #333;
+    text-decoration: none;
+}
+button#plus_de_candidats:hover  {
+    opacity:1;
+}
+button#plus_de_candidats span {
+    margin-bottom:-3px;
+    vertical-align:bottom;
+    pointer-events:none;
+}
+g#curves path.courbe {
+    fill: transparent;
+    vector-effect: non-scaling-stroke;
+}

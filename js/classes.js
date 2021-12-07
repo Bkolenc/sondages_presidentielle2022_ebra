@@ -289,20 +289,20 @@ class DataWrapper {
 class Poll {
 
     //Dimensions et paramètres du tracé
-    static size = {width: 1600, height: 800};
-    static margins = {top: 50, right: 50, bottom: 100, left: 100};
+    static size = {width: 1600, height: 1000};
+    static margins = {top: 50, right: 50, bottom: 150, left: 100};
     static params = {
-        minCurvePoints: 10, curveMode: d3.curveBasis, bandWidth: .2, curveWidth: 5,
+        minCurvePoints: 10, curveMode: d3.curveBasis, bandWidth: .2, curveWidth: 3,
         areaWidth: 1, areaOpacity: .3,
         dotsOpacity: .1, dotsRadius: 5,
-        lineWidth: 2,
+        lineWidth: 1,
         duration: 1000
 
     };
 
-    constructor() {
-        //Creation du SVG, du calque principal et du clippath
-        this.svg = d3.select('#conteneur_graphique')
+    constructor(idParent) {
+        //Creation du SVG, du calque principal et du pattern
+        this.svg = d3.select(`#${idParent}`)
             .append("svg:svg")
             .attr('id', 'motherOfPolls')
             .attr(`preserveAspectRatio`, 'xMaxYMin meet')
@@ -314,6 +314,24 @@ class Poll {
             .append('svg:g')
             .classed('mainLayer', true)
             .attr('transform', `translate(${Poll.margins.left} ${Poll.margins.top})`);
+        //Selecteur HTML
+        this.selector=d3.select(`#${idParent}`)
+            .append('nav')
+            .attr('id','options');
+        this._createSelector('Masquer les marges d\'erreur','area_chart')
+            .on('click',(e,n)=> {
+                let state=this.toggle.areas(),
+                    text=(state)?'Afficher':'Masquer';
+                d3.select(e.target).select('span.text').text(`${text} les marges d'erreur`);
+                this.toggle.areas(!state);
+            });
+        this._createSelector('Afficher le détail des estimations','insights')
+            .on('click',(e,n)=> {
+                let state=this.toggle.dots(),
+                    text=(state)?'Afficher':'Masquer';
+                d3.select(e.target).select('span.text').text(`${text}  le détail des estimations`);
+                this.toggle.dots(!state);
+            });
         //Objet data
         this.data = {
             resultats: undefined,
@@ -343,56 +361,78 @@ class Poll {
         }
         //Recalcule la taille effective (une fois enlevées les marges)
         this.size = {
-            font: Poll.size.width / 100,
+            font: d3.min([Poll.size.height / 1, 40]),
             width: (Poll.size.width - Poll.margins.left - Poll.margins.right),
             height: (Poll.size.height - Poll.margins.top - Poll.margins.bottom),
             ribbonHeight: (Poll.size.height - Poll.margins.top - Poll.margins.bottom) / 40
         };
-        this.size.ribbonHeight = this.size.height / 20;        //Hauteur de l'axe des mois et des années
+        this.size.ribbonHeight = this.size.height / 15;        //Hauteur de l'axe des mois et des années
         //Handler pour le zoom & pan (rectangle transparent sur toute la surface)
         //Handlers
         this.zoomHandler = this.container
             .append('rect')
-                .attr('id', 'zoomHandler')
-                .attr('y', (this.size.height-this.size.ribbonHeight*4))
-                .attr('width', this.size.width)
-                .attr('height', this.size.ribbonHeight*6)
-                .style('opacity', 0)
-                .style('pointer-events', 'all');
+            .attr('id', 'zoomHandler')
+            .attr('y', (this.size.height-this.size.ribbonHeight*4))
+            .attr('width', this.size.width)
+            .attr('height', this.size.ribbonHeight*6)
+            .style('opacity', 0)
+            .style('pointer-events', 'all');
         //Scales
         this.xScale = d3.scaleTime().range([0, this.size.width]);
         this.yScale = d3.scaleLinear().range([this.size.height, 0]);
         //Axes
-
         this.dateFn = d3.timeFormat('%d %b %Y');
-        this.xAxisGenerator = d3.axisBottom(this.xScale).ticks(5).tickSize(10).tickSizeOuter(0).tickFormat(x => this.dateFn(x));
+        this.xAxisGenerator = d3.axisBottom(this.xScale).ticks(5).tickSize(10).tickSizeOuter(0).tickFormat(x => x.getDate());
         this.xMonthsGenerator = d3.axisBottom(this.xScale).ticks(d3.timeMonth).tickSize(this.size.ribbonHeight).tickFormat(d3.timeFormat("%b"));
         this.xYearsGenerator = d3.axisBottom(this.xScale).ticks(d3.timeYear).tickSize(-this.size.height).tickFormat(d3.timeFormat("%Y")).tickSizeOuter(0);
         this.yAxisGenerator = d3.axisLeft(this.yScale).tickFormat(x => x + '%').tickSizeOuter(0);
         this.yGridGenerator = d3.axisLeft(this.yScale).tickFormat('').tickSize(-this.size.width * .99).tickSizeOuter(0);
+        //CLippaths
+        this.svg.select('defs')
+            .append('clipPath')
+            .attr('id', 'clipChart')
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', 0)       //Fixé à 0 initialement pour créer une impression d'animation
+            .attr('height', this.size.height+Poll.margins.bottom);
+        this.svg.select('defs')
+            .append('clipPath')
+            .attr('id', 'clipXAxis')
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', this.size.width)
+            .attr('height', Poll.size.height);
         //Création des calques
         this.layers = {};
-        this._createLayer('axis', 'axis');
-        this._createLayer('xAxis', 'axis').attr('transform', `translate(0 ${this.size.height + this.size.ribbonHeight})`);
-        this._createLayer('xMonths', 'axis').attr('transform', `translate(0 ${this.size.height})`);
-        this._createLayer('xYears', 'axis').attr('transform', `translate(0 ${this.size.height})`);
-        this._createLayer('yAxis', 'axis');
-        this._createLayer('yGrid', 'axis');
-        this._createLayer('dots');
-        this._createLayer('curves');
+        const axis = this._createLayer('axis', 'axis');
+        this._createLayer('xAxis', 'axis',axis).attr('transform', `translate(0 ${this.size.height + this.size.ribbonHeight})`);
+        this._createLayer('xMonths', 'axis',axis).attr('transform', `translate(0 ${this.size.height})`)
+            .attr('clip-path', 'url(#clipXAxis)');
+        this._createLayer('xYears', 'axis',axis).attr('transform', `translate(0 ${this.size.height})`);
+        this._createLayer('yAxis', 'axis',axis);
+        this._createLayer('yGrid', 'axis',axis);
+        this._createLayer('dots').attr('clip-path', 'url(#clipChart)');
+        this._createLayer('curves').attr('clip-path', 'url(#clipChart)');
+
+        //       this.layers.axis.attr('clip-path', 'url(#mainClipPath)');
+
 
 
     }
 
     /**
-     * Crée et renvoie un nouveau groupe svg:g dans le conteneur
+     * Crée et renvoie un nouveau groupe svg:g dans l'élement parent (this.container par défaut)
      * @param id
      * @param className
+     * @param parent
      * @returns {*|On}
      * @private
      */
-    _createLayer(id, className) {
-        return this.layers[id] = this.container.append('svg:g')
+    _createLayer(id, className,parent) {
+        parent = parent || this.container;
+        return this.layers[id] = parent.append('svg:g')
             .attr('id', id)
             .classed(className, className);
     }
@@ -420,6 +460,27 @@ class Poll {
     }
 
     /**
+     * Crée et renvoie un bouton sous la forme icone+texte
+     * @param text
+     * @param icon
+     * @param parent
+     * @returns {*}
+     * @private
+     */
+    _createSelector(text,icon,parent) {
+        parent = parent || d3.select('nav#options');
+        let selector=parent.append('p')
+        selector.append('span')
+            .classed('material-icons', true)
+            .html(icon);
+        selector.append('span')
+            .classed('text',true)
+            .text(text);
+        return selector;
+    }
+
+
+    /**
      * Injecte les données dans la propriété this.data
      * @param property
      * @param dataWrapper
@@ -436,12 +497,12 @@ class Poll {
      * @private
      */
     _calcDomainAndScales() {
+
+        const today=new Date();
+
         //Calcule les domaines (et les élargit un peu) et les échelles
         this.xDomain = this.data.resultats.extent('debut');
-        this.xDomain[0] = this.xDomain[0].setDate(this.xDomain[0].getDate() - 2);   //Deux jours avant
-        this.xDomain[1] = new Date();   //Le lendemain
         this.xScale.domain(this.xDomain);
-
         this.xAxisGenerator.tickValues(this._getPollDates());
 
         this.yDomain = this.data.resultats.extent('borne_sup');
@@ -466,11 +527,49 @@ class Poll {
     }
 
 
-    _enableZoom() {        //A developper
-        let zoomed = (event) => {
+    _enablePanAndZoom() {        //A developper
+        const _this=this;
+        function handleZoom(e) {
+
+            //Déplacement et zoom des courbes, modification inverse du clippath et du pattern
+            d3.select('#curves').attr('transform',`translate(${e.transform.x} 0) scale(${e.transform.k} 1)`);
+            d3.select('#pattern-stripe').attr('patternTransform',`scale(${1/e.transform.k} 1) rotate(45)`);
+            d3.select('#clipChart rect').attr('transform',`translate(${-e.transform.x/e.transform.k} 0) scale(${1/e.transform.k} 1)`);
+            //d3.select('#xAxis').attr('transform',`translate(${e.transform.x} 0) scale(${e.transform.k} 1)`);
+
+
+            //Déplacement et zoom des axes
+            let newScale=e.transform.rescaleX(_this.xScale);
+            _this._drawXAxis(newScale);
+            _this._drawXMonths(newScale,e.transform.k);
+            _this._drawXYears(newScale);
+         /*   d3.selectAll('g#dots circle')
+                .attr("cx", d => newScale(d.debut));*/  //FONCTIONNNE
+
+
+            //EN COURS
+            /*
+            const curveGen = d3.line()
+                .x(d => newScale(d[0]))
+                .y(d => _this.yScale(d[1]))
+                .curve(Poll.params.curveMode);;
+            const areaGen = d3.area()
+                .x(d => newScale(d[0]))
+                .y0(d => _this.yScale(d[1]))
+                .y1(d => _this.yScale(d[2]))
+                .curve(Poll.params.curveMode);;
+
+            d3.selectAll('g#curves path.courbe')
+                .attr("d", curveGen);
+            d3.selectAll('g#curves path.area')
+                .attr("d", areaGen);
+
+
+
+            /*
         console.log(event);
             let transform = event.transform;
-                     transform.x = 0;
+                     //transform.x = 0;
                      transform.y = this.size.height + this.size.ribbonHeight;
             if (transform.k>2) this.xMonthsGenerator.tickFormat(d3.timeFormat("%B"));
             else this.xMonthsGenerator.tickFormat(d3.timeFormat("%b"))
@@ -484,6 +583,7 @@ class Poll {
             let [x,y,k]=[transform.x,transform.y,transform.k];
            // console.log(x,y,z,transform.toString());
             d3.selectAll('g#curves')
+                //.attr('transform',`translate(${x} 0) scale(${k} 1)`);
                 .attr('transform',`translate(${x} 0) scale(${k} 1)`);
             d3.select('#mainClip')
                 .attr('transform',`translate(${x} 0) scale(${1/k} 1)`);
@@ -506,8 +606,9 @@ class Poll {
         }
         let zoom = d3.zoom()
             .scaleExtent([1, 6])
-             .extent([Poll.margins.left, Poll.margins.top], [this.size.width, this.size.height])
-            .on('zoom', zoomed);
+            .translateExtent([[0,0],[Poll.size.width,this.size.height]])
+            // .extent([Poll.margins.left, Poll.margins.top], [this.size.width, this.size.height])
+            .on('zoom', handleZoom);
         this.zoomHandler.call(zoom);
 
 
@@ -558,7 +659,7 @@ class Poll {
          */
 
         //this.data.resultats.filters.add("recent", (d) => d.debut > new Date(2021, 7, 1));
-
+        this._firstDraw=true;
         this._calcDomainAndScales()
 
         this._drawYAxis()
@@ -568,47 +669,37 @@ class Poll {
             ._drawDots()
             ._drawChart();
         //Animation initiale (effet de rollover pour les courbes, puis affichage graduel des marges)
-        this.layers.curves.attr('clip-path', 'url(#mainClipPath)');
-        this.layers.dots.attr('clip-path', 'url(#mainClipPath)');
-        this.layers.axis.attr('clip-path', 'url(#mainClipPath)');
-        this.container.append('clipPath')    //Clippath pour l'animation
-            .attr('id', 'mainClipPath')
-            .append("rect")
-                .attr('id', 'mainClip')
-                .attr('x', 0)
-                .attr('y', 0)
-                .attr('width', 0)
-                .attr('height', this.size.height+Poll.margins.bottom);
         anime({
-            targets: '#mainClip',
+            targets: '#clipChart rect',
             easing: 'easeInOutExpo',
             width: this.size.width,
             delay: 10,
-            duration: 2000,
+            duration: 3000,
             complete: () => {
+                this._firstDraw=false;
                 this.toggle.areas(true);
-                this._enableZoom();
+                this._enablePanAndZoom();
             }
         });
+        /*
+                setTimeout(() => {
+                    let elt=this.layers.curves.append('text').attr('id','motionTest').text('Test suivi').style('font-size',20).attr('dy',-10);
+                    var path = anime.path('path.courbe.id_12');
 
-        setTimeout(() => {
-            let elt=this.layers.curves.append('text').attr('id','motionTest').text('Test suivi').style('font-size',20).attr('dy',-10);
-            var path = anime.path('path.courbe.id_12');
-
-            anime({
-                targets: "#motionTest",
-                translateX: path('x'),
-                translateY: path('y'),
-                rotate: 0, //path('angle')
-                easing: 'easeOutQuad',
-                delay: 6000,
-                duration: 4000,
-                begin: () => elt.style('display','auto'),
-                complete: () => elt.style('display','none')
-               });
+                    anime({
+                        targets: "#motionTest",
+                        translateX: path('x'),
+                        translateY: path('y'),
+                        rotate: 0, //path('angle')
+                        easing: 'easeOutQuad',
+                        delay: 6000,
+                        duration: 4000,
+                        begin: () => elt.style('display','auto'),
+                        complete: () => elt.style('display','none')
+                    });
 
 
-        }, 1000)
+                }, 1000)*/
         return this;
 
     }
@@ -620,72 +711,64 @@ class Poll {
      * @private
      */
     _drawXAxis(xScale) {
+        //Création de l'axe X (dates)
         xScale= xScale || this.xScale;
         this.xAxisGenerator.scale(xScale);
         const xAxis = this.layers.xAxis
             .call(this.xAxisGenerator);
-        xAxis.selectAll('text')
-                .style('font-size', `${this.size.font}px`)
-                .style('text-transform', 'capitalize')
-                .attr('transform', 'translate(-10 5)')
-                .style('text-anchor', 'start');
-        xAxis.selectAll('line,path')
-            .attr('vector-effect', 'non-scaling-stroke');
+        //Définition des styles lors du premier appel de la fonction uniquement
+        if (this._firstDraw){
+            xAxis.selectAll('text')
+                .attr('transform', 'translate(0 5)')
+                .style('font-size', `${this.size.font}px`);
+            xAxis.selectAll('line,path')
+                .attr('vector-effect', 'non-scaling-stroke');
+        }
+
         return this;
     }
 
     /**
      * Création de l'axe secondaire (mois) des abscisses
      * @param xScale
+     * @param k {Number} : coefficient de zoom
      * @returns {Poll}
      * @private
      */
-    _drawXMonths(xScale) {
+    _drawXMonths(xScale,k=1) {
+        //Création de l'axe des mois
         xScale = xScale || this.xScale;
         let axis = this.layers.xMonths
-            .call(this.xMonthsGenerator.scale(xScale))
-        //.call(monthsGenerator)
-        axis.selectAll('text')
-            .style('text-transform', 'uppercase')
-            .style('text-anchor', 'middle')
-            .style('font-size', `${this.size.ribbonHeight / 1.7}px`)
-            .style('font-weight', 'bold')
-            .each((date, i, nodes) => {     //Centrage des étiquettes
-                if (date){ //A supprimer qd problème année réglée
-             //       console.log(date, i, nodes);
-                    //Décalage du label de la moitié de la distance jusqu'au prochain tick
-                    let nextMonth = new Date(date.getTime());
-                    nextMonth.setMonth(nextMonth.getMonth() + 1);
-                    let x = xScale(date),
-                        offsetX = (xScale(nextMonth) - x) / 2;
-                    if (new Date() > nextMonth) {
-                        d3.select(nodes[i]).attr('transform', `translate(${offsetX} -${this.size.ribbonHeight * .75})`);
-                    } else {
-                        d3.select(nodes[i]).remove();
-                    }
-                    //Colorie une case sur deux
-                    if (i % 2 == 0) {
-                        this._superSelect(d3.select(nodes[i].parentNode),'rect')
-                            .attr('x', 0)
-                            .attr('y', 0)
-                            .attr('width', offsetX * 2)
-                            .attr('height', this.size.ribbonHeight)
-                            .style('fill', 'rgba(100,100,100,.1)');
+            .call( this.xMonthsGenerator.scale(xScale) )
+            .call( g => { g.selectAll('text')
+                    .style('font-size', `${this.size.ribbonHeight / 1.7}px`)
+                    .text( d => (k>2)? d3.timeFormat("%B")(d): (k>1.4)? d3.timeFormat("%b")(d): d3.timeFormat("%B")(d).charAt(0))
+                    .each((date, i, nodes) => {
+                        //Réajustement des positions des labels et des fonds
+                        let nextMonth = new Date(date.getFullYear(),date.getMonth()+1,1),
+                            offsetX = (xScale(nextMonth) - xScale(date)) / 2;
+                        d3.select(nodes[i])
+                            .attr('transform', `translate(${offsetX} -${this.size.ribbonHeight * .75})`);
+                        if (date.getMonth() % 2==0) {
+                            this._superSelect(d3.select(nodes[i].parentNode),'rect')
+                                .lower()
+                                .attr('x', 0)
+                                .attr('y', 0)
+                                .attr('width', offsetX * 2)
+                                .attr('height', this.size.ribbonHeight)
+                                .classed('odd',true);
+                        }
+                    });
 
-                    }
                 }
-            });
-        axis.selectAll('path')
-            .style('stroke-width',Poll.params.lineWidth);
-        axis.selectAll('line')
-            .style('stroke','#eee');
-        /*        this.layers.xMonths.append('rect')
-                    .attr('x',0)
-                    .attr('y',0)
-                    .attr('width',this.size.width)
-                    .attr('height',this.size.ribbonHeight)
-                    .style('fill','rgba(128,128,128,.1)');*/
-
+            );
+        //Définition des styles lors du premier appel de la fonction uniquement
+        if (this._firstDraw) {
+            axis.selectAll('path')
+                .style('stroke-width', Poll.params.lineWidth);
+            axis.selectAll('line')
+                .style('stroke-width', 0);
+        }
         return this;
     }
 
@@ -697,38 +780,13 @@ class Poll {
      */
     _drawXYears(xScale) {
         xScale = xScale || this.xScale;
-        let axis = this.layers.xYears
-            .call(this.xYearsGenerator.scale(xScale))
-        //.call(monthsGenerator)
-        axis.selectAll('text')
-            .attr('dy',-this.size.ribbonHeight*.8)
-            .attr('dx',this.size.width/100)
-            .style('text-transform', 'uppercase')
-            .style('text-anchor', 'start')
-            .style('font-size', `${this.size.ribbonHeight *2}px`)
-            .style('font-weight', 'bold')
-            .style('font-weight', 'bolder')
-            .style('fill', '#ddd');
-        axis.selectAll('line')
-            .style('stroke','#ddd');
-
-
-        //Ajoute l'année
-      /*  if (date.getMonth() == 0) {
-            this.layers.xMonths.append('text')
-                .text(date.getFullYear())
-                .attr('x', x + this.size.ribbonlHeight / 2)
-                .attr('dy', -(this.size.ribbonHeight / 2))
-                .style('text-anchor', 'start')
-                .style('font-size', this.size.ribbonHeight * 3)
-
-            /*      this.layers.xMonths.append('line')
-                      .attr('x1', x)
-                      .attr('x2', x)
-                      .attr('y1', 0)
-                      .attr('y2', -(this.size.height))
-                      .style('stroke', '#eee');*/
-
+        this.layers.xYears
+            .call( this.xYearsGenerator.scale(xScale) )
+            .call( g => g.selectAll('text')
+                .attr('dy',-this.size.ribbonHeight*.4)
+                .attr('dx',this.size.ribbonHeight*.2)
+                .style('font-size', `${this.size.ribbonHeight *2}px`)
+            );
         return this;
     }
 
@@ -743,23 +801,26 @@ class Poll {
         //Axe Y
         this.layers.yAxis
             .call(this.yAxisGenerator)
-            .selectAll('text')
-            .style('font-size', `${this.size.font * 2}px`)
-            .style('text-anchor', 'end');
-        this.layers.yAxis
-            .call(this.yAxisGenerator)
-            .selectAll('line,path')
-            .style('stroke-width', Poll.params.lineWidth);
-        //Grid
-        this.layers.yGrid
-            .attr('transform', `translate(${this.size.width / 200} 0)`)
-            .call(this.yGridGenerator)
-            .selectAll('line')
-            .attr('stroke-dasharray','2,2')
-            .style('stroke', '#ddd');
-        this.layers.yGrid
-            .selectAll('path')
-            .style('display', 'none')
+            .call( g=> g.selectAll('text')
+                .style('font-size', `${this.size.font}px`)
+            );
+        //Définition des styles et ajout d'un axe custom lors du premier appel de la fonction uniquement
+        if (this._firstDraw) {
+            this.layers.yAxis
+                .append('line')
+                .attr('x1',0)
+                .attr('y1',0)
+                .attr('x1',0)
+                .attr('y2',this.size.height+this.size.ribbonHeight);
+            this.layers.yAxis
+                .call(this.yAxisGenerator)
+                .selectAll('line,path')
+                .style('stroke-width', Poll.params.lineWidth);
+            this.layers.yGrid
+                .attr('transform', `translate(${this.size.width / 200} 0)`)
+                .call(this.yGridGenerator)
+                .call(g=>g.selectAll('path').remove());
+        }
         return this;
     }
 
@@ -768,14 +829,16 @@ class Poll {
      * @returns {Poll}
      * @private
      */
-    _drawDots() {
+    _drawDots(xScale) {
+        xScale= xScale || this.xScale;
+        console.log('dots!',this.data.resultats.dataset);
         this.dots = this.layers.dots
             .selectAll('circle')
             .data(this.data.resultats.dataset)
             .enter()
             .append('circle')
             .attr('class', d => `id_${d.id_candidat}`)
-            .attr("cx", d => this.xScale(d.debut))
+            .attr("cx", d => xScale(d.debut))
             .attr("cy", d => this.yScale(d.resultat))
             .attr("r", 6)
             .style('opacity', 0)
@@ -809,29 +872,12 @@ class Poll {
                 .filter(d => d.id_candidat === id);
             if (data.length >= Poll.params.minCurvePoints) {      //Inutile de tracer une courbe si moins de x points
                 //Creation calque id_X
-                const layer = this.layers.curves.append('svg:g').classed(`id_${id}`, true)
-                    .style('display', () => {
-                        if(inArray("id_"+id, G_sondages.selection_candidats))
-                        {
-                            return "auto";
-                        }
-                        else
-                        {
-                            return "none";
-                        }
-                    })
-                    .style('opacity', () => {
-                        if(inArray("id_"+id, G_sondages.selection_candidats))
-                        {
-                            return 1;
-                        }
-                        else
-                        {
-                            return 0;
-                        }
-//                        this.data.candidats.get(id).defaut ? 1 : 0
-                    });
-                console.log(id);
+                const layer = this.layers.curves
+                    .append('svg:g')
+                    .classed(`id_${id}`, true)
+                    .style('display', () => (inArray("id_"+id, G_sondages.selection_candidats))?'auto':'none')
+                    .style('opacity', () => (inArray("id_"+id, G_sondages.selection_candidats))?1:0);
+
                 //Tracé de la courbe
                 this._drawCurve(id, data, curveGen, layer);
                 //Tracé de la marge d'erreur

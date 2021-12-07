@@ -55,16 +55,16 @@ document.addEventListener("DOMContentLoaded", function(event) {
             
             })
 
-        console.log(tableCandidats);
+        //console.log(tableCandidats);
         const MainData=new DataWrapper('mainData')
                 .push(G_sondages.tables.resultats_1)
                 .map(d3.autoType);
-        
-        const Graph=new Poll('motherOfPolls')
-                .push('resultats',MainData)
-                .push( 'candidats',tableCandidats)
-                .push( 'sondages',dictToMap(G_sondages.tables.sondages))
-                .draw();
+
+        const Graph=new Poll('conteneur_graphique')
+            .push('resultats',MainData)
+            .push( 'candidats',tableCandidats)
+            .push( 'sondages',dictToMap(G_sondages.tables.sondages))
+            .draw();
         
 //        Candidat.hide("all", 0);
 //        Candidat.show(candidats_sans_prefixe,0);

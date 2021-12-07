@@ -13,9 +13,9 @@ function click_candidats()
         {
             this.querySelector(".plus_moins").innerHTML = "+";
         }
-        
-        
-        var id = this.getAttribute("data-id"); 
+
+
+        var id = this.getAttribute("data-id");
         var id_chiffre = +id.split("_")[1];
         var selection = G_sondages.selection_candidats;
         tooltip(e.pageX, e.pageY, G_sondages.tables.candidats[id].nom_candidat, G_sondages.credits[id]);
@@ -23,7 +23,7 @@ function click_candidats()
         {
             G_sondages.selection_candidats.push(id);
             Candidat.show(id_chiffre,0);
-            
+
         }
         else
         {
@@ -31,10 +31,10 @@ function click_candidats()
                 return item !== id;
             });
             Candidat.hide(id_chiffre,0);
-            
+
         }
         maj_boutons_candidats();
-        
+
         var selected_candidats = G_sondages.selection_candidats;
         var selected_mieux = [];
         selected_candidats.forEach(function(v, k){
@@ -44,35 +44,35 @@ function click_candidats()
 //        setTimeout( function(){
 //            Candidat.show(selected_mieux,0);
 //        });
-        
+
     })
-    .on("mousemove", null).on("mousemove", function(e){
-        var id = this.getAttribute("data-id"); 
+        .on("mousemove", null).on("mousemove", function(e){
+        var id = this.getAttribute("data-id");
         tooltip(e.pageX, e.pageY, G_sondages.tables.candidats[id].nom_candidat, G_sondages.credits[id]);
-        
+
     });
-    
-    
-    
-    
+
+
+
+
     d3.select("html").on("click mouseover", null).on("click mouseover", function(e){
-        
+
         check_si_click_hors_bouton(e);
-        
-        
+
+
     });
     d3.select("html").on("click", function(e){
         e.stopPropagation();
         check_si_click_hors_tier_2(e);
-        
+
     })
 
     function tooltip(x, y, candidat, credit)
     {
         clearTimeout(G_sondages.vrac.tooltip_to);
-        
+
         var mid_x = document.getElementsByTagName("html")[0].clientWidth / 2 ;
-        
+
         if(x<mid_x)
         {
             d3.select("#tooltip")
@@ -93,7 +93,7 @@ function click_candidats()
                 .style("top", (y+20)+"px")
                 .html(candidat+"<br/><span class='credit'>"+credit+"</span>");
         }
-        
+
 
         G_sondages.vrac.tooltip_to = setTimeout(function(){
             d3.select("#tooltip").style("display","none");
@@ -112,7 +112,7 @@ function click_candidats()
             d3.select("#tooltip").style("display","none");
         }
     }
-    
+
     function check_si_click_hors_tier_2(e)
     {
         var id = e.target.getAttribute("id");
@@ -124,26 +124,27 @@ function click_candidats()
         else
         {
             d3.select("#tier_2").style("display","none").attr("data-deploye", false);
-            d3.select("#plus_de_candidats").text("Plus de candidats");
+            d3.select("#plus_de_candidats").html("Plus de candidats<span class='material-icons'>expand_more</span>");
         }
-        
+
     }
-    
+
     d3.select("#plus_de_candidats").on("click", null).on("click", function(){
         var deploye = d3.select("#tier_2").attr("data-deploye");
         if(deploye == "false")
         {
-            d3.select("#tier_2").style("display", "block")
+            d3.select("#tier_2")
+                .style("display", "block")
                 .attr("data-deploye", true);
-            d3.select("#plus_de_candidats").text("Moins de candidats");
+            d3.select("#plus_de_candidats").html("Moins de candidats<span class='material-icons'>expand_less</span>");
         }
         else
         {
             d3.select("#tier_2").style("display", "none")
                 .attr("data-deploye", false);
-            d3.select("#plus_de_candidats").text("Plus de candidats");
+            d3.select("#plus_de_candidats").html("Plus de candidats<span class='material-icons'>expand_more</span>");
         }
-        
+
     });
 }
 
@@ -158,26 +159,25 @@ function resize(){
         .style("width", (width+20)+"px")
         .style("border", "solid lightgray 1px, solid lightgray 1px, solid lightgray 1px, solid lightgray 1px")
         .style("padding", "10px")
-//        .style("padding-bottom", "5px")
+        //        .style("padding-bottom", "5px")
         .style("border-radius","10px");
 
-    
+
     var tier1 = document.getElementById("tier_1").getBoundingClientRect();
     var width_t1 = tier1.width;
     var paddingleft = (width_t1%79) / 2;
     d3.select("#tier_1").style("padding-left",paddingleft+"px");
-    
-    
+
+
     var tier2 = document.getElementById("tier_2").getBoundingClientRect();
     var width_t2 = tier2.width;
     var paddingleft2 = (width_t1%79) / 2;
     d3.select("#tier_2").style("padding-left",paddingleft2+10+"px");
-   
+
 }
 //resize();
 window.removeEventListener("resize", resize, true)
 window.addEventListener('resize', resize);
-
 
 
 
