@@ -65,11 +65,16 @@ document.addEventListener("DOMContentLoaded", function(event) {
             .push( 'candidats',tableCandidats)
             .push( 'sondages',dictToMap(G_sondages.tables.sondages))
             .draw();
-        
-//        Candidat.hide("all", 0);
-//        Candidat.show(candidats_sans_prefixe,0);
+
+        console.log(G_sondages.selection_candidats);
+        const DataSondages=new DataWrapper('sondages').push(G_sondages.tables.sondages)
+            .map((r)=> { r.id=r.id.replace('id_',''); r.debut=new Date(r.debut); r.fin=new Date(r.fin); return r; });
+           // .map(d3.autoType);
 
 
+        setTimeout(function(){
+            console.log(G_sondages.selection_candidats);
+        },3000);
 
 
 

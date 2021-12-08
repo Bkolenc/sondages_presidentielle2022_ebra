@@ -44,16 +44,20 @@ var nocache = Date().now;
         Object.keys(sondages).forEach(function (k) {
             var infos = sondages[k];
             var id = "id_" + infos.id;
-            var a_push = {
-                id_institut: infos.id_institut,
-                id_population: infos.id_population,
-                commanditaire: infos.commanditaire,
-                debut: infos.debut,
-                fin: infos.fin,
-                lien: infos.lien,
-                echantillon: infos.echantillon
+            if (infos.id!==undefined) {
+                var a_push = {
+                    id_institut: parseInt(infos.id_institut),
+                    id_population: parseInt(infos.id_population),
+                    commanditaire: infos.commanditaire,
+                    debut: infos.debut,
+                    fin: infos.fin,
+                    lien: infos.lien,
+                    echantillon: parseInt(infos.echantillon)
+                };
+                sondages_formate[id] = a_push;
             }
-            sondages_formate[id] = a_push;
+
+
 
         });
 

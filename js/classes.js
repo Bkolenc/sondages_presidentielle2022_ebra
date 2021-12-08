@@ -145,9 +145,21 @@ class DataWrapper {
      * @returns {DataWrapper}
      */
     push(dataset) {
+        if (!Array.isArray(dataset) && dataset.constructor === Object) dataset=this._convertFromDict(dataset);
         this._dataset.filtered = this._dataset.full = dataset;
         this.keys = Object.keys(dataset[0]);
         return this;
+    }
+
+    /**
+     * Convertit un dictionnaire en array (en injectant la clé dans une colonne id)
+     * @param dict
+     * @returns {unknown[]}
+     * @private
+     */
+    _convertFromDict(dict,keyName='id'){
+        let dataset=Object.entries(dict).map( (d)=> { d[1][keyName]=d[0]; return d[1]; } );
+        return dataset;
     }
 
     /**
@@ -358,15 +370,18 @@ class Poll {
             points:(bool)=>{
                 if (bool===undefined) return this.toggle.states.points;
                 let o = (bool) ? Poll.params.pointsOpacity : 0;
-                d3.selectAll('g#points ellipse')
-                    .call(this._fade, 0, Poll.params.duration, o);
+                G_sondages.selection_candidats
+                    .forEach( (id) =>
+                        d3.selectAll('g#points ellipse.'+id)
+                            .call(this._fade, 0, Poll.params.duration, o)
+                    )
                 this.toggle.states.points=bool;
             },
             areas:(bool)=>{
                 if (bool===undefined) return this.toggle.states.areas;
                 let o = (bool) ? Poll.params.areaOpacity : 0;
                 d3.selectAll('g#curves path.area')
-                    .call(this._fade, 0, Poll.params.duration, o);
+                    .call(this._fade, 0, Poll.params.duration/2, o);
                 this.toggle.states.areas=bool;
             }
         }
@@ -629,8 +644,8 @@ class Poll {
         begin=d3.max([ begin, this.xDomain[0]]);
         end=d3.min([ end, this.xDomain[1]]);
         this.svg.call(  this._zoom.transform,
-                        d3.zoomIdentity.scale(this.size.width / (this.xScale(end) - this.xScale(begin)))
-                                       .translate(-this.xScale(begin), 0)
+            d3.zoomIdentity.scale(this.size.width / (this.xScale(end) - this.xScale(begin)))
+                .translate(-this.xScale(begin), 0)
         );
         return this;
     }
@@ -685,9 +700,8 @@ class Poll {
                 this.toggle.areas(true);
                 //this._enableFreeZoom();
                 setTimeout(()=>{
-                    let begin=getUrlParams('begin'),
-                        end=getUrlParams('end');
-                    this._zoomTo(begin,end);
+                    let range=getUrlDomain();
+                    this._zoomTo(range.begin,range.end);
                 },1000);
 
                 setTimeout(()=>{
@@ -730,13 +744,17 @@ class Poll {
     _drawXAxis(transform) {
         //Définition de l'échelle et de la durée d'animation (0 au premier passage)
         const xScale = (transform)? transform.rescaleX(this.xScale) : this.xScale,
-              duration=(this._firstDraw)?0:Poll.params.duration;
+            duration=(this._firstDraw)?0:Poll.params.duration;
         this.xAxisGenerator.scale(xScale);
         //Appel du générateur
         const xAxis = this.layers.xAxis
             .transition()
             .duration(duration)
-            .call(this.xAxisGenerator);
+            .call(this.xAxisGenerator)
+            .on('end', ()=> d3.selectAll('#xAxis text')
+                .on('click', function(elt,date) { console.log(this,elt,date);})
+            );
+
         //Définition des styles lors du premier appel de la fonction uniquement
         if (this._firstDraw){
             xAxis.selectAll('text')
@@ -760,18 +778,18 @@ class Poll {
      */
     _drawXMonths(transform) {
         const xScale = (transform)? transform.rescaleX(this.xScale) : this.xScale,
-              height = this.size.ribbonHeight,
-              duration=(this._firstDraw)?0:Poll.params.duration;
+            height = this.size.ribbonHeight,
+            duration=(this._firstDraw)?0:Poll.params.duration;
         //Renvoie les proprietés transform pour décaler les étiqyettes vers le centre de chaque case
         const getXTransform= (date) => {
             const   nextMonth = new Date(date.getFullYear(),date.getMonth()+1,1),
-                    offsetX=(xScale(nextMonth) - xScale(date)) / 2;
+                offsetX=(xScale(nextMonth) - xScale(date)) / 2;
             return `translate(${offsetX} ${height * -.75})`;
         }
         //Renvoie un rectangle de fond pour le mois correspondant à la date
         const newBackground= (date) => {
             const   nextMonth = new Date(date.getFullYear(),date.getMonth()+1,1),
-                    width= xScale(nextMonth) - xScale(date);
+                width= xScale(nextMonth) - xScale(date);
             return this._createRect( xScale(date),0, width,height,  (date.getMonth() % 2==0)?'odd':'even');
         }
         //Création de l'axe des mois
@@ -784,7 +802,7 @@ class Poll {
                     //.attr('transform', `translate(0 -${height * .75})`)
                     .attr('transform', getXTransform)
                     .each( function(date) {
-                           bckLayer.append(()=>newBackground(date).node());
+                        bckLayer.append(()=>newBackground(date).node());
                     })
                 );
         }
@@ -831,7 +849,7 @@ class Poll {
      */
     _drawXYears(transform) {
         const xScale = (transform)? transform.rescaleX(this.xScale) : this.xScale,
-              duration=(this._firstDraw)?0:Poll.params.duration;
+            duration=(this._firstDraw)?0:Poll.params.duration;
         this.layers.xYears
             .transition()
             .duration(duration)
@@ -884,17 +902,19 @@ class Poll {
     _drawPoints(xScale){
         xScale= xScale || this.xScale;
         let data=this.data.resultats.toGroups('sondage');
+        console.log(data);
         this.layers.points
             .selectAll('g')
             .data(data)
             .enter()
             .append('g')
-            .attr('id',(d)=> `sond_${d[0]}`)
+            .attr('id',(d)=> `s_${d[0]}`)
             .attr('transform', (d)=> 'translate('+xScale( d[1][0]['debut'])+' 0)')
             .selectAll('ellipse')
             .data( function(d) { return d[1] })
             .enter()
             .append('ellipse')
+            .attr('class', d=> `id_${d.id_candidat} h_${d.id_hypothèse}`)
             .attr('cx', 0 )
             .attr('cy', d => this.yScale(d.resultat) )
             .attr('rx', Poll.params.pointsRadius )
@@ -902,7 +922,7 @@ class Poll {
             .style('fill', (d) => this.data.candidats.get(d.id_candidat).couleur)
             .style('opacity', 0)
             .style('pointer-events', 'none');
-          //  .html(d => this.data.candidats.get(d.id_candidat).nom + ': ' + d.resultat + '%');
+        //  .html(d => this.data.candidats.get(d.id_candidat).nom + ': ' + d.resultat + '%');
 
         return this;
     }
@@ -1041,6 +1061,12 @@ class Poll {
 
 }
 
+
+class Sondage{
+    constructor(){
+
+    }
+}
 
 class Candidat extends Queue {
 

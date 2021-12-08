@@ -282,6 +282,9 @@ svg {
 svg #zoomHandler {
     cursor:grab;
 }
+g * {
+    pointer-events: all!important;
+}
 g.axis text {
     font-family: merriweather-sans, sans-serif;
 }
