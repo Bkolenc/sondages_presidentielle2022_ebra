@@ -308,6 +308,7 @@ class Poll {
     };
 
     constructor(idParent) {
+
         //Creation du SVG, du calque principal et du pattern
         this.svg = d3.select(`#${idParent}`)
             .append("svg:svg")
@@ -321,6 +322,7 @@ class Poll {
             .append('svg:g')
             .classed('mainLayer', true)
             .attr('transform', `translate(${Poll.margins.left} ${Poll.margins.top})`);
+
         //Selecteur HTML
         this.selector=d3.select(`#${idParent}`)
             .append('nav')
@@ -339,12 +341,14 @@ class Poll {
                 d3.select(e.target).select('span.text').text(`${text}  le détail des estimations`);
                 this.toggle.points(!state);
             });
+
         //Objet data
         this.data = {
             resultats: undefined,
             candidats: undefined,
             sondages: undefined
         }
+
         //Objet permettant d'afficher ou masquer certaines parties du graphique. Usage : Poll.toggle.points(true|false)
         this.toggle={
             states: {
@@ -366,6 +370,7 @@ class Poll {
                 this.toggle.states.areas=bool;
             }
         }
+
         //Recalcule la taille effective (une fois enlevées les marges)
         this.size = {
             font: d3.min([Poll.size.height / 1, 40]),
@@ -375,38 +380,45 @@ class Poll {
         };
         this.size.ribbonHeight = this.size.height / 15;        //Hauteur de l'axe des mois et des années
         //Handlers
-        this.zoomHandler = this._createHandler('zoomHandler',0, this.size.height-this.size.ribbonHeight*4, this.size.width,this.size.ribbonHeight*6);
         this.focusHandler = this._createHandler('focusHandler',0, 0, this.size.width,this.size.height-this.size.ribbonHeight*4);
 
         //Scales
         this.xScale = d3.scaleTime().range([0, this.size.width]);
         this.yScale = d3.scaleLinear().range([this.size.height, 0]);
+
+        //Zoom
+        this._zoom = d3.zoom()
+            .scaleExtent([1, 6])
+            .translateExtent([[0,0],[Poll.size.width,this.size.height]])
+            .on('zoom', this._handleZoom.bind(this));
+
         //Générateurs des axes
-        //this.dateFn = d3.timeFormat('%d %b %Y');
         this.xAxisGenerator = d3.axisBottom(this.xScale).ticks(5).tickSize(10).tickSizeOuter(0).tickFormat(x => x.getDate());
-        this.xMonthsGenerator = d3.axisBottom(this.xScale).ticks(d3.timeMonth).tickSize(this.size.ribbonHeight).tickFormat(d3.timeFormat("%b"));
+        this.xMonthsGenerator = d3.axisBottom(this.xScale)
+            .ticks(d3.timeMonth)
+            .tickSize(this.size.ribbonHeight)
+            .tickFormat( (d) => d3.timeFormat("%b")(d).charAt(0) );
         this.xYearsGenerator = d3.axisBottom(this.xScale).ticks(d3.timeYear).tickSize(-this.size.height).tickFormat(d3.timeFormat("%Y")).tickSizeOuter(0);
         this.yAxisGenerator = d3.axisLeft(this.yScale).tickFormat(x => x + '%').tickSizeOuter(0);
         this.yGridGenerator = d3.axisLeft(this.yScale).tickFormat('').tickSize(-this.size.width * .99).tickSizeOuter(0);
+
         //CLippaths
         this._createClipPath('clipChart',0,0,0, (this.size.height+Poll.margins.bottom));
         this._createClipPath('clipXAxis',0,-Poll.size.height,this.size.width, Poll.size.height+100);
+
         //Création des calques
         this.layers = {};
+        this._createLayer('points').attr('clip-path', 'url(#clipChart)');
+        this._createLayer('curves').attr('clip-path', 'url(#clipChart)');
+        const cache=this._createLayer('cache', 'cache');     //Hack degueu mais le clipping ne suit pas assez vite les modifs de la courbe
+        cache.append('rect').attr('x',-Poll.margins.left).attr('y',-Poll.margins.top).attr('width',Poll.margins.left).attr('height',Poll.size.height);
+        cache.append('rect').attr('x',this.size.width).attr('y',-Poll.margins.top).attr('width',Poll.margins.right).attr('height',Poll.size.height);
         const axis = this._createLayer('axis', 'axis');
-        this._createLayer('xAxis', 'axis',axis)
-            .attr('transform', `translate(0 ${this.size.height + this.size.ribbonHeight})`)
-            .attr('clip-path', 'url(#clipXAxis)');
-        this._createLayer('xMonths', 'axis',axis)
-            .attr('transform', `translate(0 ${this.size.height})`)
-            .attr('clip-path', 'url(#clipXAxis)');
+        this._createLayer('xAxis', 'axis',axis).attr('transform', `translate(0 ${this.size.height + this.size.ribbonHeight})`).attr('clip-path', 'url(#clipXAxis)');
+        this._createLayer('xMonths', 'axis',axis).attr('transform', `translate(0 ${this.size.height})`).attr('clip-path', 'url(#clipXAxis)');
         this._createLayer('xYears', 'axis',axis).attr('transform', `translate(0 ${this.size.height})`);
         this._createLayer('yAxis', 'axis',axis);
         this._createLayer('yGrid', 'axis',axis);
-        this._createLayer('points')
-            .attr('clip-path', 'url(#clipChart)');
-        this._createLayer('curves')
-            .attr('clip-path', 'url(#clipChart)');
 
         //       this.layers.axis.attr('clip-path', 'url(#mainClipPath)');
 
@@ -485,7 +497,8 @@ class Poll {
         const rect=this._createRect(x,y,width,height)
             .attr('id',id)
             .style('opacity', 0)
-            .style('pointer-events', 'all');
+            .style('pointer-events', 'all')
+            .raise();
         return this.container.append( ()=> rect.node() );
     }
 
@@ -516,12 +529,13 @@ class Poll {
      * @returns {*} : selection D3
      * @private
      */
-    _createRect( x,y,width,height){
+    _createRect( x,y,width,height,className){
         return d3.create('svg:rect')
             .attr('x', x)
             .attr('y', y)
             .attr('width', width)
-            .attr('height', height);
+            .attr('height', height)
+            .classed(className,className);
     }
 
     /**
@@ -572,37 +586,53 @@ class Poll {
 
 
     /**
-     * Initialise le zoom & pan
+     * Méthode appelée par this._zoom pour appliquer les transformations sur chaque partie du graphique
+     * @param e {Object} : objet passé this._zoom
      * @private
      */
-    _initializeZoom() {        //A developper
-        const _this=this;
-        function handleZoom(e) {
+    _handleZoom (e) {
 
-            //Déplacement et zoom des courbes, modification inverse du clippath et du pattern
-            let [x,k,ki]=[e.transform.x,e.transform.k,1/e.transform.k];
-            d3.select('#curves').attr('transform',`translate(${x} 0) scale(${k} 1)`);
-            d3.select('#pattern-stripe').attr('patternTransform',`scale(${ki} 1) rotate(45)`);
-            d3.select('#clipChart rect').attr('transform',`translate(${-x/k} 0) scale(${ki} 1)`);
-            //d3.select('#xAxis').attr('transform',`translate(${e.transform.x} 0) scale(${e.transform.k} 1)`);
+        //Déplacement et zoom des courbes, modification inverse du clippath et du pattern
+        let [x,k,ki]=[e.transform.x,e.transform.k,1/e.transform.k];
+        d3.select('#curves').transition().duration(Poll.params.duration).attr('transform',`translate(${x} 0) scale(${k} 1)`);
+        d3.select('#pattern-stripe').transition().duration(Poll.params.duration).attr('patternTransform',`rotate(45) scale(${ki} 1)`);
+        //       d3.select('#clipChart rect').attr('transform',`translate(${-x/k} 0) scale(${ki} 1)`);   Remplacé par système de cache
+        d3.select('#points').transition().duration(Poll.params.duration).attr('transform',`translate(${x} 0) scale(${k} 1)`);
+        d3.selectAll('#points ellipse').transition().duration(Poll.params.duration).attr('transform',`scale(${ki} 1)`)
 
-            d3.select('#points').attr('transform',`translate(${x} 0) scale(${k} 1)`);
-            d3.selectAll('#points ellipse').attr('transform',`scale(${ki} 1)`)
+        //Déplacement et zoom des axes
+        this._drawXAxis(e.transform);
+        this._drawXMonths(e.transform);
+        this._drawXYears(e.transform);
 
-            //Déplacement et zoom des axes
-            let newScale=e.transform.rescaleX(_this.xScale);
-            _this._drawXAxis(newScale);
-            _this._drawXMonths(newScale,k);
-            _this._drawXYears(newScale);
+    }
 
-        }
-        let zoom = d3.zoom()
-            .scaleExtent([1, 6])
-            .translateExtent([[0,0],[Poll.size.width,this.size.height]])
-            // .extent([Poll.margins.left, Poll.margins.top], [this.size.width, this.size.height])
-            .on('zoom', handleZoom);
-        this.zoomHandler.call(zoom);
 
+    /**
+     * Autorise le zoom & pan manuel
+     * @private
+     */
+    _enableFreeZoom() {
+        this.zoomHandler = this._createHandler('zoomHandler',0, this.size.height-this.size.ribbonHeight*4, this.size.width,this.size.ribbonHeight*6);
+        this.zoomHandler.call(this._zoom);
+        return this;
+    }
+
+    /**
+     * Zoome sur une partie du domaine
+     * @param begin {Date}  : date de début
+     * @param end {Date}    : date de fin
+     * @returns {Poll}
+     * @private
+     */
+    _zoomTo(begin,end){
+        begin=d3.max([ begin, this.xDomain[0]]);
+        end=d3.min([ end, this.xDomain[1]]);
+        this.svg.call(  this._zoom.transform,
+                        d3.zoomIdentity.scale(this.size.width / (this.xScale(end) - this.xScale(begin)))
+                                       .translate(-this.xScale(begin), 0)
+        );
+        return this;
     }
 
     /**
@@ -629,6 +659,10 @@ class Poll {
         console.log(this.data.chiffres.col('intentions'));
          */
 
+
+
+
+
         //this.data.resultats.filters.add("recent", (d) => d.debut > new Date(2021, 7, 1));
         this._firstDraw=true;
         this._calcDomainAndScales()
@@ -645,11 +679,23 @@ class Poll {
             easing: 'easeInOutExpo',
             width: this.size.width,
             delay: 10,
-            duration: 3000,
+            duration: Poll.params.duration*3,
             complete: () => {
                 this._firstDraw=false;
                 this.toggle.areas(true);
-                this._initializeZoom();
+                //this._enableFreeZoom();
+                setTimeout(()=>{
+                    let begin=getUrlParams('begin'),
+                        end=getUrlParams('end');
+                    this._zoomTo(begin,end);
+                },1000);
+
+                setTimeout(()=>{
+                    let begin=new Date(2020,2,1);
+                    let end=new Date(2021,12,4);
+                    this._zoomTo(begin,end);
+                },4000);
+
             }
         });
         /*
@@ -681,19 +727,24 @@ class Poll {
      * @returns {Poll}
      * @private
      */
-    _drawXAxis(xScale) {
-        //Création de l'axe X (dates)
-        xScale= xScale || this.xScale;
+    _drawXAxis(transform) {
+        //Définition de l'échelle et de la durée d'animation (0 au premier passage)
+        const xScale = (transform)? transform.rescaleX(this.xScale) : this.xScale,
+              duration=(this._firstDraw)?0:Poll.params.duration;
         this.xAxisGenerator.scale(xScale);
+        //Appel du générateur
         const xAxis = this.layers.xAxis
+            .transition()
+            .duration(duration)
             .call(this.xAxisGenerator);
         //Définition des styles lors du premier appel de la fonction uniquement
         if (this._firstDraw){
             xAxis.selectAll('text')
                 .attr('transform', 'translate(0 5)')
+                .style('opacity',.2)
                 .style('font-size', `${this.size.font}px`);
             xAxis.selectAll('line')
-                .attr('y1',-100)
+                .attr('y1',0)
                 .attr('vector-effect', 'non-scaling-stroke');
         }
 
@@ -707,58 +758,87 @@ class Poll {
      * @returns {Poll}
      * @private
      */
-    _drawXMonths(xScale,k=1) {
-        //Création de l'axe des mois
-        xScale = xScale || this.xScale;
-        let axis = this.layers.xMonths
-            .call( this.xMonthsGenerator.scale(xScale) )
-            .call( g => { g.selectAll('text')
-                    .style('font-size', `${this.size.ribbonHeight / 1.7}px`)
-                    .text( d => (k>2)? d3.timeFormat("%B")(d): (k>1.4)? d3.timeFormat("%b")(d): d3.timeFormat("%B")(d).charAt(0))
-                    .each((date, i, nodes) => {
-                        //Réajustement des positions des labels et des fonds
-                        let nextMonth = new Date(date.getFullYear(),date.getMonth()+1,1),
-                            offsetX = (xScale(nextMonth) - xScale(date)) / 2;
-                        d3.select(nodes[i])
-                            .attr('transform', `translate(${offsetX} -${this.size.ribbonHeight * .75})`);
-                        if (date.getMonth() % 2==0) {
-                            this._superSelect(d3.select(nodes[i].parentNode),'rect')
-                                .lower()
-                                .attr('x', 0)
-                                .attr('y', 0)
-                                .attr('width', offsetX * 2)
-                                .attr('height', this.size.ribbonHeight)
-                                .classed('odd',true);
-                        }
-                    });
-
-                }
-            );
-        //Définition des styles lors du premier appel de la fonction uniquement
-        if (this._firstDraw) {
-            axis.selectAll('path')
-                .style('stroke-width', Poll.params.lineWidth);
-            axis.selectAll('line')
-                .style('stroke-width', 0);
+    _drawXMonths(transform) {
+        const xScale = (transform)? transform.rescaleX(this.xScale) : this.xScale,
+              height = this.size.ribbonHeight,
+              duration=(this._firstDraw)?0:Poll.params.duration;
+        //Renvoie les proprietés transform pour décaler les étiqyettes vers le centre de chaque case
+        const getXTransform= (date) => {
+            const   nextMonth = new Date(date.getFullYear(),date.getMonth()+1,1),
+                    offsetX=(xScale(nextMonth) - xScale(date)) / 2;
+            return `translate(${offsetX} ${height * -.75})`;
         }
+        //Renvoie un rectangle de fond pour le mois correspondant à la date
+        const newBackground= (date) => {
+            const   nextMonth = new Date(date.getFullYear(),date.getMonth()+1,1),
+                    width= xScale(nextMonth) - xScale(date);
+            return this._createRect( xScale(date),0, width,height,  (date.getMonth() % 2==0)?'odd':'even');
+        }
+        //Création de l'axe des mois
+        const axis = this.layers.xMonths;
+        if (this._firstDraw){                   //Premier passage
+            const bckLayer=axis.append('g').classed('bck',true);
+            axis.call( this.xMonthsGenerator.scale(xScale) )
+                .call( g => g.selectAll('text')
+                    .style('font-size', `${height / 1.7}px`)
+                    //.attr('transform', `translate(0 -${height * .75})`)
+                    .attr('transform', getXTransform)
+                    .each( function(date) {
+                           bckLayer.append(()=>newBackground(date).node());
+                    })
+                );
+        }
+        else if (transform) {                   //Transformation des élements
+            axis.transition()
+                .duration(duration)
+                .call(this.xMonthsGenerator.scale(xScale) );
+            axis.selectAll('text')
+                .style('font-size', `${height / 1.7}px`)
+                .transition()
+                .duration(duration)
+                .attr('transform', getXTransform)
+                .on('start', function(d){       //Si la taille des labels doit diminuer, on applique la modification avant l'animation
+                    d3.select(this).text( (d)=> {
+                        let sourceText=this.textContent;
+                        let targetText= (transform.k>2)? d3.timeFormat('%B')(d):
+                            (transform.k>1.6)? d3.timeFormat('%b')(d) :
+                                d3.timeFormat('%b')(d).charAt(0);
+                        return (targetText.length<sourceText.length)? targetText: sourceText;
+                    } );
+                })
+                .on('end', function(d){         //Modification de la taille des labels en fonction du niveau de zoom
+                    d3.select(this).text( ()=> {
+                        if (transform.k>=2) return d3.timeFormat('%B')(d);
+                        else if (transform.k>=1.6) return d3.timeFormat('%b')(d);
+                        else return d3.timeFormat('%b')(d).charAt(0);
+                    } );
+                });
+            axis.select('g.bck')                //Transformation des rectangles de fond
+                .transition()
+                .duration(Poll.params.duration)
+                .attr('transform',`translate(${transform.x} 0) scale(${transform.k} 1)`);
+        }
+
         return this;
     }
 
+
     /**
      * Création de l'axe secondaire (année) des abscisses
-     * @param xScale
+     * @param transform
      * @returns {Poll}
      * @private
      */
-    _drawXYears(xScale) {
-        xScale = xScale || this.xScale;
+    _drawXYears(transform) {
+        const xScale = (transform)? transform.rescaleX(this.xScale) : this.xScale,
+              duration=(this._firstDraw)?0:Poll.params.duration;
         this.layers.xYears
+            .transition()
+            .duration(duration)
             .call( this.xYearsGenerator.scale(xScale) )
-            .call( g => g.selectAll('text')
-                .attr('dy',-this.size.ribbonHeight*.4)
-                .attr('dx',this.size.ribbonHeight*.2)
-                .style('font-size', `${this.size.ribbonHeight *2}px`)
-            );
+            .call( g=>g.selectAll('text')
+                .attr('transform',`translate(${this.size.ribbonHeight*.2} ${-this.size.ribbonHeight*1.8})`)
+                .style('font-size', `${this.size.ribbonHeight *2}px`));
         return this;
     }
 

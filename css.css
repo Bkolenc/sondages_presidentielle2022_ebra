@@ -287,11 +287,16 @@ g.axis text {
 }
 g.axis line {
     stroke: #333;
+    vector-effect:non-scaling-stroke;
 }
 g.axis *, path.area {
     user-select:none;
     pointer-events: none;
-    vector-effect:non-scaling-stroke;
+}
+
+
+g#xAxis {
+    text-anchor:middle;
 }
 g#yAxis text {
     text-anchor:end;
@@ -320,7 +325,7 @@ g#xMonths text {
     color:#888;
 }
 g#xMonths line {
-    stroke-width:0;
+    stroke-width:1;
 }
 g#xMonths path, g#yAxis path {
     display:none;
@@ -329,9 +334,6 @@ g#xMonths path, g#yAxis path {
 g#xMonths rect.odd {
     fill: rgba(128,128,128,.1);
 }
-g#xAxis {
-    text-anchor:middle;
-}
 g#curves path.courbe {
     fill: transparent;
     vector-effect: non-scaling-stroke;
@@ -339,6 +341,9 @@ g#curves path.courbe {
 path.area, path.courbe {
     stroke-linecap: round;
     stroke-linejoin: round;
+}
+g#cache rect {
+    fill:#fff;
 }
 
 nav#options {
