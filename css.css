@@ -282,8 +282,9 @@ svg {
 svg #zoomHandler {
     cursor:grab;
 }
-g * {
-    pointer-events: all!important;
+path.courbe, path.area, g.axis *, g#points ellipse {
+    pointer-events: none;
+    user-select:none;
 }
 g.axis text {
     font-family: merriweather-sans, sans-serif;
@@ -292,11 +293,6 @@ g.axis line {
     stroke: #333;
     vector-effect:non-scaling-stroke;
 }
-g.axis *, path.area {
-    user-select:none;
-    pointer-events: none;
-}
-
 
 g#xAxis {
     text-anchor:middle;
@@ -383,9 +379,14 @@ nav#options span.material-icons {
 g.poll rect.bar {
     stroke:none;
 }
-g.poll text.name {
+g.poll text.result {
     text-anchor: middle;
+    font-weight:bold;
 }
+g.poll foreignObject img {
+    border-radius:100%;
+}
+
 
 
 /* MODIFS NAVIGATION CANDIDATS ??? */

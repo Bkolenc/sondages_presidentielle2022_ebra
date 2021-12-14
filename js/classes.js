@@ -704,10 +704,9 @@ class MetaPoll extends DomElement {
      * @private
      */
     _getPollDates() {
-        let uniqueDates = new Set([...this.data.sondages.values()].map(d => d.debut));
-        return Array.from(uniqueDates)
-            .filter(d => d)
-            .map(d => new Date(d));
+        let dates=new Set([...this.data.sondages.values()].map(d => new Date(d.debut)));
+        this.dates=Array.from(dates).sort(d3.ascending);
+        return this.dates;
     }
 
 
@@ -755,9 +754,11 @@ class MetaPoll extends DomElement {
         begin=d3.max([ begin, this.xDomain[0]]);
         end=d3.min([ end, this.xDomain[1]]);
         this.svg.call(  this._zoom.transform,
-            d3.zoomIdentity.scale(this.size.width / (this.xScale(end) - this.xScale(begin)))
+            d3.zoomIdentity
+                .scale(this.size.width / (this.xScale(end) - this.xScale(begin)))
                 .translate(-this.xScale(begin), 0)
         );
+ this.xScale.domain([begin,end]);
         return this;
     }
 
@@ -791,7 +792,9 @@ class MetaPoll extends DomElement {
 
         //this.data.resultats.filters.add("recent", (d) => d.debut > new Date(2021, 7, 1));
         this._firstDraw=true;
-        this._calcDomainAndScales()
+        this._calcDomainAndScales();
+
+
 
         this._drawYAxis()
             ._drawXMonths()
@@ -799,51 +802,134 @@ class MetaPoll extends DomElement {
             ._drawXAxis()
             ._drawPoints()
             ._drawChart();
+
+
         //Animation initiale (effet de rollover pour les courbes, puis affichage graduel des marges)
         anime({
             targets: '#clipChart rect',
             easing: 'easeInOutExpo',
             width: this.size.width,
-            delay: 10,
+            delay: 100,
             duration: MetaPoll.params.duration*3,
+            begin: () => {
+                //let range=getUrlDomain();
+                //this._zoomTo(range.begin,range.end);
+                this._enableFocus();
+            },
             complete: () => {
                 this._firstDraw=false;
+                let range=getUrlDomain();
+                this._zoomTo(range.begin,range.end);
                 this.toggle.areas(true);
-                //this._enableFreeZoom();
-                setTimeout(()=>{
-                    let range=getUrlDomain();
-                    this._zoomTo(range.begin,range.end);
-                },1000);
+               // this._enableFreeZoom();
 
-                setTimeout(()=>{
+         /*    setTimeout(()=>{
                     let begin=new Date(2020,2,1);
                     let end=new Date(2021,12,4);
                     this._zoomTo(begin,end);
-                },4000);
+                },4000);*/
 
             }
         });
-        /*
-                setTimeout(() => {
-                    let elt=this.layers.curves.append('text').attr('id','motionTest').text('Test suivi').style('font-size',20).attr('dy',-10);
-                    var path = anime.path('path.courbe.id_12');
-
-                    anime({
-                        targets: "#motionTest",
-                        translateX: path('x'),
-                        translateY: path('y'),
-                        rotate: 0, //path('angle')
-                        easing: 'easeOutQuad',
-                        delay: 6000,
-                        duration: 4000,
-                        begin: () => elt.style('display','auto'),
-                        complete: () => elt.style('display','none')
-                    });
-
-
-                }, 1000)*/
         return this;
 
+    }
+
+
+    /**
+     * Lance une animation avec des vignettes
+     * @private
+     */
+    _enableFocus(){
+        const _this=this;
+        //console.log(this.dates);
+        const slider = this.container
+            .append('line')
+            .attr('x1',0)
+            .attr('y1',0)
+            .attr('x2',0)
+            .attr('y2',this.size.height)
+            .style('stroke','rgba(128,128,128,.5')
+            .style('stroke-width','5px');
+        const updateSlider=(x,transition=false)=>{
+            if (!transition) slider.attr('x1',x).attr('x2',x);
+            else slider.transition().duration(500).attr('x1',x).attr('x2',x);
+        }
+        const thresholdX=(x)=>{
+            return (x<this.size.font) ? this.size.font :
+                (x>this.size.width-this.size.font) ? this.size.width-this.size.font :
+                    x;
+        }
+        const findClosest=(x)=>{
+            const   date=this.xScale.invert(x),
+                    neighbors=[];
+            for (let i=0;i<this.dates.length;i++){
+                if (this.dates[i]<=date) {
+                    neighbors[0]=this.dates[i];
+                }
+                else if (this.dates[i]>=date) {
+                    neighbors[1]=this.dates[i];
+                    break;
+                }
+            }
+            neighbors.filter (d => d)
+                .filter(d=> (this.xScale(d)>0 && this.xScale(d)<this.size.width))
+                .sort((a,b)=> ((date-a)<(b-date))?-1:1 );
+            return((neighbors[1]-date)<(date-neighbors[0]))?neighbors.reverse():neighbors;
+
+        }
+
+        const selectTick=(date)=>{
+            const tick=this.layers.xAxis.selectAll('g.tick.D'+date.toISOString().substring(0, 10)).raise();
+            this.layers.xAxis.selectAll('text')
+                .style('opacity', d => (d==date)?.7:0)
+                .style('font_size',`${this.size.font}px`);
+            this.layers.xAxis.selectAll('line')
+                .style('opacity', d => (d==date)?.7:0);
+
+
+        }
+        const curveGen = d3.line()
+            .x(d => this.xScale(d[0]))
+            .y(d => this.yScale(d[1]))
+            .curve(MetaPoll.params.curveMode);
+        const updateFigures=(x)=>{
+            for (let id of this.data.candidats.keys()) {
+                let data = this.data.resultats.dataset.filter(d => d.id_candidat === id);
+                if (data.length >= MetaPoll.params.minCurvePoints) {      //Inutile de tracer une courbe si moins de x points
+                    //Creation calque id_X
+                   // console.log(curveGen);
+                }
+            }
+
+
+        }
+
+
+        d3.select('#focusHandler')
+            .raise()
+            .call(d3.drag()
+                .on("start", function() {
+                    d3.select(this).style('cursor','ew-resize');
+                })
+                .on("drag", (e) => {
+                    let x=thresholdX(e.x);
+                    updateSlider(x);
+
+                    //updateFigures(x);
+                  //  console.log(x,this.xScale.invert(x));
+                })
+                .on('end', (e)=>{
+                    d3.select('#focusHandler').style('cursor','default');
+                    let x=thresholdX(e.x),
+                        closestDate=findClosest(x)[0];
+                    updateSlider(this.xScale(closestDate),true);
+                    selectTick(closestDate);
+                })
+
+            );
+
+        return this;
     }
 
     /**
@@ -862,8 +948,8 @@ class MetaPoll extends DomElement {
             .transition()
             .duration(duration)
             .call(this.xAxisGenerator)
-            .on('end', ()=> d3.selectAll('#xAxis text')
-                .on('click', function(elt,date) { console.log(this,elt,date);})
+            .on('end', () => d3.selectAll('#xAxis g.tick')
+                .attr( 'class', d=> 'tick D'+d.toISOString().substring(0, 10))
             );
 
         //Définition des styles lors du premier appel de la fonction uniquement
@@ -1013,7 +1099,6 @@ class MetaPoll extends DomElement {
     _drawPoints(xScale){
         xScale= xScale || this.xScale;
         let data=this.data.resultats.toGroups('sondage');
-        console.log(data);
         this.layers.points
             .selectAll('g')
             .data(data)
@@ -1176,8 +1261,8 @@ class MetaPoll extends DomElement {
 class Poll extends DomElement{
 
     static size = MetaPoll.size;
-    static margins = MetaPoll.margins;
-    static duration = 2000;
+    static margins = {top: 150, right: 20, bottom: 150, left: 100};;
+    static duration = 500;
 
     constructor(id){
         super(`Sondage_${id}`);
@@ -1189,14 +1274,14 @@ class Poll extends DomElement{
         this.infos.institut=G_sondages.tables.instituts[`id_${this.infos.id_institut}`];
         this.infos.hypotheses=new Map();
         Object.entries(G_sondages.tables.hypotheses_1)
-                                    .filter( d=> d[1].id_sondage==this.id )
-                                    .forEach( d=> {
-                                        let key=parseInt(d[0].replace('id_','')),
-                                            data=d[1];
-                                        delete(data.id_sondage);
-                                        data.s_echantillon=parseInt(data.s_echantillon);
-                                        this.infos.hypotheses.set(key,data);
-                                    } );
+            .filter( d=> d[1].id_sondage==this.id )
+            .forEach( d=> {
+                let key=parseInt(d[0].replace('id_','')),
+                    data=d[1];
+                delete(data.id_sondage);
+                data.s_echantillon=parseInt(data.s_echantillon);
+                this.infos.hypotheses.set(key,data);
+            } );
         this.container=d3.create('svg:g').classed('mainLayer poll',true)
             .attr('transform',`translate(${Poll.margins.left} ${Poll.margins.top})`);
         this.layers={  };
@@ -1205,7 +1290,7 @@ class Poll extends DomElement{
         this.layers.axis=this.container.append('svg:g').classed('axis',true)
         //Calcul des tailles effectives
         this.size = {
-            font: d3.min([ Poll.size.height / 20, 30]),
+            font: d3.min([MetaPoll.size.height / 20, 40]),
             width: (Poll.size.width - Poll.margins.left - Poll.margins.right),
             height: (Poll.size.height - Poll.margins.top - Poll.margins.bottom)
         }
@@ -1229,106 +1314,114 @@ class Poll extends DomElement{
         return this;
     }
 
-    /**
-     * Injecte et filtre les données principales (en principe incluses dans une classe DataWrapper)
-     * @param mainData {Object} : objet DataWrapper
-     * @param candData {Map} : dictionnaire Candidats (Map)
-     * @returns {Poll}
-     */
-    oldepush(mainData,candData){
-        this.data = new DataWrapper('dataSondage').push(mainData.dataset.filter( d=> this.infos.hypotheses.has(d.id_hypothèse)));
-        const extent = this.data.extent(['borne_inf','borne_sup']);
-        this.yScale.domain(extent);
-        this.candidats=candData;
-        return this;
-    }
 
     calcDomain(dataset){
         this.xScale.domain( dataset.map ( d=>d.id_candidat));
         let min=d3.min(dataset, d=> d.borne_inf);
         let max=d3.max(dataset, d=> d.borne_sup)+2;
-        this.yScale.domain([min,max]);
+        this.yScale.domain([0,max]);
         this.axisGenerator.tickValues(d3.range(0,max,5));
         return this;
     }
 
 
     draw(){
-    //   this.data.filters.add('hypothese', );
+        //   this.data.filters.add('hypothese', );
         let dataset=this.data.resultats.dataset
-                            .filter( d=>d.id_hypothèse==this.hypothese )
-                            .sort((a, b) => d3.descending(a.resultat, b.resultat));
+            .filter( d=>d.id_hypothèse==this.hypothese )
+            .sort((a, b) => d3.descending(a.resultat, b.resultat));
         this.calcDomain(dataset);
 
-        this.layers.chart
-            .selectAll('rect.bar')
+        dataset=d3.group(dataset, d=>d.id_candidat);
+        console.log(dataset);
+
+        let groups=this.layers.chart
+            .selectAll('g.cand')
             .data(dataset)
-            .enter()
-            .append('rect')
-            .classed('bar',true)
-            .attr("x", d => this.xScale(d.id_candidat))
-            .attr("y", d =>  this.size.height)
-            .attr("width", this.xScale.bandwidth())
-            .attr("height",0 )
-            .attr("fill", d => this.data.candidats.get(d.id_candidat).couleur)
-            .style('opacity',.2)
-            .transition()
+            .join('g')
+            .attr('class',d=> `cand id_${d[0]}` )
+            .attr('transform', d => `translate(${this.xScale(d[0])} 0)`);
+        groups.selectAll('rect.bar')
+            .data( d=> d[1])
+            .join('rect')
+                .attr('class', 'bar')
+                .attr("x", 0)
+                .attr("y", d =>  this.size.height)
+                .attr("width", this.xScale.bandwidth())
+                .attr("height",0 )
+                .attr("fill", d => this.data.candidats.get(d.id_candidat).couleur)
+                .style('opacity',.2)
+                .transition()
                 .duration(Poll.duration)
                 .attr("y", d =>  this.yScale(d.resultat))
                 .attr('height', d=> this.size.height-this.yScale(d.resultat) );
-        this.layers.chart
-            .selectAll('line.result')
-            .data(dataset)
-            .enter()
-            .append('line')
-            .classed('result',true)
-            .attr("x1", d => this.xScale(d.id_candidat))
-            .attr("y1", d =>  this.yScale(d.resultat))
-            .attr("x2", d =>  this.xScale(d.id_candidat) )
-            .attr("y2", d =>  this.yScale(d.resultat) )
-            .attr("stroke", d => this.data.candidats.get(d.id_candidat).couleur)
-            .attr("stroke-width", '20px')
-            .transition()
-            .delay(Poll.duration)
-                .attr("x2", d => this.xScale(d.id_candidat) + this.xScale.bandwidth() )
-                .attr("y2", d =>  this.yScale(d.resultat) );
-        this.layers.chart
-            .selectAll('rect.area')
-            .data(dataset)
-            .enter()
-            .append('rect')
-            .classed('area',true)
-            .attr('mask', 'url(#mask-stripe)')
-            .attr("x", d => this.xScale(d.id_candidat))
-            .attr("y", d =>  this.yScale(d.resultat))
-            .attr("width", this.xScale.bandwidth())
-            .attr("height", d => 0)
+        groups.selectAll('line.result')
+                .data( d => d[1])
+                .join('line')
+                    .attr('class','result')
+                    .attr("x1",0)
+                    .attr("y1", d =>  this.yScale(d.resultat))
+                    .attr("x2", 0 )
+                    .attr("y2", d =>  this.yScale(d.resultat) )
+                    .attr("stroke", d => this.data.candidats.get(d.id_candidat).couleur)
+                    .attr("stroke-width", '10px')
+                    .transition()
+                    .delay(Poll.duration)
+                        .attr("x2", this.xScale.bandwidth() );
+        groups.selectAll('rect.area')
+            .data( d => d[1] )
+            .join('rect')
+                .attr('class', 'area')
+                .attr('mask', 'url(#mask-stripe)')
+                .attr("x", 0)
+                .attr("y", d =>  this.yScale(d.resultat))
+                .attr("width", this.xScale.bandwidth())
+                .attr("height", d => 0)
+                .attr("fill", d => this.data.candidats.get(d.id_candidat).couleur)
+                .transition()
+                .delay(Poll.duration)
+                .duration(Poll.duration)
+                    .attr("y", d =>  this.yScale(d.borne_sup))
+                    .attr("height", d => this.yScale(d.borne_inf) - this.yScale(d.borne_sup) )
+                    .style('opacity',.2);
+        groups.selectAll('text.result')
+            .data( d => d[1] )
+            .join('text')
+            .attr('class', 'result')
+            .attr('x',this.xScale.bandwidth()/2)
+            .attr('y',d => this.yScale(d.resultat)-this.size.font/2)
+            .style('font-size',`${this.size.font}px`)
             .attr("fill", d => this.data.candidats.get(d.id_candidat).couleur)
             .transition()
-            .delay(Poll.duration)
-            .duration(Poll.duration)
-                .attr("y", d =>  this.yScale(d.borne_sup))
-                .attr("height", d => this.yScale(d.borne_inf) - this.yScale(d.borne_sup) )
-                .style('opacity',.5);
-        this.layers.labels
-            .selectAll('text.name')
-            .data(dataset)
-            .enter()
-            .append('text')
-            .classed('name',true)
-            .attr('x',d => this.xScale(d.id_candidat)+this.xScale.bandwidth()/2)
-            .attr('y',d => this.yScale(d.borne_sup)-15)
-            .style('font-size',`${this.size.font}px`)
+            .delay(Poll.duration*2)
+            .text( d => `${d.resultat}%`);
+        groups.selectAll('foreignObject.thumb')
+            .data( d => d[1] )
+            .join('foreignObject')
+            .attr('class','thumb')
+            .attr('x',0)
+            .attr('y',d => this.yScale(d.borne_sup)-this.size.font-this.xScale.bandwidth())
+            .attr('width',this.xScale.bandwidth())
+            .attr('height',this.xScale.bandwidth())
+            .append('xhtml:img')
+            .attr('width',this.xScale.bandwidth())
+            .attr('height',this.xScale.bandwidth())
             .transition()
             .delay(Poll.duration*2)
-                .text( d => this.data.candidats.get(d.id_candidat).patronyme);
+                .attr('src', d=> 'img/id_'+d.id_candidat+'.jpg');
         this.layers.axis
             .call(this.axisGenerator)
             .call( g=> g.selectAll('text')
                 .style('font-size', `${this.size.font}px`)
             );
+        this.layers.axis
+            .append('line')
+                .attr('x1',0)
+                .attr('x2',this.size.width)
+                .attr('y1',this.size.height)
+                .attr('y2',this.size.height);
 
-    return this;
+        return this;
 
     }
 
@@ -1338,7 +1431,59 @@ class Poll extends DomElement{
             .sort((a, b) => d3.descending(a.resultat, b.resultat));
         this.calcDomain(dataset);
 
-        const bars=this.container.selectAll("rect.bar").data(dataset);
+        dataset=d3.group(dataset, d=>d.id_candidat);
+        console.log(dataset);
+
+        this.layers.chart
+            .selectAll('g.cand')
+            .data(dataset, d => d )
+            .join(
+                enter => enter.append('g')
+                    .attr('class',d=> `cand id_${d[0]}`)
+                    .attr('transform', d=> `translate(${this.xScale(d[0])},0)` )
+                    .append('line')
+                    .attr('class',d=>'result c'+d[0])
+                    .attr("x1",0)
+                    .attr("y1", d =>  this.yScale(d[1][0].resultat))
+                    .attr("x2", this.xScale.bandwidth() )
+                    .attr("y2", d =>  this.yScale(d[1][0].resultat))
+                    .attr("stroke", d => { console.log(d[0],this.data.candidats.get(d[0])); return this.data.candidats.get(d[0]).couleur; } )
+                    .attr("stroke-width", '10px')
+                ,
+                update => update
+                   // .each ( d=> console.log('UPDATE ',d[1][0].id_candidat,this.data.candidats.get(d[1][0].id_candidat).nom, ' >'+d[1][0].resultat))
+               //     .transition()
+                //    .duration(Poll.duration)
+                    .attr('transform', d=> `translate(${this.xScale(d[0])} 0)`)
+                  /*  .call ( update => update
+                            .selectAll('line.result')
+                            .call( line => line
+                                .transition()
+                                .duration(Poll.duration)
+                                .attr( 'x2' , this.xScale.bandwidth() )
+                            )
+                                       /* .selectAll('line.result')
+                                        .transition()
+                                        .duration(Poll.duration)
+                                        .attr( 'x2' , this.xScale.bandwidth() )
+                                        .attr( 'y1' ,d => {
+                                            console.log(d);
+                                            let id=(Array.isArray(d))?d[1][0].id_candidat:d.id_candidat,
+                                                infos=dataset.get(id)[0];
+                                            console.log(infos);
+                                           return this.yScale(infos.resultat);
+                                        } )
+                                        .attr('y2',d => {
+                                            let id=(Array.isArray(d))?d[1][0].id_candidat:d.id_candidat,
+                                                infos=dataset.get(id)[0];
+                                             return this.yScale(infos.resultat);
+                                        }  )*/
+                  //  ),
+,
+                exit => exit.remove()
+            );
+
+/*        const bars=this.container.selectAll("rect.bar").data(dataset);
         bars.exit().remove();
         bars.enter()
             .append('rect')
@@ -1350,7 +1495,7 @@ class Poll extends DomElement{
             .attr("width", this.xScale.bandwidth())
             .attr("height", d=> this.size.height-this.yScale(d.resultat) );
 
-        const areas=this.container.selectAll("rect.area").data(dataset);
+       const areas=this.container.selectAll("rect.area").data(dataset);
         areas.exit().remove();
         areas.enter()
             .append('rect')
@@ -1360,21 +1505,62 @@ class Poll extends DomElement{
             .attr("x", d => this.xScale(d.id_candidat))
             .attr("y", d =>  this.yScale(d.borne_sup))
             .attr("width", this.xScale.bandwidth())
-            .attr("height", d => this.yScale(d.borne_inf) - this.yScale(d.borne_sup) );
+            .attr("height", d => this.yScale(d.borne_inf) - this.yScale(d.borne_sup) );*/
+/*
+        const lines=this.container
+            .selectAll("line.result")
+            .data(dataset, d=>d)
+            .join(
+                enter =>    enter.append('line')
+                                .attr('class', d => `result id_${d.id_candidat}`)
 
-        const lines=this.container.selectAll("line.result").data(dataset);
-        lines.exit().remove();
+                                .attr("stroke", d => this.data.candidats.get(d.id_candidat).couleur)
+                                .attr("stroke-width", '10px')
+                                .call(enter => enter
+                                                .transition()
+                                                .duration(Poll.duration)
+                                    .attr("x1", d => this.xScale(d.id_candidat))
+                                    .attr("y1", d =>  this.yScale(d.resultat))
+                                    .attr("x2", d =>  this.xScale(d.id_candidat)+this.xScale.bandwidth() )
+                                    .attr("y2", d =>  this.yScale(d.resultat) )
+                                )
+                                .each( d=> console.log('ENTER '+d.id_candidat,
+                                    this.data.candidats.get(d.id_candidat).nom,
+                                    d.resultat,this.xScale(d.id_candidat),
+                                    this.yScale(d.resultat)
+                                )),
+                update =>   update
+                            .attr("x1", d => this.xScale(d.id_candidat))
+                            .attr("y1", d =>  this.yScale(d.resultat))
+                            .attr("x2", d =>  this.xScale(d.id_candidat)+this.xScale.bandwidth() )
+                            .attr("y2", d =>  this.yScale(d.resultat))
+                                .each( d=> console.log('UPDATE '+d.id_candidat,
+                                        this.data.candidats.get(d.id_candidat).nom,
+                                        d.resultat,this.xScale(d.id_candidat),
+                                        this.yScale(d.resultat)
+                                    )),
+                exit =>     exit.remove()
+    );
+     /*   lines.exit().remove();
         lines.enter()
             .append('line')
-            .classed('result',true);
-        lines.transition()
-            .duration(Poll.duration)
+            .classed('result',true)
+            .attr("x1", d => this.xScale(d.id_candidat))
+            .attr("y1", d =>  this.yScale(d.resultat))
+            .attr("x2", d =>  this.xScale(d.id_candidat) )
+            .attr("y2", d =>  this.yScale(d.resultat) )
+            .attr("stroke", d => this.data.candidats.get(d.id_candidat).couleur)
+            .attr("stroke-width", '10px')
+            .each( d=> console.log(d.id_candidat,this.data.candidats.get(d.id_candidat).nom,d.resultat,this.xScale(d.id_candidat),this.yScale(d.resultat)));
+        lines
+            //.transition()
+            //.duration(Poll.duration)
             .attr("x1", d => this.xScale(d.id_candidat))
             .attr("y1", d =>  this.yScale(d.resultat))
             .attr("x2", d =>  this.xScale(d.id_candidat)+ this.xScale.bandwidth() )
             .attr("y2", d =>  this.yScale(d.resultat) );
 
-        const labels=this.container.selectAll("text.name").data(dataset);
+    /*    const labels=this.container.selectAll("text.name").data(dataset);
         labels.exit().remove();
         labels.enter()
             .append('line')
@@ -1382,7 +1568,7 @@ class Poll extends DomElement{
         labels.transition()
             .duration(Poll.duration)
             .attr('x',d => this.xScale(d.id_candidat)+this.xScale.bandwidth()/2)
-            .attr('y',d => this.yScale(d.borne_sup)-15);
+            .attr('y',d => this.yScale(d.borne_sup)-15);*/
 
         this.layers.axis
             .transition()
@@ -1393,7 +1579,7 @@ class Poll extends DomElement{
             );
 
         return this;
-        }
+    }
 
 }
 

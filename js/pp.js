@@ -53,7 +53,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 })
 
 
-        console.log(tableCandidats);
         const mainData=new DataWrapper('mainData')
                 .push(G_sondages.tables.resultats_1)
                 .map(d3.autoType);
@@ -74,16 +73,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
             .push( 'sondages', dictToMap(G_sondages.tables.sondages))
             .appendTo(d3.select('#conteneur_sondage svg'))
             .draw();
-        u.hypothese=47;
 
 
+/*
         setTimeout(()=>{
-
+            u.hypothese=7;
             u.update();
         },6000);
 
-
-
+        setTimeout(()=>{
+            u.hypothese=54;
+            u.update();
+        },9000);
+*/
 
 
 
