@@ -103,7 +103,7 @@ $resultats_2 = array();
 $resultats_2[] = ["id_candidat", "id_hypothèse", "borne_sup", "borne_inf", "resultat"];
 
 $candidats = array();
-$candidats[] = ["id", "nom", "parti", "sigle","defaut"];
+$candidats[] = ["id", "nom", "parti", "sigle","defaut", "patronyme","prenom"];
 
 foreach ($objet as $k=>$v)
 {
@@ -144,7 +144,8 @@ foreach ($objet as $k=>$v)
     {
         $instituts_traites[] = $nom_institut;
         $index = count($instituts);
-        $instituts[] = [$index, $nom_institut];
+        $instituts[] = [ $index, $nom_institut ];
+
     }
     
     // Check si le type de population est déjà passé
@@ -178,7 +179,6 @@ foreach ($objet as $k=>$v)
 //            var_dump($c);
             // On inclut les candidats dans la table
             $nom = $c->candidat;
-            
             $partis = $c->parti;
             $parti = "";
             foreach($partis as $p)
@@ -195,6 +195,9 @@ foreach ($objet as $k=>$v)
             {
                 $candidats_traites[] = $nom;
                 $index = count($candidats);
+                $splitNom = explode(' ',$nom,2);
+                $patronyme = $splitNom[1];
+                $prenom = $splitNom[0];
                 $sigle = "";
                 $degage = "";
                 try
@@ -210,7 +213,7 @@ foreach ($objet as $k=>$v)
                 
                 
                 
-                $candidats[] = [$index, $nom, $parti, $sigle, $degage];
+                $candidats[] = [$index, $nom, $parti, $sigle, $degage, $patronyme,$prenom];
             }
             
             $id_candidat = nom_vers_id($nom, $candidats, 0,1);

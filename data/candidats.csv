@@ -1,35 +1,35 @@
-id,nom,parti,sigle,defaut
-1,"Anne Hidalgo","Parti socialiste ",PS,1
-2,"Nicolas Dupont-Aignan","Debout la France ",DLF,1
-3,"Marine Le Pen","Rassemblement national ",RN,1
-4,"Yannick Jadot","EE-LV ",EELV,1
-5,"Valérie Pécresse","Les Républicains ",LR,1
-6,"Fabien Roussel","Parti communiste ",PCF,1
-7,"Eric Zemmour"," ",,1
-8,"Nathalie Arthaud","Lutte ouvrière ",LO,1
-9,"Arnaud Montebourg"," ",,1
-10,"Philippe Poutou","NPA ",NPA,1
-11,"Jean-Luc Mélenchon","France insoumise ",LFI,1
-12,"Emmanuel Macron","LRM ",LREM,1
-13,"Xavier Bertrand","Les Républicains ",LR,0
-14,"Michel Barnier","Les Républicains ",LR,0
-15,"Jean Lassalle","Résistons ",,1
-16,"Florian Philippot","Les Patriotes ",LP,1
-17,"François Asselineau","UPR ",UPR,1
-18,"Jean-Christophe Lagarde","UDI ",UDI,0
-19,"Jean-Frédéric Poisson","PCD ",PCD,1
-20,"Sandrine Rousseau","EE-LV ",EELV,-1
-21,"Laurent Wauquiez","Les Républicains ",LR,0
-22,"François Baroin","Les Républicains ",LR,-1
-23,"Rachida Dati","Les Républicains ",LR,-1
-24,"Olivier Faure","Parti socialiste ",PS,-1
-25,"Ségolène Royal","Parti socialiste ",PS,-1
-26,"Bruno Retailleau","Les Républicains ",LR,-1
-27,"François Hollande","Parti socialiste ",PS,-1
-28,,"« ext. gauche » ",,
-29,"Eric Piolle","EE-LV ",EELV,-1
-30,"Eric Ciotti","Les Républicains ",LR,0
-31,"Philippe Juvin","Les Républicains ",LR,0
-32,"Denis Payre","Les Républicains ",LR,-1
-33,"Jacques Cheminade","Solidarité et progrès ",SP,1
-34,"Hélène Thouy","Parti animaliste ",PA,1
+id,nom,parti,sigle,defaut,patronyme,prenom
+1,"Anne Hidalgo","Parti socialiste ",PS,1,Hidalgo,Anne
+2,"Nicolas Dupont-Aignan","Debout la France ",DLF,1,Dupont-Aignan,Nicolas
+3,"Marine Le Pen","Rassemblement national ",RN,1,"Le Pen",Marine
+4,"Yannick Jadot","EE-LV ",EELV,1,Jadot,Yannick
+5,"Valérie Pécresse","Les Républicains ",LR,1,Pécresse,Valérie
+6,"Fabien Roussel","Parti communiste ",PCF,1,Roussel,Fabien
+7,"Eric Zemmour"," ",,1,Zemmour,Eric
+8,"Nathalie Arthaud","Lutte ouvrière ",LO,1,Arthaud,Nathalie
+9,"Arnaud Montebourg"," ",,1,Montebourg,Arnaud
+10,"Philippe Poutou","NPA ",NPA,1,Poutou,Philippe
+11,"Jean-Luc Mélenchon","France insoumise ",LFI,1,Mélenchon,Jean-Luc
+12,"Emmanuel Macron","LRM ",LREM,1,Macron,Emmanuel
+13,"Xavier Bertrand","Les Républicains ",LR,0,Bertrand,Xavier
+14,"Michel Barnier","Les Républicains ",LR,0,Barnier,Michel
+15,"Jean Lassalle","Résistons ",,1,Lassalle,Jean
+16,"François Asselineau","UPR ",UPR,1,Asselineau,François
+17,"Florian Philippot","Les Patriotes ",LP,1,Philippot,Florian
+18,"Hélène Thouy","Parti animaliste ",PA,1,Thouy,Hélène
+19,"Jean-Christophe Lagarde","UDI ",UDI,0,Lagarde,Jean-Christophe
+20,"Jean-Frédéric Poisson","PCD ",PCD,1,Poisson,Jean-Frédéric
+21,"Sandrine Rousseau","EE-LV ",EELV,-1,Rousseau,Sandrine
+22,"Laurent Wauquiez","Les Républicains ",LR,0,Wauquiez,Laurent
+23,"François Baroin","Les Républicains ",LR,-1,Baroin,François
+24,"Rachida Dati","Les Républicains ",LR,-1,Dati,Rachida
+25,"Olivier Faure","Parti socialiste ",PS,-1,Faure,Olivier
+26,"Ségolène Royal","Parti socialiste ",PS,-1,Royal,Ségolène
+27,"Bruno Retailleau","Les Républicains ",LR,-1,Retailleau,Bruno
+28,"François Hollande","Parti socialiste ",PS,-1,Hollande,François
+29,,"« ext. gauche » ",,,,
+30,"Eric Piolle","EE-LV ",EELV,-1,Piolle,Eric
+31,"Eric Ciotti","Les Républicains ",LR,0,Ciotti,Eric
+32,"Philippe Juvin","Les Républicains ",LR,0,Juvin,Philippe
+33,"Denis Payre","Les Républicains ",LR,-1,Payre,Denis
+34,"Jacques Cheminade","Solidarité et progrès ",SP,1,Cheminade,Jacques

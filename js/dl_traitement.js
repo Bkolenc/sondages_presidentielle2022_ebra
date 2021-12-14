@@ -18,7 +18,9 @@ var nocache = Date().now;
                 nom_candidat: infos.nom,
                 parti: infos.parti,
                 sigle: infos.sigle,
-                defaut: infos.defaut
+                defaut: infos.defaut,
+                patronyme: infos.patronyme,
+                prenom: infos.prenom
             }
             candidats_formate[id] = a_push;
         });

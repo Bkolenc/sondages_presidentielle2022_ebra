@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         
         // Voici à quoi ressemblent maintenant les données brutes pour former les courbes :
 
-        //Reformatage des données et injection dans la classe Poll
+        //Reformatage des données et injection dans la classe MetaPoll
 
         let dictToMap = (dict) => {
             let myMap=new Map();
@@ -40,41 +40,49 @@ document.addEventListener("DOMContentLoaded", function(event) {
             return myMap;
         };
 
-        let tableCandidats=new Map();
+        const tableCandidats=new Map();
         Object.keys(G_sondages.tables.candidats)
-            .forEach( (key)=> {
-            
-                let newKey = parseInt(key.replace('id_','')),
-                    newValue = Object.assign({}, G_sondages.tables.candidats[key]);   //Shallow copy
-                newValue.couleur = G_sondages.couleurs[key];
-                newValue.nom=newValue.nom_candidat;
-                newValue.initiales=(newValue.nom)?newValue.nom.match(/[A-Z]/g).join(''):'';
-                delete(newValue.nom_candidat);
-                if (!isNaN(newKey)) tableCandidats.set(newKey,newValue);
-                
-            
-            })
+                .forEach( (key)=> {
+                    let newKey = parseInt(key.replace('id_','')),
+                        newValue = Object.assign({}, G_sondages.tables.candidats[key]);   //Shallow copy
+                    newValue.couleur = G_sondages.couleurs[key];
+                    newValue.nom=newValue.nom_candidat;
+                    newValue.initiales=(newValue.nom)?newValue.nom.match(/[A-Z]/g).join(''):'';
+                    delete(newValue.nom_candidat);
+                    if (!isNaN(newKey)) tableCandidats.set(newKey,newValue);
+                })
 
-        //console.log(tableCandidats);
+
+        console.log(tableCandidats);
         const mainData=new DataWrapper('mainData')
                 .push(G_sondages.tables.resultats_1)
                 .map(d3.autoType);
 
-        const Graph=new Poll('conteneur_graphique')
+        const SuperSondage=new MetaPoll('motherOfPolls').appendTo('conteneur_graphique')
             .push('resultats',mainData)
             .push( 'candidats',tableCandidats)
-            .push( 'sondages',dictToMap(G_sondages.tables.sondages))
+            .push( 'sondages', dictToMap(G_sondages.tables.sondages))
             .draw();
 
-        console.log(G_sondages.selection_candidats);
-        const DataSondages=new DataWrapper('sondages').push(G_sondages.tables.sondages)
+
+        /*const DataSondages=new DataWrapper('sondages').push(G_sondages.tables.sondages)
             .map((r)=> { r.id=r.id.replace('id_',''); r.debut=new Date(r.debut); r.fin=new Date(r.fin); return r; });
-           // .map(d3.autoType);
+           // .map(d3.autoType);*/
+        let u=new Poll(1)
+            .push('resultats',mainData)
+            .push( 'candidats',tableCandidats)
+            .push( 'sondages', dictToMap(G_sondages.tables.sondages))
+            .appendTo(d3.select('#conteneur_sondage svg'))
+            .draw();
+        u.hypothese=47;
 
 
-        setTimeout(function(){
-            console.log(G_sondages.selection_candidats);
-        },3000);
+        setTimeout(()=>{
+
+            u.update();
+        },6000);
+
+
 
 
 

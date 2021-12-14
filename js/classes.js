@@ -80,7 +80,11 @@ class DataWrapper {
         //Proxy utilisé pour intercepter les requetes (et renvoyer des données filtrées si filters.list n'est pas vide)
         this.proxy = new Proxy(this, {
             set(target, property, value) {
-                target[property] = value;
+                if (property === 'dataset') {
+                    target._dataset.full=value;
+                    target.filters.execute();
+                }
+                else target[property] = value;
                 return true;
             },
             get(target, property, proxy) {
@@ -158,8 +162,7 @@ class DataWrapper {
      * @private
      */
     _convertFromDict(dict,keyName='id'){
-        let dataset=Object.entries(dict).map( (d)=> { d[1][keyName]=d[0]; return d[1]; } );
-        return dataset;
+        return Object.entries(dict).map( (d)=> { d[1][keyName]=d[0]; return d[1]; } );
     }
 
     /**
@@ -203,6 +206,7 @@ class DataWrapper {
     }
 
     map(fn) {
+
         this._dataset.full = this._dataset.full.map(fn);
         return this;
     }
@@ -252,8 +256,35 @@ class DataWrapper {
      * @returns {*}  [min,max]
      */
     extent(key) {
-        let data = this.col(key);
-        return d3.extent(data);
+        if (typeof key=='string') {
+            return d3.extent(this.col(key));
+        }
+        else if (Array.isArray(key)){
+            return [this.min(key[0]),this.max(key[1])];
+        }
+    }
+
+    /**
+     * Renvoie la valeur minimale d'une colonne
+     * @param key {String} : clé
+     * @returns {*} : Number
+     */
+    min(key) {
+        return d3.min(this.col(key));
+    }
+
+    /**
+     * Renvoie la valeur maximale d'une colonne
+     * @param key {String} : clé
+     * @returns {*} : Number
+     */
+    max(key) {
+        return d3.max(this.col(key));
+    }
+
+    sortBy(key){
+        this.dataset=this._dataset.full.sort((a,b)=>d3.ascending(a[key],b[key]));
+        return this;
     }
 
     /**
@@ -304,12 +335,84 @@ class DataWrapper {
 
 }
 
+class DomElement {
 
-class Poll {
+    constructor (id){
+        this.id=id || DomElement.uuidv4();
+    }
+
+    /**
+     * Générateur d'identifiants uniques
+     * @returns {string}
+     */
+    static uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            let r = Math.random() * 16 | 0,
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    appendTo (parent, container=this.container) {
+        try {
+            this.parent = (typeof parent == 'string') ? d3.select(`#${parent}`) :
+                (parent.constructor.name == 'Item') ? parent.container :
+                    parent;
+            this.parent.append(() => container.node());
+        }
+        catch(error){
+            console.warn(error);
+        }
+        finally{
+            return this;
+        }
+    }
+
+    getParent (tag="div"){
+        return d3.select(this.container.node().closest(tag));
+    }
+
+    delete () {
+        return this.container.remove();
+    }
+
+    empty (){
+        this.container.selectAll('*').remove();
+        return this;
+    }
+
+    hide (options){
+        const  _options = { delay:0, duration:100 },
+            o = {..._options,...options};
+        this.container
+            .transition()
+            .delay(o.delay)
+            .duration(o.duration)
+            .style('opacity',0)
+            .on('end',() => this.container.style('display','none') );
+        return this;
+    }
+
+    show (options){
+        const   _options = { delay:0, duration:100 },
+            p = {..._options,...options};
+        this.container
+            .transition()
+            .delay(o.delay)
+            .duration(o.duration)
+            .style('opacity',1)
+            .on('start',() => this.container.style('display','auto').style('opacity',0) );
+        return this;
+    }
+
+}
+
+
+class MetaPoll extends DomElement {
 
     //Dimensions et paramètres du tracé
     static size = {width: 1600, height: 1000};
-    static margins = {top: 50, right: 200, bottom: 150, left: 100};
+    static margins = {top: 50, right: 20, bottom: 150, left: 100};
     static params = {
         minCurvePoints: 10, curveMode: d3.curveBasis, bandWidth: .2, curveWidth: 3,
         areaWidth: 1, areaOpacity: .3,
@@ -319,24 +422,117 @@ class Poll {
 
     };
 
-    constructor(idParent) {
-
+    constructor(id) {
+        super(id);
         //Creation du SVG, du calque principal et du pattern
-        this.svg = d3.select(`#${idParent}`)
-            .append("svg:svg")
+        this.svg = d3.create('svg:svg')
             .attr('id', 'motherOfPolls')
             .attr(`preserveAspectRatio`, 'xMaxYMin meet')
-            .attr('viewBox', `0 0 ${Poll.size.width} ${Poll.size.height}`)
+            .attr('viewBox', `0 0 ${MetaPoll.size.width} ${MetaPoll.size.height}`)
             .attr('width', `100%`);
         this.svg.append('defs')
             .html("<pattern id='pattern-stripe' width='8' height='8' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'><rect width='4' height='8' transform='translate(0,0)' fill='white'></rect></pattern><mask id='mask-stripe'> <rect x='0' y='0' width='100%' height='100%' fill='url(#pattern-stripe)'/></mask>");
         this.container = this.svg
             .append('svg:g')
             .classed('mainLayer', true)
-            .attr('transform', `translate(${Poll.margins.left} ${Poll.margins.top})`);
+            .attr('transform', `translate(${MetaPoll.margins.left} ${MetaPoll.margins.top})`);
+
+
+
+        //Objet data
+        this.data = {
+            resultats: undefined,
+            candidats: undefined,
+            sondages: undefined
+        }
+
+        //Objet permettant d'afficher ou masquer certaines parties du graphique. Usage : MetaPoll.toggle.points(true|false)
+        this.toggle={
+            states: {
+                points:false,
+                areas:true,
+            },
+            points:(bool)=>{
+                if (bool===undefined) return this.toggle.states.points;
+                let o = (bool) ? MetaPoll.params.pointsOpacity : 0;
+                G_sondages.selection_candidats
+                    .forEach( (id) =>
+                        d3.selectAll('g#points ellipse.'+id)
+                            .call(this._fade, 0, MetaPoll.params.duration, o)
+                    )
+                this.toggle.states.points=bool;
+            },
+            areas:(bool)=>{
+                if (bool===undefined) return this.toggle.states.areas;
+                let o = (bool) ? MetaPoll.params.areaOpacity : 0;
+                d3.selectAll('g#curves path.area')
+                    .call(this._fade, 0, MetaPoll.params.duration/2, o);
+                this.toggle.states.areas=bool;
+            }
+        }
+
+        //Recalcule la taille effective (une fois enlevées les marges)
+        this.size = {
+            font: d3.min([MetaPoll.size.height / 20, 40]),
+            width: (MetaPoll.size.width - MetaPoll.margins.left - MetaPoll.margins.right),
+            height: (MetaPoll.size.height - MetaPoll.margins.top - MetaPoll.margins.bottom),
+            ribbonHeight: (MetaPoll.size.height - MetaPoll.margins.top - MetaPoll.margins.bottom) / 40
+        };
+        this.size.ribbonHeight = this.size.height / 15;        //Hauteur de l'axe des mois et des années
+        //Handlers
+        this.focusHandler = this._createHandler('focusHandler',0, 0, this.size.width,this.size.height-this.size.ribbonHeight*4);
+
+        //Scales
+        this.xScale = d3.scaleTime().range([0, this.size.width]);
+        this.yScale = d3.scaleLinear().range([this.size.height, 0]);
+
+        //Zoom
+        this._zoom = d3.zoom()
+            .scaleExtent([1, 6])
+            .translateExtent([[0,0],[MetaPoll.size.width,this.size.height]])
+            .on('zoom', this._handleZoom.bind(this));
+
+        //Générateurs des axes
+        this.xAxisGenerator = d3.axisBottom(this.xScale).ticks(5).tickSize(10).tickSizeOuter(0).tickFormat(x => x.getDate());
+        this.xMonthsGenerator = d3.axisBottom(this.xScale)
+            .ticks(d3.timeMonth)
+            .tickSize(this.size.ribbonHeight)
+            .tickFormat( (d) => d3.timeFormat("%b")(d).charAt(0) );
+        this.xYearsGenerator = d3.axisBottom(this.xScale).ticks(d3.timeYear).tickSize(-this.size.height).tickFormat(d3.timeFormat("%Y")).tickSizeOuter(0);
+        this.yAxisGenerator = d3.axisLeft(this.yScale).tickFormat(x => x + '%').tickSizeOuter(0);
+        this.yGridGenerator = d3.axisLeft(this.yScale).tickFormat('').tickSize(-this.size.width * .99).tickSizeOuter(0);
+
+    }
+
+    appendTo(parent){
+        DomElement.prototype.appendTo.call(this,parent,this.svg);
+        this._createStructure();
+        return this;
+    }
+
+    _createStructure(){
+        //CLippaths
+        this._createClipPath('clipChart',0,0,0, (this.size.height+MetaPoll.margins.bottom));
+        this._createClipPath('clipXAxis',0,-MetaPoll.size.height,this.size.width, MetaPoll.size.height+100);
+
+        //Création des calques
+        this.layers = {};
+        this._createLayer('points').attr('clip-path', 'url(#clipChart)');
+        this._createLayer('curves').attr('clip-path', 'url(#clipChart)');
+
+        const cache=this._createLayer('cache', 'cache');     //Hack degueu mais le clipping ne suit pas assez vite les modifs de la courbe
+        cache.append('rect').attr('x',-MetaPoll.margins.left).attr('y',-MetaPoll.margins.top).attr('width',MetaPoll.margins.left).attr('height',MetaPoll.size.height);
+        cache.append('rect').attr('x',this.size.width).attr('y',-MetaPoll.margins.top).attr('width',MetaPoll.margins.right).attr('height',MetaPoll.size.height);
+
+        const axis = this._createLayer('axis', 'axis');
+        this._createLayer('xAxis', 'axis',axis).attr('transform', `translate(0 ${this.size.height + this.size.ribbonHeight})`).attr('clip-path', 'url(#clipXAxis)');
+        this._createLayer('xMonths', 'axis',axis).attr('transform', `translate(0 ${this.size.height})`).attr('clip-path', 'url(#clipXAxis)');
+        this._createLayer('xYears', 'axis',axis).attr('transform', `translate(0 ${this.size.height})`);
+        this._createLayer('yAxis', 'axis',axis);
+        this._createLayer('yGrid', 'axis',axis);
 
         //Selecteur HTML
-        this.selector=d3.select(`#${idParent}`)
+        this.selector=this.parent
             .append('nav')
             .attr('id','options');
         this._createSelector('Masquer les marges d\'erreur','area_chart')
@@ -353,92 +549,7 @@ class Poll {
                 d3.select(e.target).select('span.text').text(`${text}  le détail des estimations`);
                 this.toggle.points(!state);
             });
-
-        //Objet data
-        this.data = {
-            resultats: undefined,
-            candidats: undefined,
-            sondages: undefined
-        }
-
-        //Objet permettant d'afficher ou masquer certaines parties du graphique. Usage : Poll.toggle.points(true|false)
-        this.toggle={
-            states: {
-                points:false,
-                areas:true,
-            },
-            points:(bool)=>{
-                if (bool===undefined) return this.toggle.states.points;
-                let o = (bool) ? Poll.params.pointsOpacity : 0;
-                G_sondages.selection_candidats
-                    .forEach( (id) =>
-                        d3.selectAll('g#points ellipse.'+id)
-                            .call(this._fade, 0, Poll.params.duration, o)
-                    )
-                this.toggle.states.points=bool;
-            },
-            areas:(bool)=>{
-                if (bool===undefined) return this.toggle.states.areas;
-                let o = (bool) ? Poll.params.areaOpacity : 0;
-                d3.selectAll('g#curves path.area')
-                    .call(this._fade, 0, Poll.params.duration/2, o);
-                this.toggle.states.areas=bool;
-            }
-        }
-
-        //Recalcule la taille effective (une fois enlevées les marges)
-        this.size = {
-            font: d3.min([Poll.size.height / 1, 40]),
-            width: (Poll.size.width - Poll.margins.left - Poll.margins.right),
-            height: (Poll.size.height - Poll.margins.top - Poll.margins.bottom),
-            ribbonHeight: (Poll.size.height - Poll.margins.top - Poll.margins.bottom) / 40
-        };
-        this.size.ribbonHeight = this.size.height / 15;        //Hauteur de l'axe des mois et des années
-        //Handlers
-        this.focusHandler = this._createHandler('focusHandler',0, 0, this.size.width,this.size.height-this.size.ribbonHeight*4);
-
-        //Scales
-        this.xScale = d3.scaleTime().range([0, this.size.width]);
-        this.yScale = d3.scaleLinear().range([this.size.height, 0]);
-
-        //Zoom
-        this._zoom = d3.zoom()
-            .scaleExtent([1, 6])
-            .translateExtent([[0,0],[Poll.size.width,this.size.height]])
-            .on('zoom', this._handleZoom.bind(this));
-
-        //Générateurs des axes
-        this.xAxisGenerator = d3.axisBottom(this.xScale).ticks(5).tickSize(10).tickSizeOuter(0).tickFormat(x => x.getDate());
-        this.xMonthsGenerator = d3.axisBottom(this.xScale)
-            .ticks(d3.timeMonth)
-            .tickSize(this.size.ribbonHeight)
-            .tickFormat( (d) => d3.timeFormat("%b")(d).charAt(0) );
-        this.xYearsGenerator = d3.axisBottom(this.xScale).ticks(d3.timeYear).tickSize(-this.size.height).tickFormat(d3.timeFormat("%Y")).tickSizeOuter(0);
-        this.yAxisGenerator = d3.axisLeft(this.yScale).tickFormat(x => x + '%').tickSizeOuter(0);
-        this.yGridGenerator = d3.axisLeft(this.yScale).tickFormat('').tickSize(-this.size.width * .99).tickSizeOuter(0);
-
-        //CLippaths
-        this._createClipPath('clipChart',0,0,0, (this.size.height+Poll.margins.bottom));
-        this._createClipPath('clipXAxis',0,-Poll.size.height,this.size.width, Poll.size.height+100);
-
-        //Création des calques
-        this.layers = {};
-        this._createLayer('points').attr('clip-path', 'url(#clipChart)');
-        this._createLayer('curves').attr('clip-path', 'url(#clipChart)');
-        const cache=this._createLayer('cache', 'cache');     //Hack degueu mais le clipping ne suit pas assez vite les modifs de la courbe
-        cache.append('rect').attr('x',-Poll.margins.left).attr('y',-Poll.margins.top).attr('width',Poll.margins.left).attr('height',Poll.size.height);
-        cache.append('rect').attr('x',this.size.width).attr('y',-Poll.margins.top).attr('width',Poll.margins.right).attr('height',Poll.size.height);
-        const axis = this._createLayer('axis', 'axis');
-        this._createLayer('xAxis', 'axis',axis).attr('transform', `translate(0 ${this.size.height + this.size.ribbonHeight})`).attr('clip-path', 'url(#clipXAxis)');
-        this._createLayer('xMonths', 'axis',axis).attr('transform', `translate(0 ${this.size.height})`).attr('clip-path', 'url(#clipXAxis)');
-        this._createLayer('xYears', 'axis',axis).attr('transform', `translate(0 ${this.size.height})`);
-        this._createLayer('yAxis', 'axis',axis);
-        this._createLayer('yGrid', 'axis',axis);
-
-        //       this.layers.axis.attr('clip-path', 'url(#mainClipPath)');
-
-
-
+        return this;
     }
 
     /**
@@ -557,7 +668,7 @@ class Poll {
      * Injecte les données dans la propriété this.data
      * @param property
      * @param dataWrapper
-     * @returns {Poll}
+     * @returns {MetaPoll}
      */
     push(property, data) {
         this.data[property] = data;
@@ -566,7 +677,7 @@ class Poll {
 
     /**
      * Calcule les domaines et les scales
-     * @returns {Poll}
+     * @returns {MetaPoll}
      * @private
      */
     _calcDomainAndScales() {
@@ -609,11 +720,11 @@ class Poll {
 
         //Déplacement et zoom des courbes, modification inverse du clippath et du pattern
         let [x,k,ki]=[e.transform.x,e.transform.k,1/e.transform.k];
-        d3.select('#curves').transition().duration(Poll.params.duration).attr('transform',`translate(${x} 0) scale(${k} 1)`);
-        d3.select('#pattern-stripe').transition().duration(Poll.params.duration).attr('patternTransform',`rotate(45) scale(${ki} 1)`);
+        d3.select('#curves').transition().duration(MetaPoll.params.duration).attr('transform',`translate(${x} 0) scale(${k} 1)`);
+        d3.select('#pattern-stripe').transition().duration(MetaPoll.params.duration).attr('patternTransform',`rotate(45) scale(${ki} 1)`);
         //       d3.select('#clipChart rect').attr('transform',`translate(${-x/k} 0) scale(${ki} 1)`);   Remplacé par système de cache
-        d3.select('#points').transition().duration(Poll.params.duration).attr('transform',`translate(${x} 0) scale(${k} 1)`);
-        d3.selectAll('#points ellipse').transition().duration(Poll.params.duration).attr('transform',`scale(${ki} 1)`)
+        d3.select('#points').transition().duration(MetaPoll.params.duration).attr('transform',`translate(${x} 0) scale(${k} 1)`);
+        d3.selectAll('#points ellipse').transition().duration(MetaPoll.params.duration).attr('transform',`scale(${ki} 1)`)
 
         //Déplacement et zoom des axes
         this._drawXAxis(e.transform);
@@ -637,7 +748,7 @@ class Poll {
      * Zoome sur une partie du domaine
      * @param begin {Date}  : date de début
      * @param end {Date}    : date de fin
-     * @returns {Poll}
+     * @returns {MetaPoll}
      * @private
      */
     _zoomTo(begin,end){
@@ -657,7 +768,7 @@ class Poll {
      * @private
      */
     _loessRegression(key = 'resultat', bandwidth) {
-        bandwidth = bandwidth || Poll.params.bandWidth;
+        bandwidth = bandwidth || MetaPoll.params.bandWidth;
         return d3.regressionLoess()
             .x(d => d.debut)
             .y(d => d[key])
@@ -694,7 +805,7 @@ class Poll {
             easing: 'easeInOutExpo',
             width: this.size.width,
             delay: 10,
-            duration: Poll.params.duration*3,
+            duration: MetaPoll.params.duration*3,
             complete: () => {
                 this._firstDraw=false;
                 this.toggle.areas(true);
@@ -738,13 +849,13 @@ class Poll {
     /**
      * Création de l'axe des abscisses
      * @param xScale
-     * @returns {Poll}
+     * @returns {MetaPoll}
      * @private
      */
     _drawXAxis(transform) {
         //Définition de l'échelle et de la durée d'animation (0 au premier passage)
         const xScale = (transform)? transform.rescaleX(this.xScale) : this.xScale,
-            duration=(this._firstDraw)?0:Poll.params.duration;
+            duration=(this._firstDraw)?0:MetaPoll.params.duration;
         this.xAxisGenerator.scale(xScale);
         //Appel du générateur
         const xAxis = this.layers.xAxis
@@ -773,13 +884,13 @@ class Poll {
      * Création de l'axe secondaire (mois) des abscisses
      * @param xScale
      * @param k {Number} : coefficient de zoom
-     * @returns {Poll}
+     * @returns {MetaPoll}
      * @private
      */
     _drawXMonths(transform) {
         const xScale = (transform)? transform.rescaleX(this.xScale) : this.xScale,
             height = this.size.ribbonHeight,
-            duration=(this._firstDraw)?0:Poll.params.duration;
+            duration=(this._firstDraw)?0:MetaPoll.params.duration;
         //Renvoie les proprietés transform pour décaler les étiqyettes vers le centre de chaque case
         const getXTransform= (date) => {
             const   nextMonth = new Date(date.getFullYear(),date.getMonth()+1,1),
@@ -833,7 +944,7 @@ class Poll {
                 });
             axis.select('g.bck')                //Transformation des rectangles de fond
                 .transition()
-                .duration(Poll.params.duration)
+                .duration(MetaPoll.params.duration)
                 .attr('transform',`translate(${transform.x} 0) scale(${transform.k} 1)`);
         }
 
@@ -844,12 +955,12 @@ class Poll {
     /**
      * Création de l'axe secondaire (année) des abscisses
      * @param transform
-     * @returns {Poll}
+     * @returns {MetaPoll}
      * @private
      */
     _drawXYears(transform) {
         const xScale = (transform)? transform.rescaleX(this.xScale) : this.xScale,
-            duration=(this._firstDraw)?0:Poll.params.duration;
+            duration=(this._firstDraw)?0:MetaPoll.params.duration;
         this.layers.xYears
             .transition()
             .duration(duration)
@@ -862,7 +973,7 @@ class Poll {
 
     /**
      * Création de l'axe des ordonnées
-     * @returns {Poll}
+     * @returns {MetaPoll}
      * @private
      */
     _drawYAxis() {
@@ -883,7 +994,7 @@ class Poll {
             this.layers.yAxis
                 .call(this.yAxisGenerator)
                 .selectAll('line,path')
-                .style('stroke-width', Poll.params.lineWidth);
+                .style('stroke-width', MetaPoll.params.lineWidth);
             this.layers.yGrid
                 .attr('transform', `translate(${this.size.width / 200} 0)`)
                 .call(this.yGridGenerator)
@@ -896,7 +1007,7 @@ class Poll {
     /**
      * Création des points
      * @param xScale {Function} : échelle X
-     * @returns {Poll}
+     * @returns {MetaPoll}
      * @private
      */
     _drawPoints(xScale){
@@ -917,8 +1028,8 @@ class Poll {
             .attr('class', d=> `id_${d.id_candidat} h_${d.id_hypothèse}`)
             .attr('cx', 0 )
             .attr('cy', d => this.yScale(d.resultat) )
-            .attr('rx', Poll.params.pointsRadius )
-            .attr('ry', Poll.params.pointsRadius )
+            .attr('rx', MetaPoll.params.pointsRadius )
+            .attr('ry', MetaPoll.params.pointsRadius )
             .style('fill', (d) => this.data.candidats.get(d.id_candidat).couleur)
             .style('opacity', 0)
             .style('pointer-events', 'none');
@@ -929,7 +1040,7 @@ class Poll {
 
     /**
      * Création du graphique
-     * @returns {Poll}
+     * @returns {MetaPoll}
      * @private
      */
     _drawChart(xScale) {
@@ -938,17 +1049,17 @@ class Poll {
         const curveGen = d3.line()
             .x(d => xScale(d[0]))
             .y(d => this.yScale(d[1]))
-            .curve(Poll.params.curveMode);
+            .curve(MetaPoll.params.curveMode);
         const areaGen = d3.area()
             .x(d => xScale(d[0]))
             .y0(d => this.yScale(d[1]))
             .y1(d => this.yScale(d[2]))
-            .curve(Poll.params.curveMode);
+            .curve(MetaPoll.params.curveMode);
         //Boucle création des courbes pour chaque candidat
         for (let id of this.data.candidats.keys()) {
             let data = this.data.resultats.dataset
                 .filter(d => d.id_candidat === id);
-            if (data.length >= Poll.params.minCurvePoints) {      //Inutile de tracer une courbe si moins de x points
+            if (data.length >= MetaPoll.params.minCurvePoints) {      //Inutile de tracer une courbe si moins de x points
                 //Creation calque id_X
                 const layer = this.layers.curves
                     .append('svg:g')
@@ -985,7 +1096,7 @@ class Poll {
             .datum(this._loessRegression('resultat')(data))
             .attr("d", generator)
             .style('stroke', this.color(id))
-            .style('stroke-width', Poll.params.curveWidth)
+            .style('stroke-width', MetaPoll.params.curveWidth)
             .append('title')
             .html(`${this.data.candidats.get(id).nom} (${this.data.candidats.get(id).sigle})`);
 
@@ -1005,10 +1116,10 @@ class Poll {
             .classed('area', true)
             .classed(`id_${id}`, true)
             .attr('d', generator(data))
-            .attr('fill', this.color(id, Poll.params.areaOpacity))
+            .attr('fill', this.color(id, MetaPoll.params.areaOpacity))
             .attr('mask', 'url(#mask-stripe)')
-            .attr('stroke', this.color(id, (Poll.params.areaOpacity - .1)))
-            .attr('stroke-width', Poll.params.areaWidth*5)
+            .attr('stroke', this.color(id, (MetaPoll.params.areaOpacity - .1)))
+            .attr('stroke-width', MetaPoll.params.areaWidth*5)
             .style('opacity', 0);
 
     }
@@ -1020,7 +1131,7 @@ class Poll {
      * @param delay
      * @param duration
      * @param targetOpacity
-     * @returns {Poll}
+     * @returns {MetaPoll}
      * @private
      */
     _fade(selection, delay = 0, duration = 1000, opacity = 1) {
@@ -1062,10 +1173,228 @@ class Poll {
 }
 
 
-class Sondage{
-    constructor(){
+class Poll extends DomElement{
+
+    static size = MetaPoll.size;
+    static margins = MetaPoll.margins;
+    static duration = 2000;
+
+    constructor(id){
+        super(`Sondage_${id}`);
+        this.id=id;
+        this.hypothese=1;
+        this.data={};
+        //Recuperation et reformatage des données relatives au sondage
+        this.infos=G_sondages.tables.sondages[`id_${id}`];
+        this.infos.institut=G_sondages.tables.instituts[`id_${this.infos.id_institut}`];
+        this.infos.hypotheses=new Map();
+        Object.entries(G_sondages.tables.hypotheses_1)
+                                    .filter( d=> d[1].id_sondage==this.id )
+                                    .forEach( d=> {
+                                        let key=parseInt(d[0].replace('id_','')),
+                                            data=d[1];
+                                        delete(data.id_sondage);
+                                        data.s_echantillon=parseInt(data.s_echantillon);
+                                        this.infos.hypotheses.set(key,data);
+                                    } );
+        this.container=d3.create('svg:g').classed('mainLayer poll',true)
+            .attr('transform',`translate(${Poll.margins.left} ${Poll.margins.top})`);
+        this.layers={  };
+        this.layers.chart=this.container.append('svg:g').classed('chart',true);
+        this.layers.labels=this.container.append('svg:g').classed('labels',true);
+        this.layers.axis=this.container.append('svg:g').classed('axis',true)
+        //Calcul des tailles effectives
+        this.size = {
+            font: d3.min([ Poll.size.height / 20, 30]),
+            width: (Poll.size.width - Poll.margins.left - Poll.margins.right),
+            height: (Poll.size.height - Poll.margins.top - Poll.margins.bottom)
+        }
+
+        //Création des échelles et des axes
+        this.xScale = d3.scaleBand().rangeRound([0, this.size.width]).padding(.2);
+        this.yScale= d3.scaleLinear().rangeRound([this.size.height, 0]);
+        this.axisGenerator = d3.axisLeft(this.yScale).tickFormat(x => x + '%').tickSizeOuter(0);
+    }
+
+
+
+    /**
+     * Injecte les données dans la propriété this.data
+     * @param property
+     * @param dataWrapper
+     * @returns {MetaPoll}
+     */
+    push(property, data) {
+        this.data[property] = data;
+        return this;
+    }
+
+    /**
+     * Injecte et filtre les données principales (en principe incluses dans une classe DataWrapper)
+     * @param mainData {Object} : objet DataWrapper
+     * @param candData {Map} : dictionnaire Candidats (Map)
+     * @returns {Poll}
+     */
+    oldepush(mainData,candData){
+        this.data = new DataWrapper('dataSondage').push(mainData.dataset.filter( d=> this.infos.hypotheses.has(d.id_hypothèse)));
+        const extent = this.data.extent(['borne_inf','borne_sup']);
+        this.yScale.domain(extent);
+        this.candidats=candData;
+        return this;
+    }
+
+    calcDomain(dataset){
+        this.xScale.domain( dataset.map ( d=>d.id_candidat));
+        let min=d3.min(dataset, d=> d.borne_inf);
+        let max=d3.max(dataset, d=> d.borne_sup)+2;
+        this.yScale.domain([min,max]);
+        this.axisGenerator.tickValues(d3.range(0,max,5));
+        return this;
+    }
+
+
+    draw(){
+    //   this.data.filters.add('hypothese', );
+        let dataset=this.data.resultats.dataset
+                            .filter( d=>d.id_hypothèse==this.hypothese )
+                            .sort((a, b) => d3.descending(a.resultat, b.resultat));
+        this.calcDomain(dataset);
+
+        this.layers.chart
+            .selectAll('rect.bar')
+            .data(dataset)
+            .enter()
+            .append('rect')
+            .classed('bar',true)
+            .attr("x", d => this.xScale(d.id_candidat))
+            .attr("y", d =>  this.size.height)
+            .attr("width", this.xScale.bandwidth())
+            .attr("height",0 )
+            .attr("fill", d => this.data.candidats.get(d.id_candidat).couleur)
+            .style('opacity',.2)
+            .transition()
+                .duration(Poll.duration)
+                .attr("y", d =>  this.yScale(d.resultat))
+                .attr('height', d=> this.size.height-this.yScale(d.resultat) );
+        this.layers.chart
+            .selectAll('line.result')
+            .data(dataset)
+            .enter()
+            .append('line')
+            .classed('result',true)
+            .attr("x1", d => this.xScale(d.id_candidat))
+            .attr("y1", d =>  this.yScale(d.resultat))
+            .attr("x2", d =>  this.xScale(d.id_candidat) )
+            .attr("y2", d =>  this.yScale(d.resultat) )
+            .attr("stroke", d => this.data.candidats.get(d.id_candidat).couleur)
+            .attr("stroke-width", '20px')
+            .transition()
+            .delay(Poll.duration)
+                .attr("x2", d => this.xScale(d.id_candidat) + this.xScale.bandwidth() )
+                .attr("y2", d =>  this.yScale(d.resultat) );
+        this.layers.chart
+            .selectAll('rect.area')
+            .data(dataset)
+            .enter()
+            .append('rect')
+            .classed('area',true)
+            .attr('mask', 'url(#mask-stripe)')
+            .attr("x", d => this.xScale(d.id_candidat))
+            .attr("y", d =>  this.yScale(d.resultat))
+            .attr("width", this.xScale.bandwidth())
+            .attr("height", d => 0)
+            .attr("fill", d => this.data.candidats.get(d.id_candidat).couleur)
+            .transition()
+            .delay(Poll.duration)
+            .duration(Poll.duration)
+                .attr("y", d =>  this.yScale(d.borne_sup))
+                .attr("height", d => this.yScale(d.borne_inf) - this.yScale(d.borne_sup) )
+                .style('opacity',.5);
+        this.layers.labels
+            .selectAll('text.name')
+            .data(dataset)
+            .enter()
+            .append('text')
+            .classed('name',true)
+            .attr('x',d => this.xScale(d.id_candidat)+this.xScale.bandwidth()/2)
+            .attr('y',d => this.yScale(d.borne_sup)-15)
+            .style('font-size',`${this.size.font}px`)
+            .transition()
+            .delay(Poll.duration*2)
+                .text( d => this.data.candidats.get(d.id_candidat).patronyme);
+        this.layers.axis
+            .call(this.axisGenerator)
+            .call( g=> g.selectAll('text')
+                .style('font-size', `${this.size.font}px`)
+            );
+
+    return this;
 
     }
+
+    update(){
+        let dataset=this.data.resultats.dataset
+            .filter( d=>d.id_hypothèse==this.hypothese )
+            .sort((a, b) => d3.descending(a.resultat, b.resultat));
+        this.calcDomain(dataset);
+
+        const bars=this.container.selectAll("rect.bar").data(dataset);
+        bars.exit().remove();
+        bars.enter()
+            .append('rect')
+            .classed('bar',true);
+        bars.transition()
+            .duration(Poll.duration)
+            .attr("x", d => this.xScale(d.id_candidat))
+            .attr("y", d =>  this.yScale(d.resultat))
+            .attr("width", this.xScale.bandwidth())
+            .attr("height", d=> this.size.height-this.yScale(d.resultat) );
+
+        const areas=this.container.selectAll("rect.area").data(dataset);
+        areas.exit().remove();
+        areas.enter()
+            .append('rect')
+            .classed('area',true);
+        areas.transition()
+            .duration(Poll.duration)
+            .attr("x", d => this.xScale(d.id_candidat))
+            .attr("y", d =>  this.yScale(d.borne_sup))
+            .attr("width", this.xScale.bandwidth())
+            .attr("height", d => this.yScale(d.borne_inf) - this.yScale(d.borne_sup) );
+
+        const lines=this.container.selectAll("line.result").data(dataset);
+        lines.exit().remove();
+        lines.enter()
+            .append('line')
+            .classed('result',true);
+        lines.transition()
+            .duration(Poll.duration)
+            .attr("x1", d => this.xScale(d.id_candidat))
+            .attr("y1", d =>  this.yScale(d.resultat))
+            .attr("x2", d =>  this.xScale(d.id_candidat)+ this.xScale.bandwidth() )
+            .attr("y2", d =>  this.yScale(d.resultat) );
+
+        const labels=this.container.selectAll("text.name").data(dataset);
+        labels.exit().remove();
+        labels.enter()
+            .append('line')
+            .classed('name',true);
+        labels.transition()
+            .duration(Poll.duration)
+            .attr('x',d => this.xScale(d.id_candidat)+this.xScale.bandwidth()/2)
+            .attr('y',d => this.yScale(d.borne_sup)-15);
+
+        this.layers.axis
+            .transition()
+            .duration(Poll.duration)
+            .call(this.axisGenerator)
+            .call( g=> g.selectAll('text')
+                .style('font-size', `${this.size.font}px`)
+            );
+
+        return this;
+        }
+
 }
 
 class Candidat extends Queue {
@@ -1107,7 +1436,7 @@ class Candidat extends Queue {
                         .transition()
                         .duration(duration)
                         .delay(delay)
-                        .style('opacity', (d, i, n) => (n[i].tagName == 'ellipse') ? Poll.params.pointsOpacity : 1)
+                        .style('opacity', (d, i, n) => (n[i].tagName == 'ellipse') ? MetaPoll.params.pointsOpacity : 1)
                         .on('end', () => {
                             resolve('Affichage courbe');
                         });
