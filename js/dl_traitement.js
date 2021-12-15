@@ -19,6 +19,7 @@ var nocache = Date().now;
                 parti: infos.parti,
                 sigle: infos.sigle,
                 defaut: infos.defaut,
+                img:infos.id_photo,
                 patronyme: infos.patronyme,
                 prenom: infos.prenom
             }
@@ -235,7 +236,7 @@ function afficher_boutons_candidats()
             var url_img = "img/nopp.svg";
             if(couleur != undefined)
             {
-                url_img = "img/"+v.id_candidat+".jpg";
+                url_img = "img/"+v.img+".jpg";
             }
             var rgb = hexToRgb(couleur);
             var initiales = recup_initiales(v.nom_candidat);
