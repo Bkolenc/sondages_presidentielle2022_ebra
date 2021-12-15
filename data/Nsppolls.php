@@ -103,7 +103,7 @@ $resultats_2 = array();
 $resultats_2[] = ["id_candidat", "id_hypothèse", "borne_sup", "borne_inf", "resultat"];
 
 $candidats = array();
-$candidats[] = ["id", "nom", "parti", "sigle","defaut", "patronyme","prenom"];
+$candidats[] = ["id", "nom", "parti", "sigle","defaut", "patronyme","prenom", "id_photo"];
 
 foreach ($objet as $k=>$v)
 {
@@ -200,10 +200,12 @@ foreach ($objet as $k=>$v)
                 $prenom = $splitNom[0];
                 $sigle = "";
                 $degage = "";
+                $url = "";
                 try
                 {
                     $sigle = $correspondances[$nom][0];
                     $degage = $correspondances[$nom][1];
+                    $url = $correspondances[$nom][2];
                 }
                 catch(Exception $e)
                 {
@@ -213,7 +215,7 @@ foreach ($objet as $k=>$v)
                 
                 
                 
-                $candidats[] = [$index, $nom, $parti, $sigle, $degage, $patronyme,$prenom];
+                $candidats[] = [$index, $nom, $parti, $sigle, $degage, $patronyme,$prenom, $url];
             }
             
             $id_candidat = nom_vers_id($nom, $candidats, 0,1);
