@@ -126,7 +126,6 @@ html
     transition-delay:0s;
     transition:0s;
     transition-property:top;
-    background-image: url(ps.png);
     background-position: center;
     background-size: contain;
     display:inline-block;
@@ -279,9 +278,6 @@ html
 svg {
     width:100%;
 }
-svg #zoomHandler {
-    cursor:grab;
-}
 path.courbe, path.area, g.axis *, g#points ellipse {
     pointer-events: none;
     user-select:none;
@@ -294,8 +290,8 @@ g.axis line {
     vector-effect:non-scaling-stroke;
 }
 
-g#xAxis {
-    text-anchor:middle;
+g#xDays {
+    text-anchor:start;
 }
 g#yAxis text {
     text-anchor:end;
@@ -308,30 +304,23 @@ g#yGrid line {
 g#yGrid path {
     display:none;
 }
-g#xYears line {
-    stroke: rgba(128,128,128,.1);
-    stroke-width:2px;
-}
-g#xYears text {
-    text-transform: uppercase;
-    text-anchor: start;
-    font-weight: bold;
-    fill: rgba(128,128,128,.1);
-}
-g#xMonths text {
+g#brushLayer text {
     text-transform: uppercase;
     text-anchor:middle;
     color:#888;
 }
-g#xMonths line {
-    stroke-width:1;
+g#brushLayer g.axis line {
+    stroke-width:2;
 }
-g#xMonths path, g#yAxis path {
-    display:none;
+g#focusHandler {
+    pointer-events: all;
 }
 
-g#xMonths rect.odd {
-    fill: rgba(128,128,128,.1);
+g#brushLayer rect.odd {
+   /* fill: rgba(128,128,128,.1); */
+}
+g#brushLayer rect.even {
+  /*  fill: rgba(128,128,128,.05);*/
 }
 g#curves path.courbe {
     fill: transparent;

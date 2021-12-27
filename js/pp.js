@@ -75,6 +75,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
             .draw();
 
 
+
+        console.log(G_sondages.selection_candidats);
 /*
         setTimeout(()=>{
             u.hypothese=7;
