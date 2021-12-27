@@ -1,0 +1,35 @@
+id,nom,parti,sigle,defaut,id_photo
+1,"Anne Hidalgo","Parti socialiste ",PS,1,id_1
+2,"Nicolas Dupont-Aignan","Debout la France ",DLF,1,id_2
+3,"Marine Le Pen","Rassemblement national ",RN,1,id_3
+4,"Yannick Jadot","EE-LV ",EELV,1,id_4
+5,"Valérie Pécresse","Les Républicains ",LR,1,id_5
+6,"Fabien Roussel","Parti communiste ",PCF,1,id_6
+7,"Eric Zemmour"," ",,1,id_7
+8,"Nathalie Arthaud","Lutte ouvrière ",LO,1,id_8
+9,"Arnaud Montebourg"," ",,1,id_9
+10,"Philippe Poutou","NPA ",NPA,1,id_10
+11,"Jean-Luc Mélenchon","France insoumise ",LFI,1,id_11
+12,"Emmanuel Macron","LRM ",LREM,1,id_12
+13,"Xavier Bertrand","Les Républicains ",LR,0,id_13
+14,"Michel Barnier","Les Républicains ",LR,0,id_14
+15,"Jean Lassalle","Résistons ",,1,id_15
+16,"François Asselineau","UPR ",UPR,1,id_17
+17,"Florian Philippot","Les Patriotes ",LP,1,id_16
+18,"Hélène Thouy","Parti animaliste ",PA,1,id_34
+19,"Jean-Christophe Lagarde","UDI ",UDI,0,id_18
+20,"Jean-Frédéric Poisson","PCD ",PCD,1,id_19
+21,"Sandrine Rousseau","EE-LV ",EELV,-1,id_20
+22,"Laurent Wauquiez","Les Républicains ",LR,0,id_21
+23,"François Baroin","Les Républicains ",LR,-1,id_22
+24,"Rachida Dati","Les Républicains ",LR,-1,id_23
+25,"Olivier Faure","Parti socialiste ",PS,-1,id_24
+26,"Ségolène Royal","Parti socialiste ",PS,-1,id_25
+27,"Bruno Retailleau","Les Républicains ",LR,-1,id_26
+28,"François Hollande","Parti socialiste ",PS,-1,id_27
+29,,"« ext. gauche » ",,,
+30,"Eric Piolle","EE-LV ",EELV,-1,id_29
+31,"Eric Ciotti","Les Républicains ",LR,0,id_30
+32,"Philippe Juvin","Les Républicains ",LR,0,id_31
+33,"Denis Payre","Les Républicains ",LR,-1,id_32
+34,"Jacques Cheminade","Solidarité et progrès ",SP,1,id_33
