@@ -76,7 +76,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
 
-        console.log(G_sondages.selection_candidats);
 /*
         setTimeout(()=>{
             u.hypothese=7;

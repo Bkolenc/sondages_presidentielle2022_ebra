@@ -178,7 +178,6 @@ function afficher_boutons_candidats()
 
     var nocache = Date().now
     var candidats = G_sondages.tables.candidats;
-    console.log(candidats);
     var tous_candidats = [];
     var candidats_dessus = [];
     var candidats_dessous = [];

@@ -282,7 +282,7 @@ path.courbe, path.area, g.axis *, g#points ellipse {
     pointer-events: none;
     user-select:none;
 }
-g.axis text {
+svg text {
     font-family: merriweather-sans, sans-serif;
 }
 g.axis line {
@@ -298,40 +298,48 @@ g#yAxis text {
 }
 
 g#yGrid line {
-    stroke-dasharray:1,1;
-    stroke:#eee;
+    stroke:rgba(0,0,0,.1);
 }
 g#yGrid path {
     display:none;
 }
-g#brushLayer text {
-    text-transform: uppercase;
-    text-anchor:middle;
-    color:#888;
-}
-g#brushLayer g.axis line {
-    stroke-width:2;
-}
-g#focusHandler {
-    pointer-events: all;
-}
 
-g#brushLayer rect.odd {
-   /* fill: rgba(128,128,128,.1); */
-}
-g#brushLayer rect.even {
-  /*  fill: rgba(128,128,128,.05);*/
-}
+
+
 g#curves path.courbe {
     fill: transparent;
     vector-effect: non-scaling-stroke;
 }
-path.area, path.courbe {
+g#curves path {
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 g#cache rect {
     fill:#fff;
+}
+
+/* Graphique secondaire (brush)*/
+g.brushLayer text {
+    text-transform: uppercase;
+    text-anchor:middle;
+    color:#888;
+}
+g.brushLayer g.axis line {
+    stroke-width:1;
+}
+g.brushLayer path.courbe {
+    opacity:.3;
+}
+g.brushLayer rect.odd {
+    /* fill: rgba(128,128,128,.1); */
+}
+g.brushLayer rect.even {
+    /*  fill: rgba(128,128,128,.05);*/
+}
+
+/* Vignettes */
+g.thumb text {
+    paint-order: stroke;
 }
 
 nav#options {
