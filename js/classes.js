@@ -513,7 +513,7 @@ class MetaPoll extends DomElement {
             .on('zoom', this._handleZoom.bind(this));
 
         //Générateurs des axes
-        this.xAxisGenerator = d3.axisBottom(this.xScale).tickSize(10).tickSizeOuter(0).tickFormat(d3.timeFormat("%x"));
+        this.xAxisGenerator = d3.axisBottom(this.xScale).tickSize(10).tickSizeOuter(0).tickFormat(d3.timeFormat("%d"));
 //        this.xYearsGenerator = d3.axisBottom(this.xScale).ticks(d3.timeYear).tickSize(-this.size.mainContainer.height).tickFormat(d3.timeFormat("%Y")).tickSizeOuter(0);
         this.yAxisGenerator = d3.axisLeft(this.yScale).tickFormat(x => x + '%').tickSizeOuter(0);
         this.yGridGenerator = d3.axisLeft(this.yScale).tickFormat('').tickSize(-this.size.mainContainer.width * .99).tickSizeOuter(0);
@@ -972,7 +972,7 @@ class MetaPoll extends DomElement {
                     updateSlider(x);
                 })
                 .on('end', (e) => {
-                    console.log(MetaPoll.params.duration);
+
                    // slider.style('opacity', 0);
                     d3.select('#focusHandler').style('cursor', 'default');
                     let x = thresholdX(e.x),
@@ -997,13 +997,42 @@ class MetaPoll extends DomElement {
         const xScale = (transform) ? transform.rescaleX(this.xScale) : this.xScale;
         //Appel du générateur
         const xAxis = this.layers.xDays
-            .call(this.xAxisGenerator.scale(xScale))
-            .on('end', () => d3.selectAll('#xAxis g.tick').attr('class', d => 'tick D' + d.toISOString().substring(0, 10))     );
+            .call(this.xAxisGenerator.scale(xScale));
+        //Essai de customisation
+        let dates=this.layers.xDays.selectAll('text')
+            .style('font-weight','bolder')
+            .style('font-size',`${this.size.font.small*1.7}px`)
+            .attr('fill','red');
+        dates.append('tspan')
+            .attr('x',0)
+            .attr('dy',this.size.font.small*1.2)
+            .attr('fill','black')
+            .style('font-size',`${this.size.font.small}px`)
+            .style('text-transform','uppercase')
+            .text(d=> d3.timeFormat('%b')(d).replace('.','') );
+        dates.append('tspan')
+            .attr('x',0)
+            .attr('dy',this.size.font.small)
+            .attr('fill','black')
+            .style('font-size',`${this.size.font.small*.9}px`)
+            .text(d=>d.getFullYear());
+        let ticks=this.layers.xDays.selectAll('g.tick')
+        ticks.append('rect')
+            .attr('x',-this.size.font.small*1.5)
+            .attr('y',0)
+            .attr('width',this.size.font.small*3)
+            .attr('height',this.size.font.small*4.8)
+            .attr('rx',this.size.font.small/3)
+            .attr('ry',this.size.font.small/3)
+            .attr('stroke',"black")
+            .attr("stroke-width","1px");
+
+
         //Définition des styles de base lors du premier appel de la méthode
         if (this._firstDraw) {
-            xAxis.selectAll('text')
-                .attr('transform', 'translate(0 5) rotate(40)')
-                .style('font-size', `${this.size.font.small}px`);
+            xAxis.selectAll('text');
+               // .attr('transform', 'translate(0 5) rotate(40)')
+            //    .style('font-size', `${this.size.font.small}px`);
             xAxis.selectAll('path')
                 .style('stroke-width', `${MetaPoll.params.axis.width+1}px`);
         }

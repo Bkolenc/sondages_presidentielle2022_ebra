@@ -291,7 +291,10 @@ g.axis line {
 }
 
 g#xDays {
-    text-anchor:start;
+    text-anchor:middle;
+}
+g#xDays rect {
+    vector-effect: non-scaling-stroke;
 }
 g#yAxis text {
     text-anchor:end;
