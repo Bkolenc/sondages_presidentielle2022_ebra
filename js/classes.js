@@ -544,13 +544,13 @@ class MetaPoll extends DomElement {
         //  this._createLayer('points');//.attr('clip-path', 'url(#clipChart)');
         this._createLayer('curves');//.attr('clip-path', 'url(#clipChart)');
         this.mainContainer.append('text')
-                            .attr('id','dateHelper')
-                            .attr('x',this.size.mainContainer.width)
-                            .attr('y',`${this.size.font.large/2}px`)
-                            .attr('text-anchor','end')
-                            .style('font-size',`${this.size.font.large}px`)
-                            .style('font-weight','900')
-                            .style('opacity',.1);
+            .attr('id','dateHelper')
+            .attr('x',this.size.mainContainer.width)
+            .attr('y',`${this.size.font.large/2}px`)
+            .attr('text-anchor','end')
+            .style('font-size',`${this.size.font.large}px`)
+            .style('font-weight','900')
+            .style('opacity',.1);
 
         const xAxis = this._createLayer('xAxis', 'axis')
             .attr('transform', `translate(0 ${this.size.mainContainer.height})`)
@@ -1059,9 +1059,7 @@ class MetaPoll extends DomElement {
             .attr('stroke-width', '.5px')
             .style('opacity',0)
             .lower()
-            .on('click', (d) => {
-                let date=d.target.__data__;
-            });
+            .on('click', (d) => console.log(d, this));
 
 
         //Définition des styles de base lors du premier appel de la méthode
@@ -1232,14 +1230,14 @@ class MetaPoll extends DomElement {
         const xAxis = this._createLayer('brushXAxis', 'axis', this.brushContainer)
             .attr('transform', `translate(0 ${this.size.brushContainer.height})`);
         xAxis.append('g').classed('months',true)
-                 .call(xGeneratorM.scale(xScale))
-                 .call(g => g.selectAll('text')
-                    .style('font-size', `${this.size.font.small}px`)
-                    .attr('transform', getXTransformM)
-                    .each(function (d,i,n) {
-                        let bck = createBackgroundM(d);
-                        background.append(() => bck.node());
-                    }))
+            .call(xGeneratorM.scale(xScale))
+            .call(g => g.selectAll('text')
+                .style('font-size', `${this.size.font.small}px`)
+                .attr('transform', getXTransformM)
+                .each(function (d,i,n) {
+                    let bck = createBackgroundM(d);
+                    background.append(() => bck.node());
+                }))
             .call(g => g.selectAll('line')
                 .attr('opacity',.05)) ;
         xAxis.append('g').classed('years',true)
@@ -1326,7 +1324,7 @@ class MetaPoll extends DomElement {
 
 }
 
-class HPoll extends DomElement {
+class Poll extends DomElement {
 
     static size = MetaPoll.size;
     static margins = {top: 150, right: 20, bottom: 150, left: 100};
@@ -1351,7 +1349,7 @@ class HPoll extends DomElement {
                 this.infos.hypotheses.set(key, data);
             });
         this.container = d3.create('svg:g').classed('mainLayer poll', true)
-            .attr('transform', `translate(${HPoll.margins.left} ${HPoll.margins.top})`);
+            .attr('transform', `translate(${Poll.margins.left} ${Poll.margins.top})`);
         this.layers = {};
         this.layers.chart = this.container.append('svg:g').classed('chart', true);
         this.layers.labels = this.container.append('svg:g').classed('labels', true);
@@ -1359,8 +1357,8 @@ class HPoll extends DomElement {
         //Calcul des tailles effectives
         this.size = {
             font: d3.min([MetaPoll.size.height / 20, 40]),
-            width: (HPoll.size.width - HPoll.margins.left - HPoll.margins.right),
-            height: (HPoll.size.height - HPoll.margins.top - HPoll.margins.bottom)
+            width: (Poll.size.width - Poll.margins.left - Poll.margins.right),
+            height: (Poll.size.height - Poll.margins.top - Poll.margins.bottom)
         }
 
         //Création des échelles et des axes
@@ -1419,7 +1417,7 @@ class HPoll extends DomElement {
             .attr("fill", d => this.data.candidats.get(d.id_candidat).couleur)
             .style('opacity', .2)
             .transition()
-            .duration(HPoll.duration)
+            .duration(Poll.duration)
             .attr("y", d => this.yScale(d.resultat))
             .attr('height', d => this.size.height - this.yScale(d.resultat));
         groups.selectAll('line.result')
@@ -1433,7 +1431,7 @@ class HPoll extends DomElement {
             .attr("stroke", d => this.data.candidats.get(d.id_candidat).couleur)
             .attr("stroke-width", '10px')
             .transition()
-            .delay(HPoll.duration)
+            .delay(Poll.duration)
             .attr("x2", this.xScale.bandwidth());
         groups.selectAll('rect.area')
             .data(d => d[1])
@@ -1446,8 +1444,8 @@ class HPoll extends DomElement {
             .attr("height", d => 0)
             .attr("fill", d => this.data.candidats.get(d.id_candidat).couleur)
             .transition()
-            .delay(HPoll.duration)
-            .duration(HPoll.duration)
+            .delay(Poll.duration)
+            .duration(Poll.duration)
             .attr("y", d => this.yScale(d.borne_sup))
             .attr("height", d => this.yScale(d.borne_inf) - this.yScale(d.borne_sup))
             .style('opacity', .2);
@@ -1460,7 +1458,7 @@ class HPoll extends DomElement {
             .style('font-size', `${this.size.font}px`)
             .attr("fill", d => this.data.candidats.get(d.id_candidat).couleur)
             .transition()
-            .delay(HPoll.duration * 2)
+            .delay(Poll.duration * 2)
             .text(d => `${d.resultat}%`);
         groups.selectAll('foreignObject.thumb')
             .data(d => d[1])
@@ -1474,7 +1472,7 @@ class HPoll extends DomElement {
             .attr('width', this.xScale.bandwidth())
             .attr('height', this.xScale.bandwidth())
             .transition()
-            .delay(HPoll.duration * 2)
+            .delay(Poll.duration * 2)
             .attr('src', d => 'img/id_' + d.id_candidat + '.jpg');
         this.layers.axis
             .call(this.axisGenerator)
@@ -1523,18 +1521,18 @@ class HPoll extends DomElement {
                 update => update
                     // .each ( d=> console.log('UPDATE ',d[1][0].id_candidat,this.data.candidats.get(d[1][0].id_candidat).nom, ' >'+d[1][0].resultat))
                     //     .transition()
-                    //    .duration(HPoll.duration)
+                    //    .duration(Poll.duration)
                     .attr('transform', d => `translate(${this.xScale(d[0])} 0)`)
                 /*  .call ( update => update
                           .selectAll('line.result')
                           .call( line => line
                               .transition()
-                              .duration(HPoll.duration)
+                              .duration(Poll.duration)
                               .attr( 'x2' , this.xScale.bandwidth() )
                           )
                                      /* .selectAll('line.result')
                                       .transition()
-                                      .duration(HPoll.duration)
+                                      .duration(Poll.duration)
                                       .attr( 'x2' , this.xScale.bandwidth() )
                                       .attr( 'y1' ,d => {
                                           console.log(d);
@@ -1559,7 +1557,7 @@ class HPoll extends DomElement {
                     .append('rect')
                     .classed('bar',true);
                 bars.transition()
-                    .duration(HPoll.duration)
+                    .duration(Poll.duration)
                     .attr("x", d => this.xScale(d.id_candidat))
                     .attr("y", d =>  this.yScale(d.resultat))
                     .attr("width", this.xScale.bandwidth())
@@ -1571,7 +1569,7 @@ class HPoll extends DomElement {
                     .append('rect')
                     .classed('area',true);
                 areas.transition()
-                    .duration(HPoll.duration)
+                    .duration(Poll.duration)
                     .attr("x", d => this.xScale(d.id_candidat))
                     .attr("y", d =>  this.yScale(d.borne_sup))
                     .attr("width", this.xScale.bandwidth())
@@ -1588,7 +1586,7 @@ class HPoll extends DomElement {
                                         .attr("stroke-width", '10px')
                                         .call(enter => enter
                                                         .transition()
-                                                        .duration(HPoll.duration)
+                                                        .duration(Poll.duration)
                                             .attr("x1", d => this.xScale(d.id_candidat))
                                             .attr("y1", d =>  this.yScale(d.resultat))
                                             .attr("x2", d =>  this.xScale(d.id_candidat)+this.xScale.bandwidth() )
@@ -1624,7 +1622,7 @@ class HPoll extends DomElement {
                     .each( d=> console.log(d.id_candidat,this.data.candidats.get(d.id_candidat).nom,d.resultat,this.xScale(d.id_candidat),this.yScale(d.resultat)));
                 lines
                     //.transition()
-                    //.duration(HPoll.duration)
+                    //.duration(Poll.duration)
                     .attr("x1", d => this.xScale(d.id_candidat))
                     .attr("y1", d =>  this.yScale(d.resultat))
                     .attr("x2", d =>  this.xScale(d.id_candidat)+ this.xScale.bandwidth() )
@@ -1636,13 +1634,13 @@ class HPoll extends DomElement {
                     .append('line')
                     .classed('name',true);
                 labels.transition()
-                    .duration(HPoll.duration)
+                    .duration(Poll.duration)
                     .attr('x',d => this.xScale(d.id_candidat)+this.xScale.bandwidth()/2)
                     .attr('y',d => this.yScale(d.borne_sup)-15);*/
 
         this.layers.axis
             .transition()
-            .duration(HPoll.duration)
+            .duration(Poll.duration)
             .call(this.axisGenerator)
             .call(g => g.selectAll('text')
                 .style('font-size', `${this.size.font}px`)
@@ -1751,27 +1749,29 @@ class XBrushArea {
         this.x = xScale;
         this.y = yScale.copy().range([size.height, 0]);
         this.size = size;
-        this.defaultSelection = [this.x(new Date(this.x.domain()[1].setDate(this.x.domain()[1].getDate() - 30))), this.x.range()[1]];
+        this.defaultSelection = [new Date(this.x.domain()[1].setDate(this.x.domain()[1].getDate() - 30)), this.x.domain()[1]];
+        this.defaultXSelection = this.defaultSelection.map(this.x);
         this.brush = d3.brushX()
             .extent([[0.1, 0.1], [size.width, size.height]])
             .on("brush", this.brushed.bind(this))
-            .on("end", this.brushended);
+            .on("end", this.brushended.bind(this));
     }
 
     on(action, callback, context) {
         this.callback = callback;
         this.context = context;
         this.container.call(this.brush)
-            .call(this.brush.move, this.defaultSelection);
+            .call(this.brush.move, this.defaultXSelection);
         return this;
     }
 
     brushed({selection}) {
+
         if (selection) {
-            //console.log(selection);
-            let [begin, end] = selection.map(this.x.invert).map(d3.utcDay.round);
+            let [begin, end] = selection.map(d=>this.x.invert(d)).map(d3.utcDay.round);
             //console.warn([begin,end]);
             this.callback.call(this.context, [begin, end]);
+
             //   svg.property("value", selection.map(x.invert, x).map(d3.utcDay.round));
             //   svg.dispatch("input");
         }
@@ -1779,6 +1779,12 @@ class XBrushArea {
 
     brushended({selection}) {
         if (!selection) {
+            this.container
+                .transition()
+                .delay(100)
+                .duration(500)
+                .call(this.brush.move, this.defaultXSelection);
+            //this.brush.move(this.defaultSelection);
             this.callback.call(this.context, this.defaultSelection);
         }
     }
@@ -1807,7 +1813,7 @@ class Thumb extends DomElement {
             .attr('stroke', '#fff')
             .attr('stroke-width', '8px')
             .attr('paint-order','stroke')
-            .style('font-size', `${size / 1.8}px`);
+            .style('font-size', `${size/1.3}px`);
     }
 
     setValue(v) {
@@ -1822,7 +1828,7 @@ class Thumb extends DomElement {
             .attr('y', y - this.size / 2);
         this.text
             .attr('x', `${x + this.size / 1.6}px`)
-            .attr('y', `${y + this.size * .2}px`);
+            .attr('y', `${y + this.size * .3}px`);
         return this;
     }
 

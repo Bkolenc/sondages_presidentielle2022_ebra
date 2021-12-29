@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         /*const DataSondages=new DataWrapper('sondages').push(G_sondages.tables.sondages)
             .map((r)=> { r.id=r.id.replace('id_',''); r.debut=new Date(r.debut); r.fin=new Date(r.fin); return r; });
            // .map(d3.autoType);*/
-        let u=new HPoll(1)
+        let u=new Poll(1)
             .push('resultats',mainData)
             .push( 'candidats',tableCandidats)
             .push( 'sondages', dictToMap(G_sondages.tables.sondages))
