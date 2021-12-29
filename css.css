@@ -1,12 +1,4 @@
-@font-face {
- font-family: "merriweather";
- src: url("fonts/Merriweather/Merriweather-Regular.ttf");
-}
-
-@font-face {
- font-family: "merriweather-sans";
- src: url("fonts/Merriweather_Sans/static/MerriweatherSans-Regular.ttf");
-}
+@import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;500;700;800&family=Merriweather:wght@400;700&display=swap');
 
 body
 {
@@ -26,12 +18,12 @@ html
 }
 *
 {
-    font-family:merriweather;
+    font-family:'Merriweather', serif;
 }
 
 #logo_pres
 {
-    font-family:merriweather-sans;
+    font-family:'Merriweather Sans', Arial, sans-serif;
     color:#06366F;
     background-color:#F4F4F4;
     position:relative;
@@ -73,7 +65,7 @@ html
     font-weight:600;
     border:solid black 1px;
     cursor:pointer;
-    font-family:merriweather-sans!important;
+    font-family: 'Merriweather Sans', Arial, sans-serif!important;
 }
 #conteneur_candidats
 {
@@ -230,7 +222,7 @@ html
     position:absolute;
     padding:5px;
     border-radius:5px;
-    font-family:merriweather-sans!important;
+    font-family:'Merriweather Sans', Arial, sans-serif!important;
     z-index:1001;
     font-size:0.8em;
     box-shadow: 4px 4px 2px 1px rgba(0,0,0,0.2);
@@ -269,7 +261,7 @@ html
 .credit
 {
     font-size:0.65em;
-    font-family:merriweather-sans!important;
+    font-family:'Merriweather Sans',Arial,sans-serif!important;
 }
 
 
@@ -277,13 +269,14 @@ html
 /* GRAPHIQUE PRINCIPAL*/
 svg {
     width:100%;
+
 }
-path.courbe, path.area, g.axis *, g#points ellipse {
+path.courbe, path.area, g.axis *, g#points ellipse, g#dateHelper, g.thumb {
     pointer-events: none;
     user-select:none;
 }
-svg text {
-    font-family: merriweather-sans, sans-serif;
+svg text, svg tspan {
+    font-family: 'Merriweather Sans', Arial, sans-serif;
 }
 g.axis line {
     stroke: #333;
@@ -295,11 +288,18 @@ g#xDays {
 }
 g#xDays rect {
     vector-effect: non-scaling-stroke;
+    pointer-events:none;
+    cursor:default;
 }
-g#yAxis text {
-    text-anchor:end;
+g#xDays rect.active {
+    pointer-events: fill;
+    cursor:pointer;
+    box-shadow: 1px 1px 10px rgba(0,0,0,.5);
 }
 
+g#yAxis line {
+    text-anchor:end;
+}
 g#yGrid line {
     stroke:rgba(0,0,0,.1);
 }
@@ -307,11 +307,15 @@ g#yGrid path {
     display:none;
 }
 
-
+.brush .extent {
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
+}
 
 g#curves path.courbe {
     fill: transparent;
     vector-effect: non-scaling-stroke;
+    shape-rendering: auto;
 }
 g#curves path {
     stroke-linecap: round;
@@ -334,15 +338,13 @@ g.brushLayer path.courbe {
     opacity:.3;
 }
 g.brushLayer rect.odd {
-    /* fill: rgba(128,128,128,.1); */
+     fill: rgba(128,128,128,.1);
 }
-g.brushLayer rect.even {
-    /*  fill: rgba(128,128,128,.05);*/
+g.thumb foreignObject{
+    overflow:visible;
 }
-
-/* Vignettes */
-g.thumb text {
-    paint-order: stroke;
+g.thumb img, g.thumb text {
+    filter: drop-shadow(1px 1px 4px rgb(0 0 0 / 0.4));
 }
 
 nav#options {
