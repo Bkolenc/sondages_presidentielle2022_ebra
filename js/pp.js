@@ -50,14 +50,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     newValue.initiales=(newValue.nom)?newValue.nom.match(/[A-Z]/g).join(''):'';
                     delete(newValue.nom_candidat);
                     if (!isNaN(newKey)) tableCandidats.set(newKey,newValue);
-                })
+                });
+
 
 
         const mainData=new DataWrapper('mainData')
                 .push(G_sondages.tables.resultats_1)
-                .map(d3.autoType);
+                .map(d3.autoType)
+            .map( d=> { d.debut.setHours(0, 0, 0, 0); return d;});
+        console.log(mainData);
 
-        const SuperSondage=new MetaPoll('motherOfPolls').appendTo('conteneur_graphique')
+        const Synthese=new MetaPoll('motherOfPolls').appendTo('conteneur_graphique')
             .push('resultats',mainData)
             .push( 'candidats',tableCandidats)
             .push( 'sondages', dictToMap(G_sondages.tables.sondages))
@@ -67,24 +70,41 @@ document.addEventListener("DOMContentLoaded", function(event) {
         /*const DataSondages=new DataWrapper('sondages').push(G_sondages.tables.sondages)
             .map((r)=> { r.id=r.id.replace('id_',''); r.debut=new Date(r.debut); r.fin=new Date(r.fin); return r; });
            // .map(d3.autoType);*/
-        let u=new Poll(1)
+     /*   let u=new Poll(1)
             .push('resultats',mainData)
             .push( 'candidats',tableCandidats)
             .push( 'sondages', dictToMap(G_sondages.tables.sondages))
             .appendTo(d3.select('#conteneur_sondage svg'))
-            .draw();
+            .draw();*/
 
-
+        let t=new PollSet(mainData,tableCandidats).select(new Date('2021-12-06'));
 
 /*
+        let myData=mainData.filter((d)=> d.id_hypothèse==15).dataset;
+        let u=new Poll(44)
+            .push( 'candidats',tableCandidats)
+            .appendTo(d3.select('#conteneur_sondage svg'))
+            .draw(myData);
+
+
         setTimeout(()=>{
-            u.hypothese=7;
-            u.update();
-        },6000);
+            myData=mainData.filter((d)=> d.id_hypothèse==35);
+            u.id=35;
+            u.draw(myData.dataset);
+        },5000);
+
+        setTimeout(()=>{
+            myData=mainData.filter((d)=> d.id_hypothèse==7);
+            u.id=7;
+            console.log(myData);
+            u.draw(myData.dataset);
+        },10000);
+/*
+
 
         setTimeout(()=>{
             u.hypothese=54;
-            u.update();
+            u.select();
         },9000);
 */
 

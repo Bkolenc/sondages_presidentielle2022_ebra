@@ -267,9 +267,8 @@ html
 
 
 /* GRAPHIQUE PRINCIPAL*/
-svg {
+div#conteneur_sondage, div#conteneur_graphique, svg {
     width:100%;
-
 }
 path.courbe, path.area, g.axis *, g#points ellipse, g#dateHelper, g.thumb {
     pointer-events: none;
@@ -286,12 +285,13 @@ g.axis line {
 g#xDays {
     text-anchor:middle;
 }
-g#xDays rect {
+g#xDays g.tick rect {
     vector-effect: non-scaling-stroke;
     pointer-events:none;
     cursor:default;
+
 }
-g#xDays rect.active {
+g#xDays g.active rect {
     pointer-events: fill;
     cursor:pointer;
     box-shadow: 1px 1px 10px rgba(0,0,0,.5);
@@ -307,10 +307,6 @@ g#yGrid path {
     display:none;
 }
 
-.brush .extent {
-    fill-opacity: .125;
-    shape-rendering: crispEdges;
-}
 
 g#curves path.courbe {
     fill: transparent;
@@ -326,6 +322,8 @@ g#cache rect {
 }
 
 /* Graphique secondaire (brush)*/
+
+
 g.brushLayer text {
     text-transform: uppercase;
     text-anchor:middle;
@@ -335,7 +333,12 @@ g.brushLayer g.axis line {
     stroke-width:1;
 }
 g.brushLayer path.courbe {
-    opacity:.3;
+    transition: all 1s ease-in-out;
+    filter:grayscale(.9);
+}
+g.brushLayer.active path.courbe {
+    transition: all 1s ease-in-out;
+    filter:grayscale(.1);
 }
 g.brushLayer rect.odd {
      fill: rgba(128,128,128,.1);
@@ -346,6 +349,53 @@ g.thumb foreignObject{
 g.thumb img, g.thumb text {
     filter: drop-shadow(1px 1px 4px rgb(0 0 0 / 0.4));
 }
+/* Module visualisation sondage */
+#conteneur_sondage {
+    position: relative; /*absolute*/
+    padding-bottom:2rem;
+}
+#conteneur_sondage h3 span{
+    white-space: nowrap;
+}
+#conteneur_sondage h3,h4{
+    padding-left:1rem;
+}
+
+#conteneur_sondage h4{
+    font-size:100%;
+}
+#conteneur_sondage nav {
+    width:100%; position: absolute; top:0; left:0;
+    display:flex;justify-content:flex-end;
+}
+#conteneur_sondage nav span.active:hover {
+    opacity:1;
+}
+#conteneur_sondage nav span {
+    transition: all 500ms ease-in-out;
+    flex-basis:5%;
+    opacity:0.2;
+    font-size:300%;
+    width:10%;
+    margin: 0 1% 0 0;
+    float:right;
+    text-align:center;
+    cursor:default;
+}
+#conteneur_sondage nav span.active {
+    opacity:.5;
+    cursor:pointer;
+}
+p.note {
+    margin:1rem;
+}
+p.note a span {
+    color:black;
+    margin-left:1rem;
+    vertical-align: bottom;
+}
+
+
 
 nav#options {
     display:flex;
