@@ -35,11 +35,13 @@
 <div id='conteneur_principal'>
 <div id='conteneur_graphique'></div>
 <div id='conteneur_sondage'>
-    <h3><span class='institut'></span><span class='date'></span></h3>
-    <h4 class='hypothese'></h4>
-    <nav><span class='previous material-icons'>navigate_before</span><span class='next material-icons'>navigate_next</span></nav>
+    <header>
+        <span class='previous material-icons'>navigate_before</span>
+        <div><h3><span class='institut'></span><span class='date'></span></h3><h4 class='hypothese'></h4></div>
+        <span class='next material-icons'>navigate_next</span>
+    </header>
     <svg preserveAspectRatio='xMaxYMin meet' viewBox='0 0 1600 1400' width='100%'></svg>
-    <p class='note'><span class='fiche'></span><a class='lien' href='#'><span class='material-icons'>link</span></a></p>
+    <p class='note'><span class='fiche'></span><a class='lien' target='blank' href='#'><span class='material-icons'>download</span></a></p>
 </div>
 </div>
 
@@ -50,10 +52,5 @@
 <p id='tooltip'></p>
 
 <!-- Load d3.js -->
-<script src='js/classes.js'></script>
-<script src='js/dl_traitement.js'></script>
-<script src='js/globales.js'></script>
 <script src='js/fonctions.js'></script>
-<script src='js/events.js'></script>
-
-<script src='js/pp.js'></script>
+<script type='module' src='js/pp.js'></script>

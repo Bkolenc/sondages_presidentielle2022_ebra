@@ -265,6 +265,12 @@ html
 }
 
 
+rect.handler {
+    pointer-events: all;
+    fill: none;
+    stroke: none;
+    opacity:0;
+}
 
 /* GRAPHIQUE PRINCIPAL*/
 div#conteneur_sondage, div#conteneur_graphique, svg {
@@ -346,32 +352,39 @@ g.brushLayer rect.odd {
 g.thumb foreignObject{
     overflow:visible;
 }
-g.thumb img, g.thumb text {
-    filter: drop-shadow(1px 1px 4px rgb(0 0 0 / 0.4));
+g.thumb img, g.thumb text, rect.mark, text.label {
+    filter: drop-shadow(2px 2px 20px rgb(255 255 255/ 0.6));
 }
 /* Module visualisation sondage */
 #conteneur_sondage {
-    position: relative; /*absolute*/
-    padding-bottom:2rem;
+    position: relative;
+    margin:2rem 0;/*absolute*/
 }
-#conteneur_sondage h3 span{
-    white-space: nowrap;
+#conteneur_sondage header {
+    width:100%;
+    display:flex;
+    justify-content:space-between;
 }
-#conteneur_sondage h3,h4{
-    padding-left:1rem;
+#conteneur_sondage header div {
+    vertical-align: bottom;
+    flex-grow:1;
+    text-align:center;
 }
-
+#conteneur_sondage h3{
+    font-size:120%;
+}
 #conteneur_sondage h4{
     font-size:100%;
 }
-#conteneur_sondage nav {
-    width:100%; position: absolute; top:0; left:0;
-    display:flex;justify-content:flex-end;
+#conteneur_sondage h3,h4 {
+    width:100%;
+    margin:0; padding:0;
+    vertical-align: middle;
 }
-#conteneur_sondage nav span.active:hover {
+#conteneur_sondage header>span.active:hover {
     opacity:1;
 }
-#conteneur_sondage nav span {
+#conteneur_sondage header>span {
     transition: all 500ms ease-in-out;
     flex-basis:5%;
     opacity:0.2;
@@ -381,18 +394,25 @@ g.thumb img, g.thumb text {
     float:right;
     text-align:center;
     cursor:default;
+    user-select: none;
 }
-#conteneur_sondage nav span.active {
+#conteneur_sondage header span.active {
     opacity:.5;
     cursor:pointer;
 }
+#conteneur_sondage g.yAxis path {
+    display:none;
+}
 p.note {
     margin:1rem;
+    font-size:80%;
+    line-height: auto;
 }
 p.note a span {
-    color:black;
-    margin-left:1rem;
-    vertical-align: bottom;
+    color: black;
+    font-size:110%;
+    margin:.2rem 0 0 .5rem;
+
 }
 
 

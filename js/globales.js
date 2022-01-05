@@ -77,4 +77,6 @@ var G_sondages = {
     }
 }
 
+export { G_sondages }
+
 

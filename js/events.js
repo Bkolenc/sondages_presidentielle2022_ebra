@@ -1,3 +1,7 @@
+import { G_sondages} from './globales.js';
+import { Candidat } from './classes.js';
+import { maj_boutons_candidats } from './dl_traitement.js';
+
 function click_candidats()
 {
     // A faire :
@@ -178,6 +182,8 @@ function resize(){
 //resize();
 window.removeEventListener("resize", resize, true)
 window.addEventListener('resize', resize);
+
+export { click_candidats, resize}
 
 
 

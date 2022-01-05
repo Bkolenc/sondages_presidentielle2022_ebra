@@ -1,3 +1,7 @@
+import { Candidat } from './classes.js'
+import { G_sondages } from './globales.js'
+import { click_candidats,resize } from './events.js'
+
 // Récupère tous les .csv
 function recup_csv_tour1(callback)
 {
@@ -8,7 +12,7 @@ var nocache = Date().now;
     files.forEach( (f) => Promises.push( d3.csv(`data/${f}.csv?nocache=`+ Date().now )) ) ;
 
     Promise.all(Promises).then((values) => {
-        [candidats,populations,instituts,sondages,hypotheses_1,resultats_1]=values;
+        let [candidats,populations,instituts,sondages,hypotheses_1,resultats_1]=values;
         // Table candidats
         var candidats_formate = {};
         Object.keys(candidats).forEach(function (k) {
@@ -305,7 +309,7 @@ function candidats_par_defaut(seuil)
 
     var infos = G_sondages.courbe_par_candidat;
     Object.keys(infos).forEach(function(id_candidat){
-        liste = infos[id_candidat];
+        let liste = infos[id_candidat];
         var derniere_date = liste[liste.length-1].date_fin;
         var derniers_scores = [];
 
@@ -336,7 +340,7 @@ function check_derniers_scores(id_candidat)
 {
 
     var infos = G_sondages.courbe_par_candidat;
-    liste = infos[id_candidat];
+    let liste = infos[id_candidat];
     var derniere_date = liste[liste.length-1].date_fin;
 //    var ts_derniere_date = new Date(derniere_date).getTime();
 
@@ -354,3 +358,6 @@ function check_derniers_scores(id_candidat)
     var moyenne = somme/derniers_scores.length;
     return moyenne;
 }
+
+
+export { recup_csv_tour1, formater_donnees, candidats_par_defaut, afficher_boutons_candidats, maj_boutons_candidats}
