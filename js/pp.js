@@ -1,4 +1,4 @@
-import { DataWrapper, MetaPoll, PollSet } from './classes.js'
+import { DataWrapper, MetaPoll, PollController } from './classes.js'
 import { G_sondages } from './globales.js'
 import { recup_csv_tour1, formater_donnees, candidats_par_defaut, afficher_boutons_candidats } from './dl_traitement.js'
 
@@ -67,8 +67,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
             .push( 'sondages', dictToMap(G_sondages.tables.sondages))
             .draw();
 
-        // let pollSet=new PollSet(mainData,tableCandidats).select(new Date('2021-12-06'));
-
+        new PollController(mainData,tableCandidats).filterByDate(new Date('2021-12-06'));
+    console.warn(G_sondages);
 
 
 

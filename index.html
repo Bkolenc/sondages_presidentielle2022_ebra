@@ -3,54 +3,52 @@
     <meta charset="utf-8">
     <title>Compilateur de sondages</title>
     <meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no" />
-    <link rel='stylesheet' type='text/css' href='css.css' />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" type="text/css" href="css.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link href='https://fonts.googleapis.com/icon?family=Material+Icons' rel='stylesheet'>
-    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    <script src="lib/anime.min.js"></script>
     <script src="lib/d3.v7.min.js"></script>
     <script src="lib/d3-regression.min.js"></script>
+    <script src="https://kit.fontawesome.com/28d6cc5c1d.js" crossorigin="anonymous"></script>
 
 
 </head>
 
 <body>
 
+<div id="conteneur_candidats">
+    <!--    <div id="fermer_candidats">X</div>-->
+    <div id="logo_pres">    <img src="img/Pastille_France.png" /> Présidentielle 2022</div>
+    <h2 style="font-size:1.4em;">Sélectionnez vos candidats</h2>
+    <div id="tier_1"  ></div>
 
-<div id='conteneur_candidats'>
-<!--    <div id='fermer_candidats'>X</div>-->
-    <div id='logo_pres'>    <img src='img/Pastille_France.png' /> Présidentielle 2022</div>
-    <h2 style='font-size:1.4em;'>Sélectionnez vos candidats</h2>
-    <div id='tier_1'  ></div>
-
-    <div style='text-align:right;'>
-        <button id='plus_de_candidats' class='closed'>Plus de candidats<span class='material-icons'>expand_more</span></button>
+    <div style="text-align:right;">
+        <button id="plus_de_candidats" class="closed">Plus de candidats<span class="icon"><i class="fa-solid fa-angle-down"></i></span></button>
     </div>
-    <hr style='margin:0; margin-bottom:15px;' id='division_candidats' />
+    <hr style="margin:0; margin-bottom:15px;" id="division_candidats" />
 
 
-    <div id='tier_2' data-deploye=false></div>
+    <div id="tier_2" data-deploye=false></div>
 </div>
-<div id='conteneur_principal'>
-<div id='conteneur_graphique'></div>
-<div id='conteneur_sondage'>
-    <header>
-        <span class='previous material-icons'>navigate_before</span>
-        <div><h3><span class='institut'></span><span class='date'></span></h3><h4 class='hypothese'></h4></div>
-        <span class='next material-icons'>navigate_next</span>
-    </header>
-    <svg preserveAspectRatio='xMaxYMin meet' viewBox='0 0 1600 1400' width='100%'></svg>
-    <p class='note'><span class='fiche'></span><a class='lien' target='blank' href='#'><span class='material-icons'>download</span></a></p>
-</div>
+<div id="conteneur_principal"  class="columns is-desktop">
+    <div id="conteneur_graphique"  class="column is-two-thirds-desktop"></div>
+    <div id="conteneur_sondage"  class="column">
+        <header class="columns is-gapless is-mobile">
+            <span class="column previous icon is-medium is-one-fifth"><i class="fa-regular fa-circle-left"></i></span>
+            <div class="column"><h3><span class="institut"></span></span></h3><h4 class="hypothese">&nbsp;</h4></div>
+            <span class="column next icon is-medium is-one-fifth"><i class="fa-regular fa-circle-right"></i></span>
+        </header>
+        <svg preserveAspectRatio="xMaxYMin meet" viewBox="0 0 1600 1400" width="100%"></svg>
+        <p class="note"><span class="fiche"></span></p>
+        <p class="download"><a class="lien" target="blank" href="#">Télécharger <span class="icon is-small"><i class="fa-solid fa-download"></i></span></a></p>
+    </div>
 </div>
 
 
 
 </body>
 
-<p id='tooltip'></p>
+<p id="tooltip"></p>
 
 <!-- Load d3.js -->
-<script src='js/fonctions.js'></script>
-<script type='module' src='js/pp.js'></script>
+<script src="js/fonctions.js"></script>
+<script type="module" src="js/pp.js"></script>

@@ -273,10 +273,13 @@ rect.handler {
 }
 
 /* GRAPHIQUE PRINCIPAL*/
-div#conteneur_sondage, div#conteneur_graphique, svg {
+div#conteneur_principal>div {
+    margin:0; padding:0;
+}
+div#conteneur_principal svg {
     width:100%;
 }
-path.courbe, path.area, g.axis *, g#points ellipse, g#dateHelper, g.thumb {
+path.courbe, path.area, g.axis *, g#points ellipse, #dateHelper, g.thumb {
     pointer-events: none;
     user-select:none;
 }
@@ -291,16 +294,14 @@ g.axis line {
 g#xDays {
     text-anchor:middle;
 }
-g#xDays g.tick rect {
-    vector-effect: non-scaling-stroke;
-    pointer-events:none;
-    cursor:default;
-
+g#xDays text {
+    transition: all 500ms ease-in-out;
+    font-family: 'Font Awesome 6 Free'!important;
+    font-weight: 900;
+    color:#ddd;
 }
-g#xDays g.active rect {
-    pointer-events: fill;
-    cursor:pointer;
-    box-shadow: 1px 1px 10px rgba(0,0,0,.5);
+g#xDays g.active text {
+    color:#aaa;
 }
 
 g#yAxis line {
@@ -327,7 +328,15 @@ g#cache rect {
     fill:#fff;
 }
 
+#dateHelper {
+    transition: all 500ms ease-in-out;
+    opacity:.1;
+}
+#dateHelper.highlight {
+    opacity:.25;
+}
 /* Graphique secondaire (brush)*/
+
 
 
 g.brushLayer text {
@@ -339,15 +348,14 @@ g.brushLayer g.axis line {
     stroke-width:1;
 }
 g.brushLayer path.courbe {
-    transition: all 1s ease-in-out;
-    filter:grayscale(.9);
+    filter:grayscale(.4);
+    opacity:.2!important;
 }
-g.brushLayer.active path.courbe {
-    transition: all 1s ease-in-out;
-    filter:grayscale(.1);
-}
-g.brushLayer rect.odd {
+g.brushLayer rect.even {
      fill: rgba(128,128,128,.1);
+}
+g.brushLayer g.axis line {
+    opacity:.05;
 }
 g.thumb foreignObject{
     overflow:visible;
@@ -358,40 +366,28 @@ g.thumb img, g.thumb text, rect.mark, text.label {
 /* Module visualisation sondage */
 #conteneur_sondage {
     position: relative;
-    margin:2rem 0;/*absolute*/
+
 }
 #conteneur_sondage header {
+    margin:2rem 0 0;
     width:100%;
-    display:flex;
-    justify-content:space-between;
 }
 #conteneur_sondage header div {
     vertical-align: bottom;
-    flex-grow:1;
     text-align:center;
 }
 #conteneur_sondage h3{
     font-size:120%;
 }
 #conteneur_sondage h4{
-    font-size:100%;
-}
-#conteneur_sondage h3,h4 {
-    width:100%;
-    margin:0; padding:0;
-    vertical-align: middle;
+    font-size:80%;
 }
 #conteneur_sondage header>span.active:hover {
     opacity:1;
 }
 #conteneur_sondage header>span {
     transition: all 500ms ease-in-out;
-    flex-basis:5%;
-    opacity:0.2;
-    font-size:300%;
-    width:10%;
-    margin: 0 1% 0 0;
-    float:right;
+    opacity:0.1;
     text-align:center;
     cursor:default;
     user-select: none;
@@ -400,52 +396,29 @@ g.thumb img, g.thumb text, rect.mark, text.label {
     opacity:.5;
     cursor:pointer;
 }
+#conteneur_sondage header span i {
+    text-align:center;
+}
 #conteneur_sondage g.yAxis path {
     display:none;
 }
-p.note {
-    margin:1rem;
+p.note, p.download {
+    margin:1rem 1rem 0 1rem;
     font-size:80%;
     line-height: auto;
 }
-p.note a span {
+p.download span {
     color: black;
     font-size:110%;
-    margin:.2rem 0 0 .5rem;
-
+    vertical-align: text-bottom;
+    margin:.2rem 0 0 .2rem;
+}
+p.download a {
+    color: #333;
+    text-decoration: none;
 }
 
 
-
-nav#options {
-    display:flex;
-    justify-content:flex-end;
-}
-nav#options p {
-    cursor:pointer;
-    border: thin solid #333;
-    box-shadow: 2px 2px 3px rgba(128,128,128,.2);
-    padding:.1rem .5rem;
-    margin:.2rem 1rem;
-    opacity:.5;
-    transition: all 200ms ease-in-out;
-    border-radius:.2rem;
-    color:#333;
-}
-nav#options p:hover {
-    opacity:1;
-}
-nav#options span {
-    font-size:14px;
-    pointer-events:none;
-    margin-right:.2rem;
-    height:20px!important;
-    vertical-align: middle;
-}
-nav#options span.material-icons {
-    font-size:24px;
-    margin-top:-5px;
-}
 
 /* VISU DETAIL SONDAGES */
 g.poll rect.bar {
@@ -462,32 +435,17 @@ g.poll foreignObject img {
 
 
 /* MODIFS NAVIGATION CANDIDATS ??? */
-
-div#tier_1{
-    background-color:transparent!important;
-}
-div.img_cont {
-    margin-left:2px;
-
-}
-div.img_et_init {
-    background: radial-gradient(25% 50%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.5) 50% ,rgba(255,255,255,1) 300%);
-    box-shadow: 1px 0 2px rgba(255,255,255,.4);
-   /* rgba(255,255,255,.8) 0% ,rgba(255,255,255,.1) 100%); /* ???? */
-}
-div.candidat {
-
-    transition: all 500ms ease-in-out;
-    box-shadow: 1px 1px 3px rgba(128,128,128,.8);
-}
 p.initiales {
+    font-family: 'Merriweather-sans', sans-serif;
     font-size:10px!important;
     margin:2px 0 0 1px;
     font-weight: bold;
 }
-div.candidat:hover {
-    transform:scale(1.04);
-    box-shadow: 1px 1px 2px rgba(128,128,128,1);
+div.img_et_init{
+    background:#f7f7f7;
+}
+div#tier_1{
+    background-color:transparent!important;
 }
 button#plus_de_candidats {
     outline: none;
@@ -507,3 +465,25 @@ button#plus_de_candidats span {
     vertical-align:bottom;
     pointer-events:none;
 }
+/*
+
+div.img_cont {
+    margin-left:2px;
+
+}
+div.img_et_init {
+    background: radial-gradient(25% 50%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.5) 50% ,rgba(255,255,255,1) 300%);
+    box-shadow: 1px 0 2px rgba(255,255,255,.4);
+}
+div.candidat {
+
+    transition: all 500ms ease-in-out;
+    box-shadow: 1px 1px 3px rgba(128,128,128,.8);
+}
+
+div.candidat:hover {
+    transform:scale(1.04);
+    box-shadow: 1px 1px 2px rgba(128,128,128,1);
+}
+
+*/

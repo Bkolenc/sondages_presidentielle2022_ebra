@@ -128,7 +128,7 @@ function click_candidats()
         else
         {
             d3.select("#tier_2").style("display","none").attr("data-deploye", false);
-            d3.select("#plus_de_candidats").html("Plus de candidats<span class='material-icons'>expand_more</span>");
+            d3.select("#plus_de_candidats span.icon i").attr("class","fa-solid fa-angle-down");
         }
 
     }
@@ -140,13 +140,13 @@ function click_candidats()
             d3.select("#tier_2")
                 .style("display", "block")
                 .attr("data-deploye", true);
-            d3.select("#plus_de_candidats").html("Moins de candidats<span class='material-icons'>expand_less</span>");
+            d3.select("#plus_de_candidats span.icon i").attr("class","fa-solid fa-angle-up");
         }
         else
         {
             d3.select("#tier_2").style("display", "none")
                 .attr("data-deploye", false);
-            d3.select("#plus_de_candidats").html("Plus de candidats<span class='material-icons'>expand_more</span>");
+            d3.select("#plus_de_candidats span.icon i").attr("class","fa-solid fa-angle-down");
         }
 
     });

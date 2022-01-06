@@ -1,4 +1,5 @@
-import { G_sondages} from './globales.js';
+import {G_sondages} from './globales.js';
+
 Object.assign(d3, d3regression);
 
 class Queue {
@@ -91,7 +92,7 @@ class DataWrapper {
     filter(fn) {
         if (!this.dataset) throw('Aucune donnée à filtrer');
         else {
-            return new DataWrapper(this.id+'_f').push(this.dataset.filter(fn));
+            return new DataWrapper(this.id + '_f').push(this.dataset.filter(fn));
         }
     }
 
@@ -103,7 +104,7 @@ class DataWrapper {
     push(dataset) {
         if (!Array.isArray(dataset) && dataset.constructor === Object) dataset = this._convertFromDict(dataset);
         this.dataset = dataset;
-        this.keys = (dataset.length)?Object.keys(dataset[0]):[];
+        this.keys = (dataset.length) ? Object.keys(dataset[0]) : [];
         return this;
     }
 
@@ -379,14 +380,14 @@ class DomElement {
 class MetaPoll extends DomElement {
 
     //Dimensions et paramètres du tracé
-    static size = {width: 1600, height: 1500};
-    static margins = {top: 50, right: 50, bottom: 150, left: 100};
+    static size = {width: 1600, height: 1000};
+    static margins = {top: 50, right: 50, bottom: 150, left: 160};
     static params = {
         areaWidth: 1, areaOpacity: .3,
         pointsOpacity: .1, pointsRadius: 3,
         axis: {width: 2},
         curve: {minPts: 10, mode: d3.curveBasis, bandwidth: .2, width: 3},
-        duration: 100
+        duration: 500
     };
 
     constructor(id) {
@@ -397,15 +398,15 @@ class MetaPoll extends DomElement {
             height: (MetaPoll.size.height - MetaPoll.margins.top - MetaPoll.margins.bottom),
             mainContainer: {
                 width: (MetaPoll.size.width - MetaPoll.margins.left - MetaPoll.margins.right),
-                height: (MetaPoll.size.height - MetaPoll.margins.top - MetaPoll.margins.bottom) * .88,
+                height: (MetaPoll.size.height - MetaPoll.margins.top - MetaPoll.margins.bottom) * .75,
                 rHeight: (MetaPoll.size.height - MetaPoll.margins.top - MetaPoll.margins.bottom) / 40
             },
             brushContainer: {
                 width: (MetaPoll.size.width - MetaPoll.margins.left - MetaPoll.margins.right),
-                height: (MetaPoll.size.height - MetaPoll.margins.top - MetaPoll.margins.bottom) * .10
+                height: (MetaPoll.size.height - MetaPoll.margins.top - MetaPoll.margins.bottom) * .15
             },
             thumbs: {
-                radius: (MetaPoll.size.height - MetaPoll.margins.top - MetaPoll.margins.bottom) / 15
+                radius: parseInt((MetaPoll.size.height - MetaPoll.margins.top - MetaPoll.margins.bottom) / 12)
             },
             font: {
                 small: d3.min([MetaPoll.size.height / 40, 20]),
@@ -428,20 +429,18 @@ class MetaPoll extends DomElement {
         this.brushContainer = this.svg
             .append('svg:g')
             .classed('brushLayer', true)
-            .attr('transform', `translate(${MetaPoll.margins.left} ${MetaPoll.size.height - this.size.brushContainer.height*1.25})`);
-        this.figuresContainer= this.svg
+            .attr('transform', `translate(${MetaPoll.margins.left} ${MetaPoll.size.height - this.size.brushContainer.height - this.size.font.small * 3})`);
+        this.figuresContainer = this.svg
             .append('svg:g')
             .classed('figuresLayer', true)
             .attr('transform', `translate(${MetaPoll.margins.left} ${MetaPoll.margins.top})`);
-
-
         //Propriété data
         this.data = {
             resultats: undefined,
             candidats: undefined,
             sondages: undefined
         }
-
+        this.drawableSelection = [];
         //Objet permettant d'afficher ou masquer certaines parties du graphique. Usage : MetaPoll.toggle.points(true|false)
         this.toggle = {
             states: {
@@ -480,7 +479,7 @@ class MetaPoll extends DomElement {
             .on('zoom', this._handleZoom.bind(this));
 
         //Générateurs des axes du graphique principal
-        this.xAxisGenerator = d3.axisBottom(this.xScale).tickSize(10).tickSizeOuter(0).tickFormat(d3.timeFormat("%d"));
+        this.xAxisGenerator = d3.axisBottom(this.xScale).tickSize(0).tickSizeOuter(0).tickFormat('');  //d3.timeFormat("%d")
         this.yAxisGenerator = d3.axisLeft(this.yScale).tickFormat(x => x + '%').tickSizeOuter(0);
         this.yGridGenerator = d3.axisLeft(this.yScale).tickFormat('').tickSize(-this.size.mainContainer.width * .99).tickSizeOuter(0);
 
@@ -501,7 +500,7 @@ class MetaPoll extends DomElement {
             .append('line')
             .attr('id', 'slider')
             .attr('x1', 0)
-            .attr('y1', this.size.font.large*.8)
+            .attr('y1', this.size.font.large * .8)
             .attr('x2', 0)
             .attr('y2', this.size.mainContainer.height)
             .style('stroke', 'rgba(128,128,128,.5)')
@@ -512,13 +511,12 @@ class MetaPoll extends DomElement {
         this._createLayer('points');//.attr('clip-path', 'url(#clipChart)');
         this._createLayer('curves');//.attr('clip-path', 'url(#clipChart)');
         this.mainContainer.append('text')
-            .attr('id','dateHelper')
-            .attr('x',this.size.mainContainer.width)
-            .attr('y',`${this.size.font.large/2}px`)
-            .attr('text-anchor','end')
-            .style('font-size',`${this.size.font.large}px`)
-            .style('font-weight','900')
-            .style('opacity',.1);
+            .attr('id', 'dateHelper')
+            .attr('x', this.size.mainContainer.width)
+            .attr('y', `${this.size.font.large / 2}px`)
+            .attr('text-anchor', 'end')
+            .style('font-size', `${this.size.font.large}px`)
+            .style('font-weight', '900');
 
         const xAxis = this._createLayer('xAxis', 'axis')
             .attr('transform', `translate(0 ${this.size.mainContainer.height})`)
@@ -550,14 +548,14 @@ class MetaPoll extends DomElement {
                .on('click',(e,n)=> {
                    let state=this.toggle.areas(),
                        text=(state)?'Afficher':'Masquer';
-                   d3.select(e.target).select('span.text').text(`${text} les marges d'erreur`);
+                   d3.filter(e.target).filter('span.text').text(`${text} les marges d'erreur`);
                    this.toggle.areas(!state);
                });
            this._createSelector('Afficher le détail des estimations','insights')
                .on('click',(e,n)=> {
                    let state=this.toggle.points(),
                        text=(state)?'Afficher':'Masquer';
-                   d3.select(e.target).select('span.text').text(`${text}  le détail des estimations`);
+                   d3.filter(e.target).filter('span.text').text(`${text}  le détail des estimations`);
                    this.toggle.points(!state);
                });*/
         return this;
@@ -633,10 +631,10 @@ class MetaPoll extends DomElement {
     _createHandler(id, x, y, width, height) {
         const rect = this._createRect(x, y, width, height);
         return this.mainContainer
-                    .append(rect)
-                        .attr('id', id)
-                        .classed('handler',true)
-                        .raise();
+            .append(rect)
+            .attr('id', id)
+            .classed('handler', true)
+            .raise();
     }
 
     /**
@@ -652,9 +650,9 @@ class MetaPoll extends DomElement {
     _createClipPath(id, x, y, width, height) {
         const rect = this._createRect(x, y, width, height);
         return this.svg.select('defs')
-                        .append('clipPath')
-                        .attr('id', id)
-                        .append(rect);
+            .append('clipPath')
+            .attr('id', id)
+            .append(rect);
     }
 
     /**
@@ -667,13 +665,13 @@ class MetaPoll extends DomElement {
      * @private
      */
     _createRect(x, y, width, height, className) {
-        const rect= d3.create('svg:rect')
-                        .attr('x', x)
-                        .attr('y', y)
-                        .attr('width', width)
-                        .attr('height', height)
-                        .classed(className, className);
-        return ()=>rect.node();
+        const rect = d3.create('svg:rect')
+            .attr('x', x)
+            .attr('y', y)
+            .attr('width', width)
+            .attr('height', height)
+            .classed(className, className);
+        return () => rect.node();
     }
 
     /**
@@ -684,7 +682,7 @@ class MetaPoll extends DomElement {
      */
     push(property, data) {
         this.data[property] = data;
-        if (this.data.resultats && this.data.candidats) this.pollset = new PollSet(this.data.resultats,this.data.candidats);
+        if (this.data.resultats && this.data.candidats) this.pollset = new PollController(this.data.resultats, this.data.candidats);
         return this;
     }
 
@@ -693,10 +691,12 @@ class MetaPoll extends DomElement {
      * @returns {MetaPoll}
      * @private
      */
-    _calcDomainAndScales() {
+    _domainAndScales() {
+        //Axe X
         this.xDomain = this.data.resultats.extent('debut');
         this.xScale.domain(this.xDomain);
-        this.xAxisGenerator.tickValues(this._getPollDates());
+        this.xAxisGenerator.tickValues(this._pollDates());
+        //Axe Y
         this.yDomain = this.data.resultats.extent('borne_sup');
         this.yDomain = [0, this.yDomain[1]];
         this.yScale.domain(this.yDomain);
@@ -705,12 +705,13 @@ class MetaPoll extends DomElement {
         return this;
     }
 
+
     /**
      * Renvoie un array contenant les dates des sondages
      * @returns {Date[]}
      * @private
      */
-    _getPollDates() {
+    _pollDates() {
         let myDates = [];
         this.data.sondages.forEach((v) => myDates.push(v.debut));
         myDates = new Set([...myDates]);
@@ -731,9 +732,9 @@ class MetaPoll extends DomElement {
         let [x, k, ki] = [e.transform.x, e.transform.k, 1 / e.transform.k];
         if (isFinite(x) && isFinite(k)) {
             d3.select('#curves').transition().duration(MetaPoll.params.duration).attr('transform', `translate(${x} 0) scale(${k} 1)`);
-            //   d3.select('#pattern-stripe').transition().duration(MetaPoll.params.duration).attr('patternTransform',`rotate(45) scale(${ki} 1)`);
-            //       d3.select('#clipChart rect').attr('transform',`translate(${-x/k} 0) scale(${ki} 1)`);   Remplacé par système de cache
-            // d3.select('#points').transition().duration(MetaPoll.params.duration).attr('transform',`translate(${x} 0) scale(${k} 1)`);
+            //   d3.filter('#pattern-stripe').transition().duration(MetaPoll.params.duration).attr('patternTransform',`rotate(45) scale(${ki} 1)`);
+            //       d3.filter('#clipChart rect').attr('transform',`translate(${-x/k} 0) scale(${ki} 1)`);   Remplacé par système de cache
+            // d3.filter('#points').transition().duration(MetaPoll.params.duration).attr('transform',`translate(${x} 0) scale(${k} 1)`);
             // d3.selectAll('#points ellipse').transition().duration(MetaPoll.params.duration).attr('transform',`scale(${ki} 1)`)
 
             //Déplacement et zoom des axes
@@ -758,7 +759,7 @@ class MetaPoll extends DomElement {
         );
         //Masque le slider et les vignettes, reinitialise les ticks X
         Thumb.hideAll();
-        this.slider.style('opacity',0);
+        this.slider.style('opacity', 0);
         this._dateHelper('')._resetXTicks();
         return this;
     }
@@ -768,9 +769,9 @@ class MetaPoll extends DomElement {
      * @returns {MetaPoll}
      * @private
      */
-    _resetXTicks(){
-        this.layers.xAxis.selectAll('line').attr('stroke-width','1px').attr('stroke','#333');
-        this.layers.xAxis.selectAll('text,tspan,rect').style('opacity',0);
+    _resetXTicks() {
+        this.layers.xAxis.selectAll('line').attr('stroke-width', '1px').attr('stroke', '#333');
+        // this.layers.xAxis.selectAll('text,tspan,rect').style('opacity', 0);
         return this;
     }
 
@@ -794,65 +795,57 @@ class MetaPoll extends DomElement {
      * @returns {MetaPoll}
      */
     draw() {
-
-        /* Test
-        this.data.chiffres.filters.add( "test",(d)=> d.candidat==11 ); //teste selection canddiat 0 uniquement
-        console.log(this.data.chiffres.col('intentions'));
-         */
-
-
-        //this.data.resultats.filters.add("recent", (d) => d.debut > new Date(2021, 7, 1));
         this._firstDraw = true;
-        this._calcDomainAndScales()
+        this._domainAndScales()
             ._drawYAxis()
             ._drawXAxis()
-              ._drawPoints()
+            //._drawPoints()
             ._drawMainChart()
             ._drawBrushChart()
             ._enableFocus();
 
 
         //Animation initiale (effet de rollover pour les courbes, puis affichage graduel des marges)
-        anime({
-            targets: '#clipChart rect',
-            easing: 'easeInOutExpo',
-            width: this.size.mainContainer.width,
-            delay: 100,
-            duration: MetaPoll.params.duration * 3,
-            begin: () => {
-                //let range=getUrlDomain();
-                //this._zoomTo(range.begin,range.end);
-                //   this._enableFocus();
-            },
-            complete: () => {
-                this._firstDraw = false;
-                //  let range=getUrlDomain();
-                //    this._zoomTo(range.begin,range.end);
-                this.toggle.areas(true);
-                // this._enableFreeZoom();
+        /*      anime({
+                  targets: '#clipChart rect',
+                  easing: 'easeInOutExpo',
+                  width: this.size.mainContainer.width,
+                  delay: 100,
+                  duration: MetaPoll.params.duration * 3,
+                  begin: () => {
+                      //let range=getUrlDomain();
+                      //this._zoomTo(range.begin,range.end);
+                      //   this._enableFocus();
+                  },
+                  complete: () => {
+                      this._firstDraw = false;
+                      //  let range=getUrlDomain();
+                      //    this._zoomTo(range.begin,range.end);
+                      this.toggle.areas(true);
+                      // this._enableFreeZoom();
 
-                /*   setTimeout(()=>{
-                          let begin=new Date(2021,9,1);
-                          let end=new Date(2021,11,12);
-                          this._zoomTo(begin,end);
-                      },4000);
+                      /*   setTimeout(()=>{
+                                let begin=new Date(2021,9,1);
+                                let end=new Date(2021,11,12);
+                                this._zoomTo(begin,end);
+                            },4000);
 
-                      setTimeout(()=>{
-                          let begin=new Date(2020,6,18);
-                          let end=new Date(2021,11,12);
-                          this._zoomTo(begin,end);
-                      },8000);*/
+                            setTimeout(()=>{
+                                let begin=new Date(2020,6,18);
+                                let end=new Date(2021,11,12);
+                                this._zoomTo(begin,end);
+                            },8000);
 
-            }
-        });
+                  }
+              });*/
         return this;
 
     }
 
-    _dateHelper(date){
-
-        let text=(!date)?'':d3.timeFormat('%e %B %Y')(date);
-        d3.select('#dateHelper').text(text);
+    _dateHelper(date = undefined, highlight = false) {
+        d3.select('#dateHelper')
+            .text((date) ? d3.timeFormat('%e %B %Y')(date) : '')
+            .classed('highlight', highlight);
         return this;
     }
 
@@ -864,10 +857,10 @@ class MetaPoll extends DomElement {
 
         //Création des vignettes
         const thumbs = new Map();
-        for (const [key, value] of this.data.candidats) {
-            thumbs.set(key, new Thumb(key, value, this.size.thumbs.radius, this.size.font.large).appendTo(this.figuresContainer));
-        }
-
+        this.drawableSelection
+            .forEach(id => {
+                thumbs.set(id, new Thumb(id, this.data.candidats.get(id), this.size.thumbs.radius, this.size.font.large).appendTo(this.figuresContainer));
+            });
         //Renvoie l'ordonnée Y de la courbe en fonction de l'abscisse X (y compris pour données interpolées)
         const getYFromX = (id, x) => {
             const path = this.mainContainer.select(`path.id_${id}`).node(),
@@ -886,23 +879,37 @@ class MetaPoll extends DomElement {
                 if (Math.abs(pos.x - x) < 0.001) {
                     return pos.y;
                 } else if (pos.x > x) {
-                    end = target
+                    end = target;
                 } else {
-                    start = target
+                    start = target;
                 }
                 target = (start + end) / 2
             }
+
         }
         //Recalcule et modifie la position du slider et des vignettes
         const updateSlider = (x0, transition = false) => {
-            if (x0<this.size.thumbs.radius / 2 || x0>this.size.mainContainer.width) {
+            if (x0 < this.size.thumbs.radius / 2 || x0 > this.size.mainContainer.width) {
                 return false;
-            }
-            else{
-                x0 = Math.max(this.size.thumbs.radius / 2, x0);
-                x0 = Math.min(x0, this.size.mainContainer.width);
+            } else {
+                x0 = Math.max(this.size.thumbs.radius / 2 + 5, x0);
+                x0 = Math.min(x0, this.size.mainContainer.width - 5);
                 let x = (x0 - this.transform.x) / this.transform.k;
                 this._dateHelper(this.xScale.invert(x));
+                //     console.log(G_sondages.selection_candidats,Array.from(this.data.candidats.keys()));
+                for (let id of this.drawableSelection) {
+                    let y = getYFromX(id, x);
+                    if (y !== false) {
+                        thumbs.get(id)
+                            .setValue(this.yScale.invert(y))
+                            .orientation((x0 < this.size.mainContainer.width / 2) ? 'right' : 'left')
+                            .move(x0, y);
+                    } else {  //Cache l'élément si candidat pas encore sondé
+                        thumbs.get(id).hide();
+                    }
+                }
+
+                /*
                 G_sondages.selection_candidats
                     .map(d => parseInt(d.replace('id_', '')))
                     .forEach(id => {
@@ -916,7 +923,8 @@ class MetaPoll extends DomElement {
                         else {
                             thumbs.get(id).hide();
                         }
-                    });
+                    });*/
+
                 if (!transition) this.slider.attr('x1', x0).attr('x2', x0);
                 else this.slider.transition().duration(100).attr('x1', x0).attr('x2', x0);
                 return true;
@@ -946,27 +954,12 @@ class MetaPoll extends DomElement {
         }
 
         const selectTick = (date) => {
-            date=(date)?date.toISOString().substring(0, 10):null;
-            this.layers.xAxis.select(`g.D${date}`).raise();
             this.layers.xAxis.selectAll('g.tick')
-                .each( function(){
-                    const tick=d3.select(this);
-                    if (tick.classed(`D${date}`)){
-                        tick.raise().classed('active',true);
-                        tick.selectAll('text,tspan,rect')
-                            .transition()
-                            .duration(300)
-                            .style('opacity',1);
+                .each(function (d) {
+                    if (d == date) {
+                        d3.select(this).raise().classed('active', true);
                     }
-                    else{
-                        tick.classed('active',false);
-                        tick.selectAll('text,tspan,rect')
-                            .transition()
-                            .duration(300)
-                            .style('opacity',0);
-                    }
-                  //  console.log();
-            });
+                });
         }
 
 
@@ -974,7 +967,11 @@ class MetaPoll extends DomElement {
             .raise()
             .call(d3.drag()
                 .on("start", () => {
-                    this.slider.style('opacity', .4);
+                    this.slider.style('opacity', .5);
+                    this.layers.xAxis.selectAll('g.tick.active').classed('active', false);
+                    this.drawableSelection
+                        .filter(id => G_sondages.selection_candidats.includes(`id_${id}`))
+                        .forEach(id => thumbs.get(id).show())
                     d3.select('#focusHandler').style('cursor', 'ew-resize');
                 })
                 .on("drag", (e) => {
@@ -986,14 +983,27 @@ class MetaPoll extends DomElement {
                     d3.select('#focusHandler').style('cursor', 'default');
                     let x = thresholdX(e.x),
                         closestDate = findClosest(x)[0];
-                   // console.log(closestDate);
-                    if (updateSlider(this.transform.rescaleX(this.xScale)(closestDate), true))  selectTick(closestDate);
+                    if (updateSlider(this.transform.rescaleX(this.xScale)(closestDate), true)) {
+                        selectTick(closestDate);
+                        this._dateHelper(closestDate, true);
+                        new PollController().filterByDate(closestDate).draw();
+                        console.warn('AFFICHAGE SONDAGE', closestDate, new PollController());
+                    }
                 })
             );
 
         return this;
     }
 
+
+    /**
+     * Affiche une collection de sondages correspondant à la date dans l'instance PollController
+     * @param date
+     * @private
+     */
+    _showPoll(date) {
+
+    }
 
     /**
      * Création de l'axe des abscisses (graphique principal)
@@ -1006,31 +1016,38 @@ class MetaPoll extends DomElement {
         const xScale = (transform) ? transform.rescaleX(this.xScale) : this.xScale;
         //Appel du générateur
         const xAxis = this.layers.xDays
-            .call(this.xAxisGenerator.scale(xScale));
-        //Customisation
+            .call(this.xAxisGenerator.scale(xScale))
+            .call(g => g.selectAll('text')
+                .attr('transform', `translate(0 ${this.size.font.normal / 2})`)
+                .text('\uf682')
+                .style('font-size', `${this.size.font.normal}px`)
+            );
+
+        //Customisation 'mode calendrier'
+        /*
         let dates = this.layers.xDays
             .selectAll('text')
             .attr('transform', 'translate(0 20)')
             .style('font-weight', 'bolder')
-            .style('font-size', `${this.size.font.normal*1.2}px`)
+            .style('font-size', `${this.size.font.normal * 1.2}px`)
             .attr('fill', '#D00');
         dates.append('tspan')
             .attr('x', 0)
-            .attr('dy', this.size.font.normal*.7)
+            .attr('dy', this.size.font.normal * .7)
             .attr('fill', 'black')
-            .style('font-size', `${this.size.font.normal*.7}px`)
+            .style('font-size', `${this.size.font.normal * .7}px`)
             .style('text-transform', 'uppercase')
             .text(d => d3.timeFormat('%b')(d).replace('.', ''));
         dates.append('tspan')
             .attr('x', 0)
             .attr('dy', this.size.font.small)
             .attr('fill', 'black')
-            .style('font-size', `${this.size.font.normal* .55}px`)
+            .style('font-size', `${this.size.font.normal * .55}px`)
             .text(d => d.getFullYear());
         let ticks = this.layers.xDays.selectAll('g.tick');
-        ticks.attr('class', d=>'tick D'+d.toISOString().substring(0, 10))
+        ticks.attr('class', d => 'tick D' + d.toISOString().substring(0, 10))
             .append('rect')
-            .attr('x', -this.size.font.normal*1.25)
+            .attr('x', -this.size.font.normal * 1.25)
             .attr('y', 15)
             .attr('width', this.size.font.normal * 2.5)
             .attr('height', this.size.font.normal * 3)
@@ -1040,10 +1057,11 @@ class MetaPoll extends DomElement {
             .attr('stroke', '#bbb')
             .attr('stroke-width', '.5px')
             .lower()
-            .on('click', (e,date) => { console.log(date);
-                this.pollset.select(date);
+            .on('click', (e, date) => {
+                console.log(date);
+                this.pollset.filter(date);
             });
-
+*/
 
         //Définition des styles de base lors du premier appel de la méthode
         if (this._firstDraw) {
@@ -1116,8 +1134,8 @@ class MetaPoll extends DomElement {
      * @returns {MetaPoll}
      * @private
      */
-    _drawMainChart(xScale) {
-        xScale = xScale || this.xScale; //ENCORE UTILE???
+    _drawMainChart() {
+        const xScale = this.xScale; //ENCORE UTILE???
         //Fonctions generatrices du path pour la courbe et la surface
         const curveGen = d3.line()
             .x(d => xScale(d[0]))
@@ -1130,9 +1148,9 @@ class MetaPoll extends DomElement {
             .curve(MetaPoll.params.curve.mode);
         //Boucle création des courbes pour chaque candidat
         for (let id of this.data.candidats.keys()) {
-            let data = this.data.resultats.dataset
-                .filter(d => d.id_candidat === id);
+            let data = this.data.resultats.dataset.filter(d => d.id_candidat === id);
             if (data.length >= MetaPoll.params.curve.minPts) {      //Inutile de tracer une courbe si moins de x points
+                this.drawableSelection.push(id);
                 //Creation calque id_X
                 const layer = this.layers.curves
                     .append('svg:g')
@@ -1169,11 +1187,7 @@ class MetaPoll extends DomElement {
             .attr("d", generator)
             .style('stroke', this.color(id))
             .style('stroke-width', `${MetaPoll.params.curve.width}px`)
-            .style('opacity', () => G_sondages.selection_candidats.includes(`id_${id}`) ? 1 : 0);
-        /*.append('title')
-        .html(`${this.data.candidats.get(id).nom} (${this.data.candidats.get(id).sigle})`);*/
-
-
+            .style('display', () => G_sondages.selection_candidats.includes(`id_${id}`) ? 'auto' : 'none');
     }
 
     /**
@@ -1183,14 +1197,17 @@ class MetaPoll extends DomElement {
     _drawBrushChart() {
         const xScale = this.xScale,
             yScale = this.yScale.copy().range([this.size.brushContainer.height, 0]),
-            xGeneratorM = d3.axisBottom(xScale).ticks(d3.timeMonth).tickSize(-this.size.brushContainer.height).tickFormat((d) => d3.timeFormat("%b")(d).replace('.','')).tickSizeOuter(0),
-            xGeneratorY =  d3.axisBottom(xScale).ticks(d3.timeYear).tickSize(0).tickSizeOuter(0),
-            height = this.size.font.small * 2,
+            xGeneratorM = d3.axisBottom(xScale).ticks(d3.timeMonth).tickSize(-this.size.brushContainer.height).tickFormat((d) => d3.timeFormat("%b")(d).replace('.', '')).tickSizeOuter(0),
+            xGeneratorY = d3.axisBottom(xScale).ticks(d3.timeYear).tickSize(0).tickSizeOuter(0),
+            yGenerator = d3.axisLeft(yScale).tickSize(0).tickSizeOuter(0).tickFormat('').tickValues([]),
+            fontSize = this.size.font.small,
+            height = fontSize * 2,
             curveGen = d3.line()
                 .x(d => xScale(d[0]))
                 .y(d => yScale(d[1]))
                 .curve(MetaPoll.params.curve.mode),
             background = this.brushContainer.append('g').classed('bck', true);
+
 
         //Tracé des courbes
         for (let id of this.data.candidats.keys()) {
@@ -1203,35 +1220,27 @@ class MetaPoll extends DomElement {
         const getXTransformM = (date) => {
             const nextMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1),
                 offsetX = (xScale(nextMonth) - xScale(date)) / 2;
-            return (this.xScale.domain()[1] < nextMonth) ? 'translate(0 -10000)' : `translate(${offsetX} 7)`;
+            return (this.xScale.domain()[1] < nextMonth) ? 'translate(0 -10000)' : `translate(${offsetX} ${fontSize / 2})`;
         }
         const createBackgroundM = (date) => {
             const nextMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1),
-                width = xScale(nextMonth) - xScale(date);
-            return this._createRect(xScale(date), this.size.brushContainer.height, width, this.size.font.small*1.8, (date.getMonth() % 2 == 0) ? 'odd' : 'even');
+                x = xScale(date);
+            let width = xScale(nextMonth) - xScale(date);
+            if ((x + width) > this.size.width) width = this.size.width - x;
+            return this._createRect(xScale(date), this.size.brushContainer.height, width, fontSize * 1.8, (date.getMonth() % 2 == 0) ? 'odd' : 'even');
         }
-        const xAxis = this._createLayer('brushXAxis', 'axis', this.brushContainer)
-            .attr('transform', `translate(0 ${this.size.brushContainer.height})`);
-        xAxis.append('g').classed('months',true)
+        this._createLayer('brushYAxis', 'axis', this.brushContainer)
+            .call(yGenerator.scale(yScale));
+        this._createLayer('brushXAxis', 'axis', this.brushContainer)
+            .attr('transform', `translate(0 ${this.size.brushContainer.height})`)
             .call(xGeneratorM.scale(xScale))
             .call(g => g.selectAll('text')
                 .style('font-size', `${this.size.font.small}px`)
                 .attr('transform', getXTransformM)
-                .each(function (d,i,n) {
+                .each(function (d, i, n) {
                     background.append(createBackgroundM(d));
-                }))
-            .call(g => g.selectAll('line')
-                .attr('opacity',.05)) ;
-        xAxis.append('g').classed('years',true)
-            .attr('transform','translate(0 0)')
-            .call(xGeneratorY.scale(xScale))
-            .call(g => g.selectAll('text')
-                .attr('dx', '6px')
-                .attr('dy', '-12px')
-                .style('opacity', .3)
-                .style('font-weight','bold')
-                .style('text-anchor', 'start')
-                .style('font-size', `${this.size.font.normal}px`));
+                    if (d.getMonth() == 0) d3.select(this).append('tspan').attr('x', 0).attr('y', `${fontSize * 2.2}px`).text(d.getFullYear());
+                }));
 
         //Creation brush
         new XBrushArea(this.brushContainer, this.xScale, this.yScale, this.size.brushContainer)
@@ -1273,7 +1282,7 @@ class MetaPoll extends DomElement {
      */
     _fade(selection, delay = 0, duration = 1000, opacity = 1) {
         selection.style('display', 'auto');
-        anime({
+     /*   anime({
             targets: selection.nodes(),
             easing: 'easeInOutCubic',
             delay: delay,
@@ -1283,7 +1292,7 @@ class MetaPoll extends DomElement {
                 let pointerEvents = (opacity) ? 'auto' : 'none';
                 selection.style('pointer-events', pointerEvents);
             }
-        });
+        });*/
         return this;
     }
 
@@ -1305,7 +1314,6 @@ class MetaPoll extends DomElement {
 
 
 }
-
 
 
 class Candidat extends Queue {
@@ -1332,6 +1340,8 @@ class Candidat extends Queue {
     }
 
     static _update(type = 'show', listeCandidats, duration, delay) {
+        console.log(G_sondages.selection_candidats);
+        new PollController().draw();
         let nodes = new Array();
         if (duration === undefined) duration = Candidat.duration;
         if (delay === undefined) delay = Candidat.delay;
@@ -1341,6 +1351,7 @@ class Candidat extends Queue {
             nodes = nodes.concat(Candidat._getNodes(id));
         });
         return () => new Promise((resolve, reject) => {
+
             switch (type) {
                 case 'show':
                     d3.selectAll(nodes)
@@ -1354,9 +1365,9 @@ class Candidat extends Queue {
                             //return (n[i].tagName == 'ellipse') ? MetaPoll.params.pointsOpacity : 1
                         })
                         .on('end', () => {
-                            resolve('Affichage courbe');
+                            resolve('Showed!');
                         });
-                    console.log(pollSet);
+                    //  console.log(pollSet);
                     break;
                 case 'hide':
                     d3.selectAll(nodes)
@@ -1365,7 +1376,7 @@ class Candidat extends Queue {
                         .style('opacity', 0)
                         .on('end', () => {
                             d3.selectAll(nodes).style('display', 'none');
-                            resolve('Masquage courbe');
+                            resolve('Hidden!');
                         });
                     break;
                 case 'highlight':
@@ -1378,7 +1389,7 @@ class Candidat extends Queue {
 
     static _getNodes(id) {
         return d3.select('#SuperPoll')
-            .selectAll('g#curves,g.brushLayer')
+            .selectAll('g#curves,g.brushLayer,g.figuresLayer')
             .selectAll(`.id_${id}`)
             .nodes();
     }
@@ -1413,9 +1424,12 @@ class XBrushArea {
         this.defaultXSelection = this.defaultSelection.map(this.x);
         this.brush = d3.brushX()
             .extent([[0.1, 0.1], [size.width, size.height]])
-            .on('start', ()=> container.classed('active',true) )
+            .on('start', () => container.classed('active', true))
             .on('brush', this.brushed.bind(this))
-            .on('end', ()=> {  container.classed('active',false); this.brushended.bind(this);});
+            .on('end', () => {
+                container.classed('active', false);
+                this.brushended.bind(this);
+            });
     }
 
     on(action, callback, context) {
@@ -1429,7 +1443,7 @@ class XBrushArea {
     brushed({selection}) {
 
         if (selection) {
-            let [begin, end] = selection.map(d=>this.x.invert(d)).map(d3.utcDay.round);
+            let [begin, end] = selection.map(d => this.x.invert(d)).map(d3.utcDay.round);
             //console.warn([begin,end]);
             this.callback.call(this.context, [begin, end]);
 
@@ -1456,8 +1470,9 @@ class Thumb extends DomElement {
         super('thumb' + id);
         this._orientation = 'right';
         this.size = size;
-    //    this.position= { x:0 , y:-10000};
-        this.container = d3.create('svg:g').classed(`thumb id_${id}`, true).attr('transform','translate(-10000 -10000)');
+        //    this.position= { x:0 , y:-10000};
+        this.container = d3.create('svg:g').classed(`thumb id_${id}`, true)
+            .style('display', 'none');
         this.image = this.container.append('foreignObject')
             .attr('x', 0)
             .attr('y', 0)
@@ -1470,84 +1485,90 @@ class Thumb extends DomElement {
             .style('border-radius', '100%')
             .style('border', `4px solid ${infosCandidat.couleur}`);
         this.text = this.container.append('text')
-            .attr('y', `${size/1.33}px`)
+            .attr('y', `${size / 1.33}px`)
             .attr('fill', infosCandidat.couleur)
             .attr('stroke', '#fff')
             .attr('stroke-width', '8px')
-            .attr('paint-order','stroke')
-            .style('font-size', `${size/1.5}px`);
+            .attr('paint-order', 'stroke')
+            .style('font-size', `${size / 1.5}px`);
     }
 
     setValue(v) {
         v = parseInt(v * 10) / 10;
-        this.text.text(`${v.toFixed(1).replace('.',',')}%`);
+        this.text.text(`${v.toFixed(1).replace('.', ',')}%`);
         return this;
     }
 
-    orientation(o='right'){
-        this._orientation=o;
+    orientation(o = 'right') {
+        this._orientation = o;
         return this;
     }
 
     move(x, y) {
-        this.container.attr('y',0).attr('transform',`translate(${x-this.size/2} ${y-this.size/2})`);
-        this.text.attr('y', `${this.size/1.33}px`)
-        if (this._orientation=='right'){
-            this.text.attr('x', `${this.size+10}px`).attr('text-anchor','start');
-        }
-        else{
-            this.text.attr('x', `${-16}px`).attr('text-anchor','end');
+        this.container.attr('y', 0).attr('transform', `translate(${x - this.size / 2} ${y - this.size / 2})`);
+        this.text.attr('y', `${this.size / 1.33}px`)
+        if (this._orientation == 'right') {
+            this.text.attr('x', `${this.size + 10}px`).attr('text-anchor', 'start');
+        } else {
+            this.text.attr('x', `${-16}px`).attr('text-anchor', 'end');
         }
         return this;
     }
 
     hide() {
-        this.container.attr('transform', 'translate(-10000 -10000)');
+        this.container.style('display', 'none');
         return this;
     }
 
-    static hideAll() {
-        d3.selectAll('g.thumb').attr('transform', 'translate(-10000 -10000)');
+    show() {
+        this.container.style('display', 'block');
+        return this;
+    }
+
+    static hideAll(selection) {
+        d3.selectAll('g.thumb')
+            .style('display', 'none');
     }
 }
 
 
-class Poll extends DomElement{
+class Poll extends DomElement {
 
     static size = {width: 1600, height: 1400};
-    static margins = {top: 150, right: 20, bottom: 150, left: 300};
-    static params = { duration: 1000, delay: 100 };
+    static margins = {top: 0, right: 80, bottom: 200, left: 300};
+    static params = {duration: 1000, delay: 100};
 
     constructor(id) {
         super('Poll');
-   //     if (id!==undefined) this.update(id);
-        this.data = { meta : undefined };
+        //     if (id!==undefined) this.draw(id);
+        this.data = {meta: undefined};
         this.container = d3.create('svg:g').classed('mainLayer', true)
-                            .attr('transform', `translate(${Poll.margins.left} ${Poll.margins.top})`);
-        //Données
-        this.layers = {};
-        this.layers.chart = this.container.append('svg:g').classed('chart', true);
-        this.layers.labels = this.container.append('svg:g').classed('labels', true);
-        this.layers.xAxis = this.container.append('svg:g').classed('xAxis axis', true);
-        this.layers.yAxis = this.container.append('svg:g').classed('yAxis axis', true);
+            .attr('transform', `translate(${Poll.margins.left} ${Poll.margins.top})`);
+
         //Calcul des tailles effectives
         this.size = {
             font: d3.min([Poll.size.height / 20, 40]),
             width: (Poll.size.width - Poll.margins.left - Poll.margins.right),
             height: (Poll.size.height - Poll.margins.top - Poll.margins.bottom)
         }
-        //Transition de base
-        this.transition= () => d3.transition().duration(Poll.params.duration).delay(Poll.params.delay);
-        //Création des échelles et des axes
-        this.scale = { x:undefined, y:undefined };
-        this.scale.y = d3.scaleBand().range([0, this.size.height]).padding(.2);
-        this.scale.x = d3.scaleLinear().rangeRound([0,this.size.width*.90]);
-        this.domain={ x: undefined, _x:undefined };
-        this.axisGenerator = { x:undefined, y:undefined };
-        this.axisGenerator.x = d3.axisTop (this.scale.x).tickFormat( d => d + '%').tickSizeOuter(0);
-        this.axisGenerator.y = d3.axisLeft(this.scale.y).tickSize(0).tickFormat( d=> this.data.candidats.get(d).patronyme);
-    }
 
+        //Calques
+        this.layers = {};
+        this.layers.chart = this.container.append('svg:g').classed('chart', true);
+        this.layers.labels = this.container.append('svg:g').classed('labels', true);
+        this.layers.xAxis = this.container.append('svg:g').classed('xAxis axis', true);
+        this.layers.yAxis = this.container.append('svg:g').classed('yAxis axis', true);
+        //Transition de base
+        this.transition = () => d3.transition().duration(Poll.params.duration).delay(Poll.params.delay);
+        //Création des échelles et des axes
+        this.scale = {x: undefined, y: undefined};
+        this.scale.y = d3.scaleBand().range([0, this.size.height]).padding(.2);
+        this.scale.x = d3.scaleLinear().rangeRound([0, this.size.width * .90]);
+        this.domain = {x: undefined, _x: undefined};
+        this.axisGenerator = {x: undefined, y: undefined};
+        this.axisGenerator.x = d3.axisBottom(this.scale.x).tickFormat(d => d + '%').tickSizeOuter(0);
+        this.axisGenerator.y = d3.axisLeft(this.scale.y).tickSize(0).tickFormat(d => this.data.candidats.get(d).patronyme);
+    }
 
 
     /**
@@ -1561,24 +1582,30 @@ class Poll extends DomElement{
         return this;
     }
 
-    setDomain(max){
-        this.domain._x=[0,max];
+    setDomain(max) {
+        this.domain._x = [0, max];
         return this;
     }
 
 
-    _calcDomain() {
-        let xDomain = this.domain._x || [0,d3.max(this.dataset, d => d.borne_sup)] ;
+    _domain() {
+        let xDomain = this.domain._x || [0, d3.max(this.dataset, d => d.borne_sup)];
         this.scale.y.domain(this.dataset.map(d => d.id_candidat));
         this.scale.x.domain(xDomain);
         this.axisGenerator.x.tickValues(d3.range(0, xDomain[1], 5));
         //Ajuste la hauteur du graphique si les barres deviennent trop épaisses
-        if (this.scale.y.bandwidth()>this.size.height/10) {
-            const newHeight=(G_sondages.selection_candidats.length)*this.size.height/10;
-            this.scale.y.range([0,newHeight]);
-            this._resize(newHeight+Poll.margins.top);
-            console.log(newHeight,this.scale.y.bandwidth());
-        }
+        this.bandwidth=Math.min(this.scale.y.bandwidth(), this.size.height / 15);
+        let newHeight=this.bandwidth*this.scale.y.domain().length+this.bandwidth*(this.scale.y.domain().length+1)*.2;
+        this.scale.y.range([0,newHeight]);
+        console.log(this.scale.y.domain(),this.scale.y.range());
+        this.layers.xAxis.attr('transform',`translate(0 ${newHeight})`);
+        this.parent.transition().duration(1000).attr('viewBox', `0 0 1600 ${newHeight+100}`);
+      /*  if (this.scale.y.bandwidth() > this.size.height / 10) {
+            const newHeight = (G_sondages.selection_candidats.length) * this.size.height / 10;
+            this.scale.y.range([0, newHeight]);
+           // this._resize(newHeight + Poll.margins.top);
+            console.log(newHeight, this.scale.y.bandwidth());
+        }*/
         return this;
     }
 
@@ -1586,16 +1613,20 @@ class Poll extends DomElement{
      *
      * @private
      */
-    _resize(height){
-        this.parent.transition().duration(1000).attr('viewBox',`0 0 1600 ${height}`);
+    _resize(height) {
+        this.parent.transition().duration(1000).attr('viewBox', `0 0 1600 ${height + Poll.margins.bottom}`);
+        this.layers.xAxis.attr('transform', `translate(0 ${this.size.height})`);
+        this.update();
         return this;
     }
 
     update(dataset) {
-        this.dataset = dataset
-            .filter( d => G_sondages.selection_candidats.includes(`id_${d.id_candidat}`))
-            .sort((a, b) => d3.descending(a.resultat, b.resultat));
-        this._calcDomain()
+        if (dataset) {
+            this.dataset = dataset
+                .filter(d => G_sondages.selection_candidats.includes(`id_${d.id_candidat}`))
+                .sort((a, b) => d3.descending(a.resultat, b.resultat));
+        }
+        this._domain()
             ._updateBars()
             ._updateLabels()
             ._updateXAxis()
@@ -1615,9 +1646,9 @@ class Poll extends DomElement{
                     .attr('x', 0)
                     .attr('y', d => this.scale.y(d.id_candidat))
                     .attr('width', 2)
-                    .attr('height', this.scale.y.bandwidth())
-                    .each( d=> this._updateGradient(d))
-                    .attr('fill',d=>'url(#gradient'+d.id_candidat+')')
+                    .attr('height', this.scale.y.bandwidth())  // this.scale.y.bandwidth()
+                    .each(d => this._updateGradient(d))
+                    .attr('fill', d => 'url(#gradient' + d.id_candidat + ')')
                     .transition(this.transition)
                     .attr('width', d => this.scale.x(d.borne_sup)),
                 update => update
@@ -1625,114 +1656,114 @@ class Poll extends DomElement{
                     .attr('class', d => `bar id_${d.id_candidat}`)
                     .attr('y', d => this.scale.y(d.id_candidat))
                     .attr('width', d => this.scale.x(d.borne_sup))
-                    .attr('height', this.scale.y.bandwidth())
-                    .each( d=> this._updateGradient(d))
-                    .attr('fill',d=>'url(#gradient'+d.id_candidat+')'),
+                    .attr('height', this.scale.y.bandwidth()) // this.scale.y.bandwidth()
+                    .each(d => this._updateGradient(d))
+                    .attr('fill', d => 'url(#gradient' + d.id_candidat + ')'),
                 exit => exit.remove()
             );
         return this;
     }
 
-    _updateMarks(){
+    _updateMarks() {
         this.layers.chart
             .selectAll('.mark')
             .data(this.dataset)
             .join(
-                    enter => enter
-                        .append('rect')
-                        .attr('class', d => `mark id_${d.id_candidat}`)
-                        .style('opacity',0)
-                        .attr('x', d => this.scale.x(d.resultat))
-                        .attr('y', d => this.scale.y(d.id_candidat)-this.scale.y.bandwidth()*.1)
-                        .attr('width', `${this.size.font/2}px`)
-                        .attr('height', this.scale.y.bandwidth()*1.2)
-                        .attr('fill', d=> d3.color(this.data.candidats.get(d.id_candidat).couleur))
-                        .attr('stroke','white')
-                        .attr('stroke-width','4px')
-                        .transition()
-                        .delay(Poll.params.duration)
-                        .style('opacity',1),
-                    update => update
-                        .style('opacity',0)
-                        .attr('x', d => this.scale.x(d.resultat))
-                        .attr('y', d => this.scale.y(d.id_candidat)-this.scale.y.bandwidth()*.1)
-                        .attr('height', this.scale.y.bandwidth()*1.2)
-                        .attr('fill', d=> d3.color(this.data.candidats.get(d.id_candidat).couleur))
-                        .transition()
-                        .delay(Poll.params.duration)
-                        .style('opacity',1),
-                    exit => exit.remove()
-        );
+                enter => enter
+                    .append('rect')
+                    .attr('class', d => `mark id_${d.id_candidat}`)
+                    .style('opacity', 0)
+                    .attr('x', d => this.scale.x(d.resultat))
+                    .attr('y', d => this.scale.y(d.id_candidat) - this.scale.y.bandwidth() * .1)
+                    .attr('width', `${this.size.font / 2}px`)
+                    .attr('height', this.scale.y.bandwidth() * 1.2)
+                    .attr('fill', d => d3.color(this.data.candidats.get(d.id_candidat).couleur))
+                    .attr('stroke', 'white')
+                    .attr('stroke-width', '4px')
+                    .transition()
+                    .delay(Poll.params.duration)
+                    .style('opacity', 1),
+                update => update
+                    .style('opacity', 0)
+                    .attr('x', d => this.scale.x(d.resultat))
+                    .attr('y', d => this.scale.y(d.id_candidat) - this.scale.y.bandwidth() * .1)
+                    .attr('height', this.scale.y.bandwidth() * 1.2)
+                    .attr('fill', d => d3.color(this.data.candidats.get(d.id_candidat).couleur))
+                    .transition()
+                    .delay(Poll.params.duration)
+                    .style('opacity', 1),
+                exit => exit.remove()
+            );
         return this;
     }
 
 
-    _updateGradient(data){
-        if (data!==undefined && data.borne_sup && data.resultat){
-            const color=d3.color(this.data.candidats.get(data.id_candidat).couleur),
-                  gradient=this.parent.select('defs').select(`#gradient${data.id_candidat}`),
-                  [borne_inf,resultat] = [ 100*data.borne_inf/data.borne_sup, 100*data.resultat/data.borne_sup ];
-            const createStop = (offset,color,opacity) => {
+    _updateGradient(data) {
+        if (data !== undefined && data.borne_sup && data.resultat) {
+            const color = d3.color(this.data.candidats.get(data.id_candidat).couleur),
+                gradient = this.parent.select('defs').select(`#gradient${data.id_candidat}`),
+                [borne_inf, resultat] = [100 * data.borne_inf / data.borne_sup, 100 * data.resultat / data.borne_sup];
+            const createStop = (offset, color, opacity) => {
                 gradient.append('stop')
-                        .attr('offset',`${offset}%`)
-                        .attr('stop-color',color)
-                        .attr('stop-opacity',opacity);
+                    .attr('offset', `${offset}%`)
+                    .attr('stop-color', color)
+                    .attr('stop-opacity', opacity);
             }
             gradient.selectAll('stop').remove();
-            createStop(0,'#ccc',.8);
-            createStop( borne_inf,color,.4);
-            createStop(borne_inf+.1,color,1);
-            createStop(resultat ,color,.7);
-            createStop(100, color,1);
+            createStop(0, color, .8);
+            createStop(borne_inf, color, .6);
+            createStop(borne_inf + .1, color, 1);
+            createStop(resultat, color, .7);
+            createStop(100, color, 1);
         }
         return this;
     }
 
-    _updateLabels(){
-        const fontSize=Math.min(this.scale.y.bandwidth()/1.5,40);
+    _updateLabels() {
+        const fontSize = Math.min(this.scale.y.bandwidth() / 1.5, 40);
         this.layers.labels
             .selectAll('.label')
-            .data(this.dataset )
+            .data(this.dataset)
             .join(
                 enter => enter
-                        .append('text')
-                        .attr('class', d => `label id_${d.id_candidat}`)
-                        .style('opacity',0)
-                        .style('dominant-baseline','middle')
-                        .style('font-size',`${fontSize}px`)
-                        .attr('x', d => this.scale.x(d.borne_sup)+fontSize)
-                        .attr('y', d => this.scale.y(d.id_candidat)+this.scale.y.bandwidth()/2)
-                        .attr('fill', d => this.data.candidats.get(d.id_candidat).couleur)
-                        .attr('dominant-baseline','middle')
-                        .attr('stroke', '#fff')
-                        .attr('stroke-width', '8px')
-                        .attr('paint-order','stroke')
-                        .text( d=> d.resultat+'%')
-                        .transition()
-                        .duration(Poll.params.duration*2)
-                        .style('opacity',1),
+                    .append('text')
+                    .attr('class', d => `label id_${d.id_candidat}`)
+                    .style('opacity', 0)
+                    .style('dominant-baseline', 'middle')
+                    .style('font-size', `${fontSize}px`)
+                    .attr('x', d => this.scale.x(d.borne_sup) + fontSize)
+                    .attr('y', d => this.scale.y(d.id_candidat) + this.scale.y.bandwidth() / 2)
+                    .attr('fill', d => this.data.candidats.get(d.id_candidat).couleur)
+                    .attr('dominant-baseline', 'middle')
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', '8px')
+                    .attr('paint-order', 'stroke')
+                    .text(d => d.resultat + '%')
+                    .transition()
+                    .duration(Poll.params.duration * 2)
+                    .style('opacity', 1),
                 update => update
                     .attr('class', d => `label id_${d.id_candidat}`)
-                    .style('opacity',0)
-                    .attr('x', d => this.scale.x(d.borne_sup)+fontSize)
-                    .attr('y', d => this.scale.y(d.id_candidat)+this.scale.y.bandwidth()/2)
-                    .text( d=> d.resultat+'%')
+                    .style('opacity', 0)
+                    .attr('x', d => this.scale.x(d.borne_sup) + fontSize)
+                    .attr('y', d => this.scale.y(d.id_candidat) + this.scale.y.bandwidth() / 2)
+                    .text(d => d.resultat + '%')
 
                     .transition()
-                    .duration(Poll.params.duration*2)
+                    .duration(Poll.params.duration * 2)
                     .attr('fill', d => this.data.candidats.get(d.id_candidat).couleur)
 
-                    .style('opacity',1),
+                    .style('opacity', 1),
                 exit => exit
                     .transition()
                     .duration(Poll.params.duration)
-                    .style('opacity',0)
+                    .style('opacity', 0)
                     .remove()
             )
         return this;
     }
 
-    _updateXAxis(){
+    _updateXAxis() {
         this.layers.xAxis
             .transition()
             .duration(Poll.params.duration)
@@ -1744,126 +1775,138 @@ class Poll extends DomElement{
         return this;
     }
 
-    _updateYAxis(){
+    _updateYAxis() {
         this.layers.yAxis
             .transition()
             .duration(Poll.params.duration)
             .delay(Poll.params.delay)
             .call(this.axisGenerator.y)
             .call(g => g.selectAll('text')
-                .attr('dx',`${-this.size.font/2}px`)
+                .attr('dx', `${-this.size.font / 2}px`)
                 .style('font-size', `${this.size.font}px`)
-                .style('fill', d => this.data.candidats.get(d).couleur )
+                .style('fill', d => this.data.candidats.get(d).couleur)
             );
 
         return this;
     }
 
 
-
-
-
-
 }
 
-class PollSet{
-    constructor(data,candidats){
-        this.fullDataset=data;
-        this.container=d3.select('div#conteneur_sondage');
-        //Creation des gradients pour les barres
-        this.svg=this.container.select('svg');
-        const def=this.svg.append('defs');
-        for (let [key, value] of candidats.entries()){
-            let gradient=def.append('linearGradient')
-                .attr('id',`gradient${key}`)
-                .attr('x1',0).attr('x2',1).attr('y1',0).attr('y2',0);
-            gradient.append('stop').attr('offset','0%').attr('stop-color',value.couleur).attr('stop-opacity',.5);
-            gradient.append('stop').attr('offset','100%').attr('stop-color',value.couleur).attr('stop-opacity',1);
+class PollController {
+    constructor(data, candidats) {
+        //Singleton
+        if (PollController._instance) {
+            return PollController._instance;
         }
-        this.poll=new Poll()
-            .push('candidats',candidats)
+        PollController._instance = this;
+        //Constructeur
+        this.fullDataset = data;
+        this.container = d3.select('div#conteneur_sondage');
+        this.svg = this.container.select('svg');
+        //Creation des gradients pour les barres
+        const def = this.svg.append('defs');
+        for (let [id, value] of candidats.entries()) {
+            let gradient = def.append('linearGradient')
+                .attr('id', `gradient${id}`)
+                .attr('x1', 0).attr('x2', 1).attr('y1', 0).attr('y2', 0);
+            gradient.append('stop').attr('offset', '0%').attr('stop-color', value.couleur).attr('stop-opacity', .5);
+            gradient.append('stop').attr('offset', '100%').attr('stop-color', value.couleur).attr('stop-opacity', 1);
+        }
+        this.poll = new Poll()
+            .push('candidats', candidats)
             .appendTo(this.svg);
-        this.handler=this.svg.append('rect')
-                            .attr('id','swipeHandler')
-                            .attr('class','handler')
-                            .attr('x',0).attr('y',0)
-                            .attr('width',Poll.size.width).attr('height',Poll.size.height);
-
+        this.handler = this.svg.append('rect')
+            .attr('id', 'swipeHandler')
+            .attr('class', 'handler')
+            .attr('x', 0).attr('y', 0)
+            .attr('width', Poll.size.width).attr('height', Poll.size.height);
     }
 
 
-    select(date){
-        this.date=date;
-        this.index=0;
-        this.data=this.fullDataset.filter( (d)=> PollSet._compareDates(d.debut,date)).dataset;
-        console.warn('hypotheses',this.data);
+    filterByDate(date) {
+        this.index = 0;
+        this.data = this.fullDataset.filter((d) => PollController._compareDates(d.debut, date)).dataset;
         this._updateDomain();
-        this.data=d3.group( this.data, (d)=>d.id_hypothèse);
-        this.keys=Array.from(this.data.keys());
+        this.data = d3.group(this.data, (d) => d.id_hypothèse);
+        this.keys = Array.from(this.data.keys());
         this._updateMeta()
             ._updateHeader()
             ._createTriggers();
+        return this;
+    }
+
+    draw() {
         this.poll.update(this.data.get(this.keys[0]));
         return this;
     }
 
-    _updateDomain(){
-        const max=d3.max(this.data, d=>d.borne_sup);
+    _updateDomain() {
+        const max = d3.max(this.data, d => d.borne_sup);
         this.poll.setDomain(max);
         return this;
     }
 
-    _updateMeta(){
-        this.meta=new Map();
+    _updateMeta() {
+        this.meta = new Map();
         for (let key of this.data.keys()) {
-            const sondage=G_sondages.tables.sondages [ `id_${G_sondages.tables.hypotheses_1[`id_${key}`].id_sondage}`];
-            const value={ nom: undefined, institut: undefined, echantillon:undefined, s_echantillon:undefined, population: undefined, commanditaire: undefined, fin: undefined, lien: undefined  };
-            value.nom=G_sondages.tables.hypotheses_1[`id_${key}`].nom_hyp;
-            value.s_echantillon=parseInt(G_sondages.tables.hypotheses_1[`id_${key}`].s_echantillon);
-            value.commanditaire=sondage.commanditaire;
-            value.lien=sondage.lien;
-            value.echantillon=sondage.echantillon;
-            value.fin=new Date(sondage.fin);
-            value.institut=G_sondages.tables.instituts[`id_${sondage.id_institut}`];
-            value.population=G_sondages.tables.populations[`id_${sondage.id_population}`];
-            this.meta.set(key,value);
+            const sondage = G_sondages.tables.sondages [`id_${G_sondages.tables.hypotheses_1[`id_${key}`].id_sondage}`];
+            const value = {
+                nom: undefined,
+                institut: undefined,
+                echantillon: undefined,
+                s_echantillon: undefined,
+                population: undefined,
+                commanditaire: undefined,
+                fin: undefined,
+                lien: undefined
+            };
+            value.nom = G_sondages.tables.hypotheses_1[`id_${key}`].nom_hyp;
+            value.s_echantillon = parseInt(G_sondages.tables.hypotheses_1[`id_${key}`].s_echantillon);
+            value.commanditaire = sondage.commanditaire;
+            value.lien = sondage.lien;
+            value.echantillon = sondage.echantillon;
+            value.debut = new Date(sondage.debut);
+            value.fin = new Date(sondage.fin);
+            value.institut = G_sondages.tables.instituts[`id_${sondage.id_institut}`];
+            value.population = G_sondages.tables.populations[`id_${sondage.id_population}`];
+            this.meta.set(key, value);
         }
         return this;
     }
 
-    _createTriggers(){
+    _createTriggers() {
         this.container.select('header span.previous')
-            .on('click', (e)=> {
-                if (this.index>0) {
+            .on('click', (e) => {
+                if (this.index > 0) {
                     this._next();
                 }
 
             });
         this.container.select('header span.next')
-            .classed('active', ()=> this.keys.length>1 )
-            .on('click', (e)=> {
-                if (this.index<(this.keys.length-1)) {
+            .classed('active', () => this.keys.length > 1)
+            .on('click', (e) => {
+                if (this.index < (this.keys.length - 1)) {
                     this._previous();
                 }
 
             });
-        let [handlerWidth,touchStart,touchMove]=[parseInt(this.handler.node().getBoundingClientRect().width),undefined,undefined];
+        let [handlerWidth, touchStart, touchMove] = [parseInt(this.handler.node().getBoundingClientRect().width), undefined, undefined];
         this.handler
             .on('touchstart', function (e) {
-                touchStart=e.touches[0].clientX;
+                touchStart = e.touches[0].clientX;
 
                 e.preventDefault();
             })
-            .on('touchmove', (e)=> {
-                touchMove=e.touches[0].clientX;
+            .on('touchmove', (e) => {
+                touchMove = e.touches[0].clientX;
             })
             .on('touchend', (e) => {
-                const offset=(touchMove-touchStart)/handlerWidth;
-                if (Math.abs(offset)>.5){
-                    if (offset>0 && this.index<(this.keys.length-1)) {
+                const offset = (touchMove - touchStart) / handlerWidth;
+                if (Math.abs(offset) > .5) {
+                    if (offset > 0 && this.index < (this.keys.length - 1)) {
                         this._previous();
-                    }
-                    else if (offset<0 && this.index>0) {
+                    } else if (offset < 0 && this.index > 0) {
                         this._next();
                     }
                 }
@@ -1871,23 +1914,23 @@ class PollSet{
         return this;
     }
 
-    _next(){
+    _next() {
         //console.log('next',this.index,this.index+1);
-        const key=this.keys[--this.index];
+        const key = this.keys[--this.index];
         this._updateHeader();
         this.poll.update(this.data.get(key));
-        this.container.select('header span.next').classed('active',true);
-        if (this.index==0) this.container.select('header span.previous').classed('active', false);
+        this.container.select('header span.next').classed('active', true);
+        if (this.index == 0) this.container.select('header span.previous').classed('active', false);
         return this;
     }
 
-    _previous(){
-       // console.log('previous',this.index,this.index-1);
-        const key=this.keys[++this.index];
+    _previous() {
+        // console.log('previous',this.index,this.index-1);
+        const key = this.keys[++this.index];
         this._updateHeader();
         this.poll.update(this.data.get(key));
-        this.container.select('header span.previous').classed('active',true);
-        if (this.index==this.keys.length-1) this.container.select('header span.next').classed('active', false);
+        this.container.select('header span.previous').classed('active', true);
+        if (this.index == this.keys.length - 1) this.container.select('header span.next').classed('active', false);
         return this;
     }
 
@@ -1900,43 +1943,38 @@ class PollSet{
     _updateHeader() {
 
         const infos = this.meta.get(this.keys[this.index]),
-              t = d3.transition().duration(Poll.params.duration/2),
-              updateText = (selection, text) => {
-                  this.container.select(selection)
-                      .transition(t)
-                      .style('opacity',0)
-                      .transition(t)
-                      .style('opacity',1)
-                      .text(text);
-              };
-      //  console.log(this.index);
-        let note=`Sondage ${infos.institut} pour ${infos.commanditaire}. `;
-        note+=`Enquête réalisée du ${d3.timeFormat('%A %d %B %Y')(this.date)} au ${d3.timeFormat('%A %d %B %Y')(infos.fin)} auprès d'un échantillon de ${infos.echantillon} personnes.`;
-        updateText('h3 span.institut', `Sondage ${infos.institut}`);
-        updateText('h3 span.date', ` du ${d3.timeFormat('%d/%m/%Y')(this.date)}`);
-        console.log(infos.nom);
-        if (infos.nom) {
-            this.container.select('h4.hypothese').style('display','block');
-            updateText('h4.hypothese', infos.nom);
-        }
-        else this.container.select('h4.hypothese').style('display','none');
-        updateText('p.note span.fiche',note);
+            t = d3.transition().duration(Poll.params.duration / 2),
+            updateText = (selection, text) => {
+                let oldText = this.container.select(selection).text();
+                if (oldText !== text)
+                    this.container.select(selection)
+                        .transition(t)
+                        .style('opacity', 0)
+                        .transition(t)
+                        .style('opacity', 1)
+                        .text(text);
+            };
+        let note = `Sondage ${infos.institut} pour ${infos.commanditaire}. `;
+        note += `Enquête réalisée du ${d3.timeFormat('%A %d %B %Y')(infos.debut)} au ${d3.timeFormat('%A %d %B %Y')(infos.fin)} auprès d'un échantillon de ${infos.echantillon} personnes.`;
+        updateText('h3 span.institut', `Sondage ${infos.institut} du ${d3.timeFormat('%d/%m/%Y')(infos.debut)}`);
+        updateText('h4.hypothese', infos.nom);
+        updateText('p.note span.fiche', note);
         this.container.select('p.note a.lien')
             .transition(t)
-            .style('opacity',0)
+            .style('opacity', 0)
             .transition(t)
-            .style('opacity',1)
-            .attr('href',`${infos.lien}`);
+            .style('opacity', 1)
+            .attr('href', `${infos.lien}`);
         return this;
     }
 
 
-    static _compareDates(a,b){
-        return (d3.timeFormat('%x')(a)===d3.timeFormat('%x')(b));
+    static _compareDates(a, b) {
+        return (d3.timeFormat('%x')(a) === d3.timeFormat('%x')(b));
     }
 
 
 }
 
 
-export { DataWrapper, MetaPoll, Candidat, PollSet};
+export {DataWrapper, MetaPoll, Candidat, PollController};
